@@ -4,4 +4,4 @@
 This repository is maintained by:  
 Gao, Michael  
 Godinez, Ephraime  
-Zamora, Allena
+Zamoras, Allena
