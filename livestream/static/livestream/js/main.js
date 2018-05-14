@@ -17,7 +17,11 @@ function connect(){
 		/* Check for success using a completion handler function */
 		session.connect(token, function(error){
 			if(error){
-				console.log("Error connecting: ", error.name, error.message);
+				if(error.name === "OT_NOT_CONNECTED"){
+					showMessage('Failed to connect. Please check your connection and try connecting again.');
+				}else{
+					console.log("Error connecting: ", error.name, error.message);
+				}
 			}else{
 				console.log("Connected to the session.");
 			}
@@ -29,3 +33,9 @@ function connect(){
 	}
 
 }
+
+function disconnect(){
+	session.disconnect();
+}
+
+connect();
