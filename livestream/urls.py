@@ -9,6 +9,7 @@ router.register(r'tokens', views.ClientTokenViewSet)
 
 app_name = 'livestream'
 urlpatterns = [
+	# path('', views.IndexView.as_view(), name='index')
 ]
 
 urlpatterns += router.urls

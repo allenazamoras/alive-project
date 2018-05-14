@@ -11,6 +11,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SessionSerializer(serializers.HyperlinkedModelSerializer):
+    # nested serialization see drf docu for more info
     owner = UserSerializer()
 
     class Meta:

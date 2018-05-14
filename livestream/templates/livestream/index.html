@@ -1,0 +1,26 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OpenTok</title>
+</head>
+<body>
+
+<p>Hello {{user}}</p>
+
+{% if session_list %}
+
+	<ul>
+	{% for session in session_list %}
+		<li>
+		{{session.session_name}}
+		</a>
+		</li>
+	{% endfor %}
+	</ul>
+
+{% endif %}
+
+</body>
+</html>
