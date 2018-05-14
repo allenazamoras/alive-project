@@ -2,20 +2,22 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
+class User(AbstractUser):
+    def __str__(self):
+        return self.username
+
+
 class Session(models.Model):
+    # Session name
     session_name = models.CharField(max_length=50)
+    # Session id
     session_id = models.CharField(max_length=100)
+    # User that created the session
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name='sessions')
 
     def __str__(self):
         return self.session_id
-
-
-class User(AbstractUser):
-    session = models.ForeignKey(Session, null=True, on_delete=models.CASCADE,
-                                related_name='users')
-
-    def __str__(self):
-        return self.username
 
 
 class ClientToken(models.Model):
