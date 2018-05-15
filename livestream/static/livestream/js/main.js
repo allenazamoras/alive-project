@@ -1,5 +1,6 @@
 
-/*do not run yet*/
+/*You can run this thing na. it works but it's super messy 
+  I'd cry a thousand tears over it*/
 console.log('API Key: ' + API_KEY)
 console.log('Session ID: ' + SESSION_ID);
 console.log('Token: ' + TOKEN);
@@ -27,7 +28,15 @@ function publishErrorHandler(error){
 	}
 }
 
-var publishProperty = {
+function subscribeErrorHandler(error){
+	if(error){
+		alert("Error: ", error.name, error.message);
+	}else{
+		console.log('Subscriber Initialized.');
+	}
+}
+
+var defaultProperty = {
 	insertMode: 'append',
 	width: '100%',
 	height: '100%'
@@ -39,6 +48,12 @@ function connect(){
 		/* initialize JS Session object 
 		   this DOES NOT create an OpenTok session*/
 		session = OT.initSession(API_KEY,SESSION_ID);
+		
+		// Subscribe to newly created stream
+		session.on('streamCreated', function(event){
+			session.subscribe(event.stream, 'subscriber', defaultProperty, subscribeErrorHandler);
+		});
+
 		/* 	Connect to the session
 			Check for success using a completion handler function */
 		session.connect(TOKEN, function(error){
@@ -56,7 +71,7 @@ function connect(){
 							if no errors are found, session starts publishing
 							bad design? ugh. i know. I wanna redo the whole thing
 							but nothing makes sense rn*/
-						publisher = OT.initPublisher('publisher', publishProperty, publishErrorHandler);
+						publisher = OT.initPublisher('publisher', defaultProperty, publishErrorHandler);
 					}else{
 						alert("You cannot publish right now.");
 					}
