@@ -1,0 +1,13 @@
+{% load static %}
+
+<link href="{% static 'livestream/style.css' %}" rel="stylesheet" type="text/css">
+<script src="https://static.opentok.com/v2/js/opentok.min.js"></script>
+<script type="text/javascript">
+	var API_KEY = '{{API_KEY}}';
+	var SESSION_ID = '{{SESSION_ID}}';
+	var TOKEN = '{{TOKEN}}';
+</script>
+
+<div id="publisher"></div>
+<div id="subscriber"></div>
+<script type="text/javascript" src="{% static 'livestream/js/main.js' %}"></script>
