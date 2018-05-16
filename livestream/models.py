@@ -43,6 +43,12 @@ class Appeal(models.Model):
     def get_description(self):
         return self.detail
 
+    def activate(self):
+        self.is_active = True
+
+    def deactivate(self):
+        self.is_active = False
+
 # REMOVED to add later when all the world is fixed
 # class Rating(models.Model):
 #     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,

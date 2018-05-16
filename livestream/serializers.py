@@ -19,9 +19,8 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Appeal
-        fields = ('id', 'request_title', 'session_id',
-                  'owner', 'helper', 'detail', 'date_pub',
-                  'is_active')
+        fields = ('id', 'request_title', 'session_id', 'detail',
+                  'date_pub', 'owner', 'helper', 'is_active')
 
 
 # class ClientTokenSerializer(serializers.ModelSerializer):
