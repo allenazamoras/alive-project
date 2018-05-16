@@ -16,13 +16,13 @@ class User(AbstractUser):
         return self.username
 
 
-class Request(models.Model):
+class Appeal(models.Model):
     # Session id
     session_id = models.CharField(max_length=100)
-    # Request name
+    # Appeal name
     request_title = models.CharField(max_length=50)
     # Additional details for the request
-    detail = models.TextField(max_length=500)
+    detail = models.TextField(max_length=500, blank=True)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
     # a request is active when a stream is on going and false if otherwise
@@ -34,7 +34,7 @@ class Request(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
     # User that accepts the request
-    helper = models.ForeignKey(User, null=True,
+    helper = models.ForeignKey(User, blank=True, null=True,
                                on_delete=models.SET_NULL,)
 
     def __str__(self):
@@ -45,14 +45,14 @@ class Request(models.Model):
 
 # REMOVED to add later when all the world is fixed
 # class Rating(models.Model):
-#     request = models.OneToOneField(Request, on_delete=models.CASCADE,
+#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,
 #                                    primary_key=True)
 #     rating = models.PositiveSmallIntegerField(null=True, blank=True)
 #     detail = models.TextField(max_length=500, blank=True)
 
 
 # class Reported(models.Model):
-#     request = models.OneToOneField(Request, on_delete=models.CASCADE,)
+#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,)
 #     reason = models.TextField(max_length=500)
 
 
@@ -60,7 +60,7 @@ class Request(models.Model):
 # REASON: Tokens shouldn't be stored to DB because of their fleeting nature
 # class ClientToken(models.Model):
 #     token_id = models.CharField(max_length=500)
-#     request = models.ForeignKey(Request, on_delete=models.CASCADE,
+#     request = models.ForeignKey(Appeal, on_delete=models.CASCADE,
 #                                 related_name='client_token')
 #     user = models.OneToOneField(User, on_delete=models.CASCADE,
 #                                 primary_key=True)

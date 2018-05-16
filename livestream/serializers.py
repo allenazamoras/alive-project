@@ -12,13 +12,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'email', 'date_joined', 'reputation')
 
 
-class RequestSerializer(serializers.HyperlinkedModelSerializer):
+class AppealSerializer(serializers.HyperlinkedModelSerializer):
     # nested serialization see drf docu for more info
     owner = UserSerializer()
     helper = UserSerializer()
 
     class Meta:
-        model = Request
+        model = Appeal
         fields = ('id', 'request_title', 'session_id',
                   'owner', 'helper', 'detail', 'date_pub',
                   'is_active')
