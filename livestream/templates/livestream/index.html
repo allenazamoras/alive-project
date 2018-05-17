@@ -1,0 +1,28 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OpenTok</title>
+</head>
+<body>
+
+<p>Hello {{user}}</p>
+
+{% if session_list %}
+
+	<ul>
+	{% for session in session_list %}
+		<li>
+			{# It worked I have no idea how ref: livestream/urls.py#}
+		<a href="{% url 'livestream:stream' session.id %}">
+		{{session.session_name}}
+		</a>
+		</li>
+	{% endfor %}
+	</ul>
+
+{% endif %}
+
+</body>
+</html>
