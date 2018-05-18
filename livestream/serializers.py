@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from .models import *
+from userprofile.models import User
 
 # SERIALIZERS HERE
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'password',
+                  'first_name', 'last_name',
+                  'email', 'date_joined', 'reputation')
 
 
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
