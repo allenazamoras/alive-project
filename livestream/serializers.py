@@ -4,14 +4,6 @@ from .models import *
 # SERIALIZERS HERE
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'password',
-                  'first_name', 'last_name',
-                  'email', 'date_joined', 'reputation')
-
-
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
     # nested serialization see drf docu for more info
     owner = UserSerializer()

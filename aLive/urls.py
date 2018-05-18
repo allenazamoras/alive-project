@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
+
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -24,11 +25,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # allow API root to be accessed at localhost:<port>/
     url(r'^', include('livestream.urls')),
+    url(r'^', include('UserProfile.urls')),
     # under construction
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
-    # removed
-    # url(r'^livestream/', include('livestream.urls')),
+
 ]
 
 urlpatterns += router.urls
