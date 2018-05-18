@@ -36,7 +36,7 @@ ALLOWED_HOSTS = ['*']
 
 # SECURE_SSL_REDIRECT = True
 
-AUTH_USER_MODEL = 'UserProfile.User'
+AUTH_USER_MODEL = 'userprofile.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'UserProfile.apps.UserprofileConfig',
+    'userprofile.apps.UserprofileConfig',
     'livestream.apps.LivestreamConfig',
     'django.contrib.admin',
     'django.contrib.auth',

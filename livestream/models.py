@@ -1,5 +1,5 @@
 from django.db import models
-from UserProfile.models import User
+from userprofile.models import User
 
 
 class Appeal(models.Model):
