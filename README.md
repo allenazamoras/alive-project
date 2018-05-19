@@ -5,7 +5,7 @@ A livestreaming app that lets you create and accept requests for other users. Th
 ## Getting Started
 Follow these steps to get this project to run on you local machine for development and testing purposes.
 
-### Prerequisites
+### Pre-requisites
 This project will require the use of the following:
 
 * [Python](https://www.python.org/downloads/) (3.5 or higher)
@@ -22,28 +22,37 @@ $ git clone https://github.com/ephraimeg/alive-project
 ```
 
 #### Set up a virtual enviroment:  
-You can name your environment however you like, for this example we will use 'env'
+Pipenv was used to manage dependencies for this project.  
+You can see it's full documentation [here](https://docs.pipenv.org/)
+
+You can install Pipenv using Pip:  
+If `pip` is not installed on your machine you can follow the instructions [here](https://pip.pypa.io/en/stable/installing/)
+
 
 ```
-$ python3 -m venv env
-$ source env/bin/activate
+$ pip install pipenv
 ```  
+
+Move to the directory `alive-project/` then enter this command:
+
+```
+$ pipenv shell
+```
 
 You can exit from the virtual environment at any time by typing
 
 ```
-$ deactivate
+$ exit
 ```
 
 #### Installing requirements:
 
-Move to the directory `alive-project/` where you can find a file named `requirements.txt` then enter this command:
+Still inside the `alive-project/` directory, you should find a file named `requirements.txt`  
+Now run this command in the terminal to install those packages
 
 ```
-$ pip install -r requirements.txt
+$ pipenv install -r requirements.txt
 ```
-
-If `pip` is not installed on your machine you can follow the instructions [here](https://pip.pypa.io/en/stable/installing/)
 
 #### Set up the database:
 
@@ -66,7 +75,7 @@ GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
 exit
 ```
 
-####local_settings.py
+#### local_settings.py
 Sensitive information stored in the `local_settings.py` are as follows
 
 ```
