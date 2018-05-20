@@ -1,19 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-
-class User(AbstractUser):
-    # red = models.IntegerField()
-    """
-    Attributes inherited from AbstractUser class
-    id, password, last_login, is_superuser, username,
-    first_name. last_name, email, is_staff, is_active, date_joined
-    """
-    reputation = models.PositiveIntegerField(default=0,)
-    # is_premium = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.username
+from userprofile.models import User
 
 
 class Appeal(models.Model):

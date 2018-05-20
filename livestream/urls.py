@@ -7,7 +7,6 @@ app_name = 'livestream'
 
 router = routers.DefaultRouter()
 router.register(r'request', views.AppealViewSet, base_name='request')
-router.register(r'user', views.UserViewSet, base_name='user')
 # router.register(r'token', views.ClientTokenViewSet, base_name='token')
 
 urlpatterns = [
