@@ -1,5 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
 from rest_framework import viewsets
 from rest_framework import views
 from rest_framework.response import Response
