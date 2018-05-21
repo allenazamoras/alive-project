@@ -3,4 +3,6 @@ from django.apps import AppConfig
 
 class UserprofileConfig(AppConfig):
     name = 'userprofile'
-    #import signal_receivers
+    
+    def ready(self):
+        from . import signal_receivers
