@@ -21,7 +21,8 @@ class Appeal(models.Model):
                               related_name='requests')
     # User that accepts the request
     helper = models.ForeignKey(User, blank=True, null=True,
-                               on_delete=models.SET_NULL,)
+                               on_delete=models.SET_NULL,
+                               related_name='offers')
 
     def __str__(self):
         return self.session_id
