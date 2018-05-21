@@ -1,5 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
 from rest_framework import viewsets
 from rest_framework import views
 from rest_framework.response import Response
@@ -33,7 +32,6 @@ class LoginView(views.APIView):
                             password=request.data['password'])
 
         ret = {'return': 'Invalid credentials.'}
-
         if user is not None:
             login(request, user)
             ret = {'return': 'Logged in.'}
