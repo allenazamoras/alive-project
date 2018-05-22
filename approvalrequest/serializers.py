@@ -1,4 +1,4 @@
-from models import ApprovalRequest
+from .models import ApprovalRequest
 from userprofile.serializers import UserSerializer
 from livestream.serializers import AppealSerializer
 from rest_framework import serializers
@@ -10,4 +10,4 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApprovalRequest
-        fields = ('id', 'helper', 'appeal', 'helper')
+        fields = ('id', 'helper', 'appeal', 'helper', 'is_approved')
