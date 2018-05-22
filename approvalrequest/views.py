@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, Response
 from rest_framework.response import status
-from models import ApprovalRequest
+from .models import ApprovalRequest
 from serializers import ApprovalRequestSerializer
 
 
