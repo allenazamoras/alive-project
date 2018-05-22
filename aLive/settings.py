@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'approvalrequest.apps.ApprovalrequestConfig',
     'userprofile.apps.UserprofileConfig',
     'livestream.apps.LivestreamConfig',
     'django.contrib.admin',
