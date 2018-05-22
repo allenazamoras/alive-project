@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from rest_framework import viewsets, Response
-from rest_framework.response import status
-from .models import ApprovalRequest
-from serializers import ApprovalRequestSerializer
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from approvalrequest.models import ApprovalRequest
+from approvalrequest.serializers import ApprovalRequestSerializer
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
@@ -37,7 +37,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # display list of all ApprovalRequests
         # should only display ApprovalRequests that have
         # not been rejected (is_accepted holds null)
-        queryset = ApprovalRequest.objects.exclude(is_accepted=False)
+        queryset = ApprovalRequest.objects.exclude(is_approved=False)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
