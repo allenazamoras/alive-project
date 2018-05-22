@@ -10,5 +10,6 @@ class ApprovalRequest(models.Model):
     is_approved = models.NullBooleanField()
 
     def __str__(self):
-        return self.helper + "wants to be helper for"
-        + self.appeal.request_title
+        to_string = {'Request Title': self.appeal.request_title,
+                     'Helper': self.helper.username}
+        return str(to_string)
