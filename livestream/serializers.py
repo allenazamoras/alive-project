@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from .models import *
+from livestream.models import Appeal
 from userprofile.models import User
-
 # SERIALIZERS HERE
 
 
