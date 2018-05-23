@@ -36,6 +36,21 @@ class Appeal(models.Model):
     def deactivate(self):
         self.is_active = False
 
+
+class ApprovalRequest(models.Model):
+    appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
+                               related_name='approval_requests')
+    helper = models.OneToOneField(User, on_delete=models.CASCADE)
+    # holds null if pending, false if rejected
+    # true if accepted/approved
+    is_approved = models.NullBooleanField()
+
+    def __str__(self):
+        to_string = {'Request Title': self.appeal.request_title,
+                     'Helper': self.helper.username}
+        return str(to_string)
+
+
 # REMOVED to add later when all the world is fixed
 # class Rating(models.Model):
 #     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,

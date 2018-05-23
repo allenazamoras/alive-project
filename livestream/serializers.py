@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from livestream.models import Appeal
+from livestream.models import Appeal, ApprovalRequest
 from userprofile.models import User
-# SERIALIZERS HERE
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,8 +19,17 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'session_id', 'detail',
-                  'date_pub', 'owner', 'helper', 'is_active')
+                  'date_pub', 'owner', 'helper', 'is_active',
+                  'pending_requests')
 
+
+class ApprovalRequestSerializer(serializers.ModelSerializer):
+    appeal = AppealSerializer()
+    helper = UserSerializer()
+
+    class Meta:
+        model = ApprovalRequest
+        fields = ('id', 'helper', 'appeal', 'helper', 'is_approved')
 
 # class ClientTokenSerializer(serializers.ModelSerializer):
 #     class Meta:

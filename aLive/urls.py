@@ -26,7 +26,6 @@ urlpatterns = [
     # allow API root to be accessed at localhost:<port>/
     url(r'^', include('userprofile.urls')),
     url(r'^', include('livestream.urls')),
-    url(r'^', include('approvalrequest.urls')),
     # under construction
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
