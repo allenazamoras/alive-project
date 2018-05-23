@@ -6,9 +6,9 @@ from userprofile.models import User
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'password',
+        fields = ('username',
                   'first_name', 'last_name',
-                  'email', 'date_joined', 'reputation')
+                  'reputation')
 
 
 class PendingListSerializer(serializers.ModelSerializer):
@@ -41,8 +41,3 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
         fields = ('id', 'helper', 'appeal', 'helper', 'is_approved')
-
-# class ClientTokenSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ClientToken
-#         fields = ('user', 'token_id', 'session')

@@ -60,27 +60,3 @@ class ApprovalRequest(models.Model):
 # class Reported(models.Model):
 #     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,)
 #     reason = models.TextField(max_length=500)
-
-
-# REMOVED
-# REASON: Tokens shouldn't be stored to DB because of their fleeting nature
-# class ClientToken(models.Model):
-#     token_id = models.CharField(max_length=500)
-#     request = models.ForeignKey(Appeal, on_delete=models.CASCADE,
-#                                 related_name='client_token')
-#     user = models.OneToOneField(User, on_delete=models.CASCADE,
-#                                 primary_key=True)
-
-#     def get_session_id(self):
-#         return self.request.session_id
-
-
-# class UserProfile(models.Model):
-#     user = models.ForeignKey(User, unique=True)
-#     location = models.CharField(max_length=140)
-#     gender = models.CharField(max_length=140)
-#     employer = models.ForeignKey(Employer)
-#     profile_picture = models.ImageField(upload_to='thumbpath', blank=True)
-
-#     def __unicode__(self):
-#         return u'Profile of user: %s' % self.user.username

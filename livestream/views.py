@@ -3,6 +3,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views import generic
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 
 from .serializers import AppealSerializer, ApprovalRequestSerializer
 from .models import Appeal, ApprovalRequest
@@ -24,14 +25,6 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
     serializer_class = AppealSerializer
     context = {}
 
-    # def get_context_data(self, *args, **kwargs):
-    #     self.context = {
-    #         'API_KEY': API_KEY,
-    #         'SESSION_ID': '',
-    #         'TOKEN': token,
-    #     }
-    #     return context
-
     def create(self, request, *args, **kwargs):
 
         session = opentok.create_session(media_mode=MediaModes.routed)
@@ -47,6 +40,17 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
                             status=status.HTTP_201_CREATED)
 
         return Response({'return': 'Failed to create request'})
+
+    def list(self, request, *args, **kwargs):
+        queryset = Appeal.objects.order_by('date_pub')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         '''
@@ -119,17 +123,20 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # an ApprovalRequest instance gets created,
         # UNLESS it already exists
         appeal_instance = self.request.data['appeal']
-        if ApprovalRequest.objects.filter(
-            appeal=appeal_instance,
-                helper=self.request.user).exists():
-            # WARNING: if request gets rejected (is_accepted holds false)
-            # return message will still be 'pending approval...'
-            return Response({'return': 'pending approval...'})
+        if ApprovalRequest.objects.filter(appeal=appeal_instance,
+                                          helper=self.request.user).exists():
+            if appeal_instance.is_active is True:
+                # WARNING: if request gets rejected (is_accepted holds false)
+                # return message will still be 'pending approval...'
+                return Response({'return': 'pending approval...'})
+            else:
+                return Response({'return': 'request no longer exists'},
+                                status=status.HTTP_404_DOES_NOT_EXIST)
 
         # owner should NOT BE ABLE TO create approvalrequess
         # for their OWN appeals, that's stupid
         if appeal_instance.owner == self.request.user:
-            return Response({'return': "action impossible"})
+            return Response({'return': 'action impossible'})
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -139,10 +146,11 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                         headers=headers)
 
     def list(self, request, *args, **kwargs):
-        # display list of all ApprovalRequests
+        # display list of all ApprovalRequests by current user
         # should only display ApprovalRequests that have
         # not been rejected (is_accepted holds null)
-        queryset = ApprovalRequest.objects.exclude(is_approved=False)
+        queryset = ApprovalRequest.objects.filter(helper=request.user).\
+            exclude(is_approved=False)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -157,13 +165,18 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return self.update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        # when approval request gets rejected it gets deleted from the db
         # when user revokes approval request it gets deleted from the db
-        # when a request gets accepted other instances
-        # from the same appeal should be deleted
         instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        instance_appeal = instance.appeal
+        user_inst = request.user
+        message = {'return': 'You cannot delete this instance'}
+        # request instance can only be deleted by
+        # user who offered help
+        if instance.helper == user_inst:
+            self.perform_destroy(instance)
+            message['return'] = 'Successfully cancelled pending offer'
+            return Response(message, status=status.HTTP_204_NO_CONTENT)
+        return Response(message, status=status.HTTP_403_FORBIDDEN)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
