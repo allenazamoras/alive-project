@@ -10,7 +10,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('id', 'username', 'password',
                   'first_name', 'last_name',
-                  'email', 'date_joined', 'reputation')
+                  'email', 'date_joined')
 
 
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
