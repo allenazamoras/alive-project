@@ -30,7 +30,8 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
                   'pending_list')
 
     def get_pending_list(self, obj):
-        plist = PendingListSerializer(obj.approval_requests.all(), many=True)
+        plist = PendingListSerializer(
+            obj.approval_requests.filter(is_approved=None), many=True)
         return plist.data
 
 
