@@ -26,3 +26,15 @@ env.bak/
 venv.bak/
 
 # End of https://www.gitignore.io/api/python,django
+
+# dependencies
+node_modules
+
+# logs
+npm-debug.log
+
+# Nuxt build
+.nuxt
+
+# Nuxt generate
+dist
