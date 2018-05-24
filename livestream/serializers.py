@@ -35,10 +35,19 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
         return plist.data
 
 
+class AppealSerializerForHelpers(serializers.HyperlinkedModelSerializer):
+    owner = UserSerializer()
+
+    class Meta:
+        model = Appeal
+        fields = ('id', 'request_title', 'session_id', 'detail',
+                  'date_pub', 'owner', 'is_active')
+
+
 class ApprovalRequestSerializer(serializers.ModelSerializer):
-    appeal = AppealSerializer()
+    appeal = AppealSerializerForHelpers()
     helper = UserSerializer()
 
     class Meta:
         model = ApprovalRequest
-        fields = ('id', 'helper', 'appeal', 'helper', 'is_approved')
+        fields = ('id', 'helper', 'appeal', 'is_approved')
