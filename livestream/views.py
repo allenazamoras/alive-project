@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic.detail import SingleObjectMixin
 from django.views import generic
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
 
 from .serializers import AppealSerializer, ApprovalRequestSerializer
@@ -115,6 +115,7 @@ class AppealDetailView(generic.DetailView):
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
+    # permission_classes = (permissions.DjangoModelPermissions,)
     queryset = ApprovalRequest.objects.all()
     serializer_class = ApprovalRequestSerializer
 
@@ -124,8 +125,13 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # UNLESS it already exists
         # appeal_instance = self.request.data['appeal']
         data = request.data
+        # might wanna change this part, might cause problems
         appeal_instance = Appeal.objects.get(
             session_id=data['appeal.session_id'])
+
+        if appeal_instance is None:
+            return Response({'return': 'request does not exist'})
+
         # owner should NOT BE ABLE TO create approvalrequess
         # for their OWN appeals
         if appeal_instance.owner == self.request.user:
@@ -183,6 +189,8 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        if instance.helper != request.user:
+            return Response({'return': 'Access not allowed'})
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
