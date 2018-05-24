@@ -27,6 +27,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class LoginView(views.APIView):
 
+    permission_classes = ()
+
     def post(self, request, format=None):
         user = authenticate(username=request.data['username'],
                             password=request.data['password'])
