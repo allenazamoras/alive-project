@@ -24,8 +24,8 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('admin/', admin.site.urls),
     # allow API root to be accessed at localhost:<port>/
-    url(r'^', include('livestream.urls')),
     url(r'^', include('userprofile.urls')),
+    url(r'^', include('livestream.urls')),
     # under construction
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
