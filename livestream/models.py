@@ -38,7 +38,7 @@ class Appeal(models.Model):
 class ApprovalRequest(models.Model):
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
                                related_name='approval_requests')
-    helper = models.OneToOneField(User, on_delete=models.CASCADE)
+    helper = models.ForeignKey(User, on_delete=models.CASCADE)
     # holds null if pending, false if rejected
     # true if accepted/approved
     is_approved = models.NullBooleanField()
