@@ -127,7 +127,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # for their OWN appeals
         if appeal_instance.owner == self.request.user:
             return Response({'return': 'action impossible'})
-        
+
         if ApprovalRequest.objects.filter(appeal=appeal_instance,
                                           helper=self.request.user).exists():
             if appeal_instance.is_active is True:
@@ -167,12 +167,11 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         # when user revokes approval request it gets deleted from the db
         instance = self.get_object()
-        instance_appeal = instance.appeal
         user_inst = request.user
         message = {'return': 'You cannot delete this instance'}
         # request instance can only be deleted by
-        # user who offered help
-        if instance.helper == user_inst:
+        # user who offered help and only if it is still pending
+        if instance.helper == user_inst and instance.is_approved is False:
             self.perform_destroy(instance)
             message['return'] = 'Successfully cancelled pending offer'
             return Response(message, status=status.HTTP_204_NO_CONTENT)
