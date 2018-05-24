@@ -122,7 +122,10 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # when user presses "HELP" button
         # an ApprovalRequest instance gets created,
         # UNLESS it already exists
-        appeal_instance = self.request.data['appeal']
+        # appeal_instance = self.request.data['appeal']
+        data = request.data
+        appeal_instance = Appeal.objects.get(
+            session_id=data['appeal.session_id'])
         # owner should NOT BE ABLE TO create approvalrequess
         # for their OWN appeals
         if appeal_instance.owner == self.request.user:
@@ -130,27 +133,28 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
 
         if ApprovalRequest.objects.filter(appeal=appeal_instance,
                                           helper=self.request.user).exists():
-            if appeal_instance.is_active is True:
+            print('approval request already exists')
+            if appeal_instance.is_active is False:
                 # WARNING: if request gets rejected (is_accepted holds false)
                 # return message will still be 'pending approval...'
-                return Response({'return': 'pending approval...'})
-            else:
                 return Response({'return': 'request no longer exists'},
-                                status=status.HTTP_404_DOES_NOT_EXIST)
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response({'return': 'pending approval...'})
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        app_req = ApprovalRequest(appeal=appeal_instance, helper=request.user)
+        serializer = ApprovalRequestSerializer(app_req)
+        app_req.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
 
     def list(self, request, *args, **kwargs):
         # display list of all ApprovalRequests by current user
-        # should only display ApprovalRequests that have
-        # not been rejected (is_accepted holds null)
-        queryset = ApprovalRequest.objects.filter(helper=request.user).\
-            exclude(is_approved=False)
+        # should only display ApprovalRequests for
+        # Appeals that are still inactive (is_active is null) and
+        # Requests have not been rejected (is_accepted holds null)
+        queryset = ApprovalRequest.objects.filter(
+            helper=request.user).exclude(is_approved=False)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -171,7 +175,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         message = {'return': 'You cannot delete this instance'}
         # request instance can only be deleted by
         # user who offered help and only if it is still pending
-        if instance.helper == user_inst and instance.is_approved is False:
+        if instance.helper == user_inst and instance.is_approved is None:
             self.perform_destroy(instance)
             message['return'] = 'Successfully cancelled pending offer'
             return Response(message, status=status.HTTP_204_NO_CONTENT)
