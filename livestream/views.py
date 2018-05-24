@@ -123,6 +123,11 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # an ApprovalRequest instance gets created,
         # UNLESS it already exists
         appeal_instance = self.request.data['appeal']
+        # owner should NOT BE ABLE TO create approvalrequess
+        # for their OWN appeals
+        if appeal_instance.owner == self.request.user:
+            return Response({'return': 'action impossible'})
+        
         if ApprovalRequest.objects.filter(appeal=appeal_instance,
                                           helper=self.request.user).exists():
             if appeal_instance.is_active is True:
@@ -132,11 +137,6 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
             else:
                 return Response({'return': 'request no longer exists'},
                                 status=status.HTTP_404_DOES_NOT_EXIST)
-
-        # owner should NOT BE ABLE TO create approvalrequess
-        # for their OWN appeals, that's stupid
-        if appeal_instance.owner == self.request.user:
-            return Response({'return': 'action impossible'})
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
