@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
 from rest_framework import routers
-from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 
@@ -29,8 +28,6 @@ urlpatterns = [
     # under construction
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
-    url(r'^api-token-auth/', obtain_auth_token),
-
 ]
 
 urlpatterns += router.urls

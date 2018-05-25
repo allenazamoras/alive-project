@@ -20,6 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.create_user(username=req['username'],
                                             first_name=req['first_name'],
                                             last_name=req['last_name'],
+                                            gender=req['gender'],
                                             password=req['password'])
             user.save()
             ret = {'return': 'Account successfully created.'}

@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from userprofile.models import User
 from livestream.models import Appeal
