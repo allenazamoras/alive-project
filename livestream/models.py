@@ -1,8 +1,26 @@
 from django.db import models
 from userprofile.models import User
+from django.contrib.auth import get_user_model
+from django.db import models
 
 
 class Appeal(models.Model):
+    OTHERS = 'OTHERS'
+    PERSONAL = 'PERSONAL'
+    FAMILY = 'FAMILY'
+    WORK = 'WORK'
+    SCHOOL = 'SCHOOL'
+    RELATIONSHIP = 'RELATIONSHIP'
+
+    CATEGORY = (
+        (OTHERS, 'others'),
+        (PERSONAL, 'personal'),
+        (FAMILY, 'family'),
+        (WORK, 'work'),
+        (SCHOOL, 'school'),
+        (RELATIONSHIP, 'relationship'),
+    )
+
     # Session id
     session_id = models.CharField(max_length=100)
     # Appeal name
@@ -21,6 +39,8 @@ class Appeal(models.Model):
     helper = models.ForeignKey(User, blank=True, null=True,
                                on_delete=models.SET_NULL,
                                related_name='offers')
+    category = models.CharField(max_length=20,
+                                choices=CATEGORY, default=OTHERS)
 
     def __str__(self):
         return self.session_id
@@ -47,16 +67,3 @@ class ApprovalRequest(models.Model):
         to_string = {'Request Title': self.appeal.request_title,
                      'Helper': self.helper.username}
         return str(to_string)
-
-
-# REMOVED to add later when all the world is fixed
-# class Rating(models.Model):
-#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,
-#                                    primary_key=True)
-#     rating = models.PositiveSmallIntegerField(null=True, blank=True)
-#     detail = models.TextField(max_length=500, blank=True)
-
-
-# class Reported(models.Model):
-#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,)
-#     reason = models.TextField(max_length=500)
