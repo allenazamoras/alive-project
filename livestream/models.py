@@ -1,5 +1,7 @@
 from django.db import models
 from userprofile.models import User
+from django.contrib.auth import get_user_model
+from django.db import models
 
 
 class Appeal(models.Model):
@@ -65,16 +67,3 @@ class ApprovalRequest(models.Model):
         to_string = {'Request Title': self.appeal.request_title,
                      'Helper': self.helper.username}
         return str(to_string)
-
-
-# REMOVED to add later when all the world is fixed
-# class Rating(models.Model):
-#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,
-#                                    primary_key=True)
-#     rating = models.PositiveSmallIntegerField(null=True, blank=True)
-#     detail = models.TextField(max_length=500, blank=True)
-
-
-# class Reported(models.Model):
-#     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,)
-#     reason = models.TextField(max_length=500)
