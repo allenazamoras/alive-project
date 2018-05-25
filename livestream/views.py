@@ -65,50 +65,22 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         # or check if puno na ang session (max: 2 publishers)
         # generate token for current user (default: publisher) valid for 24h
         # UMIMPLEMENTED PA ANG CHECKING HAP
-        token = opentok.generate_token(appeal.session_id)
-        # check if token is created successfully
-        print(token)
-        self.context = {
-            'API_KEY': OPENTOK_API,
-            'SESSION_ID': appeal.session_id,
-            'TOKEN': token,
-        }
-        print(self.context)
-        # serializer = self.get_serializer(session)
-        return render(request, 'livestream/stream.html', self.context)
-        # return Response(serializer.data,
-        #                 template_name='livestream/stream.html')
+        if user == appeal.owner or user == appeal.helper:
 
+            token = opentok.generate_token(appeal.session_id)
+            # check if token is created successfully
+            if token:
+                self.context = {
+                    'API_KEY': OPENTOK_API,
+                    'SESSION_ID': appeal.session_id,
+                    'TOKEN': token,
+                }
+                serializer = AppealSerializer(appeal, context={'token': token})
+                print(serializer.data)
 
-class AppealDetailView(generic.DetailView):
-    model = Appeal
-    template_name = 'livestream/stream.html'
-
-    context = {}
-
-    def get(self, request, *args, **kwargs):
-        print("i get rendered")
-
-        user = request.user
-        print(user)
-        # get current session
-        appeal = self.get_object()
-        print(appeal)
-        # check if session owner ang nag generate sa token
-        # or check if puno na ang session (max: 2 publishers)
-        # generate token for current user (default: publisher) valid for 24h
-        # UMIMPLEMENTED PA ANG CHECKING HAP
-        token = opentok.generate_token(appeal.session_id)
-        # check if token is created successfully
-        print(token)
-        self.context = {
-            'API_KEY': OPENTOK_API,
-            'SESSION_ID': appeal.session_id,
-            'TOKEN': token,
-        }
-        print(self.context)
-
-        return self.render_to_response(self.context)
+                return Response(serializer.data)
+            return Response({'return': 'Token creation failed'})
+        return Response({'return': 'Access not allowed'})
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
