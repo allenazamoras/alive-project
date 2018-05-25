@@ -8,15 +8,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('username',
                   'first_name', 'last_name',
-                  'email', 'date_joined')
-
+                  'profile_picture')
 
 
 class PendingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
         fields = ('helper', 'is_approved')
-
 
 
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
