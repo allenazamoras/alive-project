@@ -3,6 +3,22 @@ from userprofile.models import User
 
 
 class Appeal(models.Model):
+    OTHERS = 'OTHERS'
+    PERSONAL = 'PERSONAL'
+    FAMILY = 'FAMILY'
+    WORK = 'WORK'
+    SCHOOL = 'SCHOOL'
+    RELATIONSHIP = 'RELATIONSHIP'
+
+    CATEGORY = (
+        (OTHERS, 'others'),
+        (PERSONAL, 'personal'),
+        (FAMILY, 'family'),
+        (WORK, 'work'),
+        (SCHOOL, 'school'),
+        (RELATIONSHIP, 'relationship'),
+    )
+
     # Session id
     session_id = models.CharField(max_length=100)
     # Appeal name
@@ -21,6 +37,8 @@ class Appeal(models.Model):
     helper = models.ForeignKey(User, blank=True, null=True,
                                on_delete=models.SET_NULL,
                                related_name='offers')
+    category = models.CharField(max_length=20,
+                                choices=CATEGORY, default=OTHERS)
 
     def __str__(self):
         return self.session_id
