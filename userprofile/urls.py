@@ -9,7 +9,7 @@ router = routers.DefaultRouter()
 router.register(r'user', views.UserViewSet, base_name='user')
 
 urlpatterns = [
-    url(r'^login', views.LoginView.as_view()),
+    url(r'^login', views.Login.as_view()),
 ]
 
 urlpatterns += router.urls

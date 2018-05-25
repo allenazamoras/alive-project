@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5605e7763aaf2488cc0aa03e3973ce43cc6b41202701bebb41c5a3ebdd6a2ab1"
+            "sha256": "b84af0b3ec0d8f94638eae38da9ee5d3c156d2a14d34c254fdad283a66867890"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,6 +56,14 @@
             "index": "pypi",
             "version": "==3.8.2"
         },
+        "djangorestframework-jwt": {
+            "hashes": [
+                "sha256:5efe33032f3a4518a300dc51a51c92145ad95fb6f4b272e5aa24701db67936a7",
+                "sha256:ab15dfbbe535eede8e2e53adaf52ef0cf018ee27dbfad10cbc4cbec2ab63d38c"
+            ],
+            "index": "pypi",
+            "version": "==1.11.0"
+        },
         "ecdsa": {
             "hashes": [
                 "sha256:40d002cf360d0e035cf2cb985e1308d41aaa087cbfc135b2dc2d844296ea546c",
@@ -70,6 +78,14 @@
             ],
             "index": "pypi",
             "version": "==0.16.0"
+        },
+        "httpie": {
+            "hashes": [
+                "sha256:f1202e6fa60367e2265284a53f35bfa5917119592c2ab08277efc7fffd744fcb",
+                "sha256:ff90f500fb2a12a8b797e668de3f4f51978b5716ffd254acd5162fefb1dc026f"
+            ],
+            "index": "pypi",
+            "version": "==0.9.9"
         },
         "idna": {
             "hashes": [
@@ -185,6 +201,20 @@
             ],
             "index": "pypi",
             "version": "==0.4.2"
+        },
+        "pygments": {
+            "hashes": [
+                "sha256:78f3f434bcc5d6ee09020f92ba487f95ba50f1e3ef83ae96b9d5ffa1bab25c5d",
+                "sha256:dbae1046def0efb574852fab9e90209b23f556367b5a320c0bcb871c77c3e8cc"
+            ],
+            "version": "==2.2.0"
+        },
+        "pyjwt": {
+            "hashes": [
+                "sha256:c365c2c92063bdc609a9ef328958a910e249ffcad953895914b87e645412cf81",
+                "sha256:d527c3330d83d7278a0a8ef570b7c9c39fbf2c0c1edbe564a1a8a02d5352322b"
+            ],
+            "version": "==1.6.3"
         },
         "python-jose": {
             "hashes": [
