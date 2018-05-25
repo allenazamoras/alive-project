@@ -42,7 +42,7 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         return Response({'return': 'Failed to create request'})
 
     def list(self, request, *args, **kwargs):
-        queryset = Appeal.objects.order_by('date_pub')
+        queryset = Appeal.objects.filter(is_active=None).order_by('date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -58,12 +58,9 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         user will be given a token to connect to this session
         '''
         # get current user
-        print('i get retrieved')
         user = request.user
-        print(user)
         # get current session
         appeal = self.get_object()
-        print(appeal)
         # check if session owner ang nag generate sa token
         # or check if puno na ang session (max: 2 publishers)
         # generate token for current user (default: publisher) valid for 24h
