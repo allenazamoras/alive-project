@@ -15,15 +15,23 @@ Vue.use(Router)
 
 const routes = [
   {
-    path: "/login", component: Login
+    path: "/login", 
+    component: Login
   },
 
   {
-    path: "/appeal", component: Appeal
+    path: "/appeal", 
+    component: Appeal
   },
 
   {
-    path: "/appeal/category/:categName", component: AppealCategory
+    path: "/appeal/category/:categName/", 
+    component: AppealCategory
+  },
+
+  {
+    path: "/appeal/category/:categName/:subcategName", 
+    component: AppealCategory
   }
 ]
 
