@@ -10,18 +10,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RemoveField(
-        #     model_name='user',
-        #     name='reputation',
-        # ),
+        migrations.RemoveField(
+            model_name='user',
+            name='reputation',
+        ),
         migrations.AddField(
             model_name='user',
             name='gender',
             field=models.CharField(choices=[('F', 'Female'), ('M', 'Male')], default='', max_length=1),
         ),
-        # migrations.AddField(
-        #     model_name='user',
-        #     name='profile_picture',
-        #     field=models.ImageField(default='thumbpath/none/none.jpg', upload_to='thumbpath'),
-        # ),
+        migrations.AddField(
+            model_name='user',
+            name='profile_picture',
+            field=models.ImageField(default='thumbpath/none/none.jpg', upload_to='thumbpath'),
+        ),
     ]
