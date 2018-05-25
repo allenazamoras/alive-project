@@ -11,12 +11,10 @@ class Appeal(models.Model):
     detail = models.TextField(max_length=500, blank=True)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
-    # a request is active when a stream is on going and false if otherwise
-    is_active = models.BooleanField(default=False)
-    # a request is completed if ... well idk,
-    # a request is not completed until the user is satisfied?
-    # is_completed = model.BooleanField(default=False)
-    # User that created the request
+    # holds null by default
+    # holds true when appeal is being addressed
+    # holds false when appeal is completed/closed/deleted
+    is_active = models.NullBooleanField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
     # User that accepts the request
@@ -36,6 +34,21 @@ class Appeal(models.Model):
     def deactivate(self):
         self.is_active = False
 
+
+class ApprovalRequest(models.Model):
+    appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
+                               related_name='approval_requests')
+    helper = models.ForeignKey(User, on_delete=models.CASCADE)
+    # holds null if pending, false if rejected
+    # true if accepted/approved
+    is_approved = models.NullBooleanField()
+
+    def __str__(self):
+        to_string = {'Request Title': self.appeal.request_title,
+                     'Helper': self.helper.username}
+        return str(to_string)
+
+
 # REMOVED to add later when all the world is fixed
 # class Rating(models.Model):
 #     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,
@@ -47,27 +60,3 @@ class Appeal(models.Model):
 # class Reported(models.Model):
 #     request = models.OneToOneField(Appeal, on_delete=models.CASCADE,)
 #     reason = models.TextField(max_length=500)
-
-
-# REMOVED
-# REASON: Tokens shouldn't be stored to DB because of their fleeting nature
-# class ClientToken(models.Model):
-#     token_id = models.CharField(max_length=500)
-#     request = models.ForeignKey(Appeal, on_delete=models.CASCADE,
-#                                 related_name='client_token')
-#     user = models.OneToOneField(User, on_delete=models.CASCADE,
-#                                 primary_key=True)
-
-#     def get_session_id(self):
-#         return self.request.session_id
-
-
-# class UserProfile(models.Model):
-#     user = models.ForeignKey(User, unique=True)
-#     location = models.CharField(max_length=140)
-#     gender = models.CharField(max_length=140)
-#     employer = models.ForeignKey(Employer)
-#     profile_picture = models.ImageField(upload_to='thumbpath', blank=True)
-
-#     def __unicode__(self):
-#         return u'Profile of user: %s' % self.user.username

@@ -1,13 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.views.generic.detail import SingleObjectMixin
-from django.views import generic, View
+from django.views import generic
 from rest_framework.response import Response
-from rest_framework import status, viewsets, renderers
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework import status, viewsets, permissions
+from rest_framework.decorators import action
 
-from .serializers import *
-from .models import Appeal
+from .serializers import AppealSerializer, ApprovalRequestSerializer
+from .models import Appeal, ApprovalRequest
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -26,14 +25,6 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
     serializer_class = AppealSerializer
     context = {}
 
-    # def get_context_data(self, *args, **kwargs):
-    #     self.context = {
-    #         'API_KEY': API_KEY,
-    #         'SESSION_ID': '',
-    #         'TOKEN': token,
-    #     }
-    #     return context
-
     def create(self, request, *args, **kwargs):
 
         session = opentok.create_session(media_mode=MediaModes.routed)
@@ -49,6 +40,17 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
                             status=status.HTTP_201_CREATED)
 
         return Response({'return': 'Failed to create request'})
+
+    def list(self, request, *args, **kwargs):
+        queryset = Appeal.objects.order_by('date_pub')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         '''
@@ -112,42 +114,85 @@ class AppealDetailView(generic.DetailView):
         return self.render_to_response(self.context)
 
 
-# UserViewSet
+class ApprovalRequestViewSet(viewsets.ModelViewSet):
+    # permission_classes = (permissions.DjangoModelPermissions,)
+    queryset = ApprovalRequest.objects.all()
+    serializer_class = ApprovalRequestSerializer
 
+    def create(self, request, *args, **kwargs):
+        # when user presses "HELP" button
+        # an ApprovalRequest instance gets created,
+        # UNLESS it already exists
+        # appeal_instance = self.request.data['appeal']
+        data = request.data
+        # might wanna change this part, might cause problems
+        appeal_instance = Appeal.objects.get(
+            session_id=data['appeal.session_id'])
 
+        if appeal_instance is None:
+            return Response({'return': 'request does not exist'})
 
-# class ClientTokenViewSet(viewsets.ModelViewSet):
-#     '''
-#         To change:
-#             Tokens should not be stored or reused
-#     '''
-#     queryset = ClientToken.objects.all()
-#     serializer_class = ClientTokenSerializer
+        # owner should NOT BE ABLE TO create approvalrequess
+        # for their OWN appeals
+        if appeal_instance.owner == self.request.user:
+            return Response({'return': 'action impossible'})
 
-#     def create(self, request):
-#         ret = {'return': 'token creation failed'}
-#         req = request.data
-#         # get session id from db
-#         this_session = Appeal.objects.get(id=req['session'])
-#         # generate token
-#         token = opentok.generate_token(this_session.session_id)
-#         # get user
-#         user = User.objects.get(id=req['user'])
-#         new_token = ClientToken(token_id=token,
-#                                 # fixed wrong parameter thingy
-#                                 session=this_session,
-#                                 user=user)
-#         # check if new token was successfully created
-#         # and user does not have existing token
-#         print(ClientTokenSerializer(new_token).data)
-#         if new_token:
-#             print(new_token)
-#             # Value error here
-#             new_token.save()
-#             # VALUE ERROR SOLVED
-#             ret = ClientTokenSerializer(new_token).data
+        if ApprovalRequest.objects.filter(appeal=appeal_instance,
+                                          helper=self.request.user).exists():
+            print('approval request already exists')
+            if appeal_instance.is_active is False:
+                # WARNING: if request gets rejected (is_accepted holds false)
+                # return message will still be 'pending approval...'
+                return Response({'return': 'request no longer exists'},
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response({'return': 'pending approval...'})
 
-#         return Response(ret)
+        app_req = ApprovalRequest(appeal=appeal_instance, helper=request.user)
+        serializer = ApprovalRequestSerializer(app_req)
+        app_req.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+    def list(self, request, *args, **kwargs):
+        # display list of all ApprovalRequests by current user
+        # should only display ApprovalRequests for
+        # Appeals that are still inactive (is_active is null) and
+        # Requests have not been rejected (is_accepted holds null)
+        queryset = ApprovalRequest.objects.filter(
+            helper=request.user).exclude(is_approved=False)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # when user revokes approval request it gets deleted from the db
+        instance = self.get_object()
+        user_inst = request.user
+        message = {'return': 'You cannot delete this instance'}
+        # request instance can only be deleted by
+        # user who offered help and only if it is still pending
+        if instance.helper == user_inst and instance.is_approved is None:
+            self.perform_destroy(instance)
+            message['return'] = 'Successfully cancelled pending offer'
+            return Response(message, status=status.HTTP_204_NO_CONTENT)
+        return Response(message, status=status.HTTP_403_FORBIDDEN)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.helper != request.user:
+            return Response({'return': 'Access not allowed'})
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class IndexView(generic.ListView):
