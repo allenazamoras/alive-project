@@ -1,6 +1,7 @@
-from django.contrib.auth import authenticate, login
 from rest_framework import viewsets
 from rest_framework import views
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from userprofile.models import User
 from userprofile.serializers import UserSerializer
@@ -25,15 +26,15 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(ret)
 
 
-class LoginView(views.APIView):
+class Login(ObtainAuthToken):
 
-    def post(self, request, format=None):
-        user = authenticate(username=request.data['username'],
-                            password=request.data['password'])
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token = Token.objects.get(user=user)
 
-        ret = {'return': 'Invalid credentials.'}
-
-        if user is not None:
-            login(request, user)
-            ret = {'return': 'Logged in.'}
-        return Response(ret)
+        return Response({'token': token.key,
+                         'user': user.pk,
+                         })
