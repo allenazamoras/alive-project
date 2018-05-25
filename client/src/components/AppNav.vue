@@ -1,5 +1,5 @@
 <template>
-    <v-toolbar dark mb-4>
+    <v-toolbar dark mb-4 dense>
         <v-toolbar-title>
             Alive
         </v-toolbar-title>
@@ -27,9 +27,9 @@ export default {
     data() { 
         return { 
             routes: [
-                {name: "Home", link: "/"},
-                {name: "Login", link: "/login"},
-                {name: "Register", link: "/register"},
+                {name: "home", link: "/", icon: true},
+                {name: "login", link: "/login", icon: false},
+                {name: "Register", link: "/register", icon: false},
             ]
         }
     }

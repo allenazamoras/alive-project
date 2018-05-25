@@ -1,12 +1,11 @@
 <template>
-        <v-layout>
-            <v-flex xs8 sm6 md4 offset-md4 mt-5>
-                <v-card class="pa-5" round>
-                    <v-form>
+        <v-layout row justify-center> 
+            <v-flex xs8 sm6 md3 xl4 mt-5 pa-2>
+                <v-card class="pa-4">
+                    <v-form class="ma-2">
                         <v-text-field
                             label="Username"
                             v-model="username"
-                            required
                         ></v-text-field>
                         <v-text-field
                             label="Password"
@@ -14,7 +13,7 @@
                             :append-icon="seePass ? 'visibility_off' : 'visibility'"
                             :append-icon-cb="() => (seePass = !seePass)"
                             :type="seePass ? 'text' : 'password'"
-                            required
+                        
                         ></v-text-field>
                         <v-btn color="success" @click="login()">Login</v-btn>
                     </v-form>
@@ -36,15 +35,25 @@ export default {
     },
 
     methods: { 
-        login: () => { 
-            axios.post("url", {
+        login() {
+            axios.post("http://192.168.1.2:8000/login/", {
                 username: this.username,
                 password: this.password
             })
 
             .then((res) => { 
-                console.log(res)
+                localStorage.setItem("token", res.data.token)
             })
+
+            .catch((err) => { 
+                console.log(err)
+            })
+        }
+    },
+
+    beforeCreate() { 
+        if(localStorage.getItem("token") != null) { 
+            this.$router.push("/")
         }
     }
 }
