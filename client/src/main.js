@@ -7,8 +7,10 @@ import App from './App.vue'
 import VueRouter from 'vue-router';
 
 import Login from './pages/Login.vue'
+import Logout from './pages/Logout.vue'
 import Appeal from './pages/Appeal/Appeal.vue'
 import AppealCategory from './pages/Appeal/AppealCategory.vue'
+import Register from './pages/Register.vue'
 
 Vue.use(Vuetify)
 Vue.use(Router)
@@ -16,7 +18,12 @@ Vue.use(Router)
 const routes = [
   {
     path: "/login", 
-    component: Login
+    component: Login,
+  },
+
+  {
+    path: "/register", 
+    component: Register,
   },
 
   {
@@ -32,7 +39,12 @@ const routes = [
   {
     path: "/appeal/category/:categName/:subcategName", 
     component: AppealCategory
-  }
+  },
+  
+  {
+    path: "/logout", 
+    component: Logout
+  }  
 ]
 
 const router = new VueRouter({

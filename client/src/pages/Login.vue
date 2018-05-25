@@ -1,6 +1,7 @@
 <template>
+    <v-container>
         <v-layout row justify-center> 
-            <v-flex xs8 sm6 md3 xl4 mt-5 pa-2>
+            <v-flex xs8 sm6 md5 lg4 xl4 mt-5 pa-2>
                 <v-card class="pa-4">
                     <v-form class="ma-2">
                         <v-text-field
@@ -19,7 +20,18 @@
                     </v-form>
                 </v-card>
             </v-flex>
+
+            <v-snackbar
+                v-model="snackbar"
+                bottom
+                right>
+
+                {{ snackbarMessage }}
+                <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
+            </v-snackbar>            
         </v-layout>
+    </v-container>
+        
 </template>
 
 <script>
@@ -30,23 +42,32 @@ export default {
         return { 
             username: "",
             password: "",
-            seePass: false
+            seePass: false,
+
+            snackbarMessage: "",
+            snackbar: false,
         }
     },
 
     methods: { 
         login() {
-            axios.post("http://192.168.1.2:8000/login/", {
+            axios.post("http://192.168.1.80:8001/login/", {
                 username: this.username,
                 password: this.password
             })
 
             .then((res) => { 
-                localStorage.setItem("token", res.data.token)
+                if(res.data.user > 0) { 
+                    localStorage.setItem("token", res.data.token)
+                    this.$router.push("/")
+                }
+
+                
             })
 
             .catch((err) => { 
-                console.log(err)
+                this.snackbarMessage = "Invalid login."
+                this.snackbar = true
             })
         }
     },

@@ -11,7 +11,9 @@
                 flat 
                 v-for="(item, index) in routes" 
                 :key="`item-${index}`"
-                :to="item.link">
+                :to="item.link"
+                v-show="item.show"
+                >
                 {{ item.name }}
             </v-btn>
         </v-toolbar-items>
@@ -27,11 +29,17 @@ export default {
     data() { 
         return { 
             routes: [
-                {name: "home", link: "/", icon: true},
-                {name: "login", link: "/login", icon: false},
-                {name: "Register", link: "/register", icon: false},
+                {name: "home", link: "/", icon: true, show: true},
+                {name: "appeal", link: "/appeal", icon: true, show: true},
+                {name: "login", link: "/login", icon: false, show: (localStorage.getItem("token") != null) ? false: true},
+                {name: "Register", link: "/register", icon: false, show: (localStorage.getItem("token") != null) ? false: true},
+                {name: "logout", link: "/logout", icon: false, show: (localStorage.getItem("token") == null) ? false: true},
             ]
         }
+    },
+
+    created() {
+        console.log(this.routes)
     }
 }
 </script>
