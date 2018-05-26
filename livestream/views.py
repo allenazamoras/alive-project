@@ -17,6 +17,10 @@ API_SECRET = OPENTOK_SECRET
 opentok = OpenTok(API_KEY, API_SECRET)
 
 
+# TODO: connect the helper to the appeal once owner accepts approvalrequest
+#       partial_update for appeal detail ?
+#       be sure user can stream na pls
+#       chat interface
 # User can create OpenTok Session
 # What if ako ning himuon ug read only
 # then mag create ko ug CreateSessionView(CreateAPIView) ?? HUH ?? HUUUH??
@@ -52,6 +56,17 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def __serialize_token(self, appeal, user):
+        if (user == appeal.owner or user == appeal.helper):
+            token = opentok.generate_token(appeal.session_id)
+            if token:
+                serializer = AppealSerializer(appeal, context={'token': token})
+                return Response(serializer.data)
+            return Response({'return': 'Token creation failed'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'return': 'Access not allowed'},
+                        status=status.HTTP_403_FORBIDDEN)
+
     def retrieve(self, request, *args, **kwargs):
         '''
         retrieve method gets called when a user accesses a unique session
@@ -65,22 +80,14 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         # or check if puno na ang session (max: 2 publishers)
         # generate token for current user (default: publisher) valid for 24h
         # UMIMPLEMENTED PA ANG CHECKING HAP
-        if user == appeal.owner or user == appeal.helper:
+        if appeal.is_active:
+            if user == appeal.owner or user == appeal.helper:
+                self.__serialize_token(appeal, user)
 
-            token = opentok.generate_token(appeal.session_id)
-            # check if token is created successfully
-            if token:
-                self.context = {
-                    'API_KEY': OPENTOK_API,
-                    'SESSION_ID': appeal.session_id,
-                    'TOKEN': token,
-                }
-                serializer = AppealSerializer(appeal, context={'token': token})
-                print(serializer.data)
-
-                return Response(serializer.data)
-            return Response({'return': 'Token creation failed'})
-        return Response({'return': 'Access not allowed'})
+            return Response({'return': 'Access not allowed'},
+                            status=status.HTTP_403_FORBIDDEN)
+        return Response({'return': 'Appeal no longer exists'},
+                        status=status.HTTP_404_NOT_FOUND)
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
@@ -140,8 +147,13 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
+        # TODO 
+        ar_instance = self.get_object()
+        # if request.data['']
+        # print(request.data.keys())
         kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)
+        # return self.update(request, *args, **kwargs)
+        return ''
 
     def destroy(self, request, *args, **kwargs):
         # when user revokes approval request it gets deleted from the db
@@ -150,7 +162,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         message = {'return': 'You cannot delete this instance'}
         # request instance can only be deleted by
         # user who offered help and only if it is still pending
-        if instance.helper == user_inst and instance.is_approved is None:
+        if (instance.helper == user_inst and instance.is_approved is None):
             self.perform_destroy(instance)
             message['return'] = 'Successfully cancelled pending offer'
             return Response(message, status=status.HTTP_204_NO_CONTENT)
@@ -159,7 +171,8 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.helper != request.user:
-            return Response({'return': 'Access not allowed'})
+            return Response({'return': 'Access not allowed'},
+                            status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
