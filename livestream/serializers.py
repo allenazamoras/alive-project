@@ -3,7 +3,7 @@ from livestream.models import Appeal, ApprovalRequest
 from userprofile.models import User
 
 
-class OwnerSerializer(serializers.HyperlinkedModelSerializer):
+class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username',
@@ -11,14 +11,14 @@ class OwnerSerializer(serializers.HyperlinkedModelSerializer):
                   'profile_picture')
 
 
-class HelperSerializer(serializers.HyperlinkedModelSerializer):
+class HelperSerializer(serializers.ModelSerializer):
     reputation = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('username',
                   'first_name', 'last_name',
-                  'profile_picture', )
+                  'profile_picture', 'reputation')
 
     def get_reputation(self, obj):
         # TO DO when user rating is up
@@ -31,7 +31,7 @@ class PendingListSerializer(serializers.ModelSerializer):
         fields = ('helper', 'is_approved')
 
 
-class AppealSerializer(serializers.HyperlinkedModelSerializer):
+class AppealSerializer(serializers.ModelSerializer):
     # nested serialization see drf docu for more info
     owner = OwnerSerializer()
     helper = HelperSerializer()
@@ -53,7 +53,19 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
         return self.context.get('token', '')
 
 
-class AppealSerializerForHelpers(serializers.HyperlinkedModelSerializer):
+class OpenAppealSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appeal
+        fields = ('request_title', 'detail', 'date_pub')
+
+
+class ClosedAppealSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appeal
+        fields = ('request_title', 'detail')
+
+
+class AppealSerializerForHelpers(serializers.ModelSerializer):
     owner = OwnerSerializer()
 
     class Meta:
