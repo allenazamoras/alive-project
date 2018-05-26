@@ -68,7 +68,7 @@ export default {
 
     methods: { 
         register() {
-            axios.post("http://192.168.1.80:8001/user/", {
+            axios.post("http://192.168.1.2:8000/user/", {
                 username: this.username,
                 password: this.password,
                 first_name: this.first_name,

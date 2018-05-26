@@ -1,7 +1,5 @@
 <template>
   <v-app>
-    <app-nav/>
-
     <main>
       <v-content>
         <router-view></router-view>
@@ -15,6 +13,7 @@
 
 <script>
 import appNav from './components/AppNav.vue'
+import subNav from './components/SubNav.vue'
 
 export default {
   name: 'app',
@@ -25,8 +24,9 @@ export default {
   },
 
   components: { 
-    appNav
-  }
+    appNav,
+    subNav
+  },
 }
 </script>
 

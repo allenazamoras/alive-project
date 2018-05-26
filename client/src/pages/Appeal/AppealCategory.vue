@@ -13,11 +13,6 @@ export default {
   },
   created() { 
     this.category = this.$route.params
-
-    axios.get("user/dicksSucked")
-    .then((res)=> { 
-      this.dicksSucked = res.data.dicksSucked
-    })
   }
 }
 </script>

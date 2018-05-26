@@ -2,7 +2,7 @@
     <v-container>
         <v-layout row justify-center> 
             <v-flex xs8 sm6 md5 lg4 xl4 mt-5 pa-2>
-                <v-card class="pa-4">
+                <v-card class="pa-4" tile>
                     <v-form class="ma-2">
                         <v-text-field
                             label="Username"
@@ -51,7 +51,7 @@ export default {
 
     methods: { 
         login() {
-            axios.post("http://192.168.1.80:8001/login/", {
+            axios.post("http://192.168.1.2:8000/login/", {
                 username: this.username,
                 password: this.password
             })
@@ -59,6 +59,7 @@ export default {
             .then((res) => { 
                 if(res.data.user > 0) { 
                     localStorage.setItem("token", res.data.token)
+                    this.$store.commit("setUsername", this.username)
                     this.$router.push("/")
                 }
 
@@ -76,6 +77,8 @@ export default {
         if(localStorage.getItem("token") != null) { 
             this.$router.push("/")
         }
+
+        console.log(process.env.baseUrl)
     }
 }
 </script>
