@@ -181,6 +181,12 @@ export default {
 </script>
 
 <style>
+    .pl-10 { 
+        padding-left: 160px
+    }
 
+    .pr-10 { 
+        padding-right: 160px
+    }
 </style>
 
