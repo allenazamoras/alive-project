@@ -137,7 +137,7 @@ export default {
   },
 
   created() { 
-    axios.get("http://192.168.1.2:8000/request/")
+    axios.get(`${process.env.API_URL}/request`)
     .then((res) => { 
       this.appeals = res.data
     })

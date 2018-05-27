@@ -1,177 +1,177 @@
 <template>
     <div>
-<v-toolbar dark>
-        <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
-        <v-toolbar-title><h1>A<span class="red--text">LIVE</span></h1></v-toolbar-title>
-        <v-spacer></v-spacer>
-    
-        <v-spacer></v-spacer>
-<!-- append-icon="mic" -->
-        <v-text-field
-            prepend-icon="search"
-            
-            label="Search"
-            solo-inverted
-            class="mx-3"
-            flat
-            align-center
-        ></v-text-field>
+        <v-toolbar dark>
+            <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
+            <v-toolbar-title><h1>A<span class="red--text">LIVE</span></h1></v-toolbar-title>
+            <v-spacer></v-spacer>
+        
+            <v-spacer></v-spacer>
+    <!-- append-icon="mic" -->
+            <v-text-field
+                prepend-icon="search"
+                
+                label="Search"
+                solo-inverted
+                class="mx-3"
+                flat
+                align-center
+            ></v-text-field>
 
-        <v-toolbar-items class="hidden-sm-and-down">          
-            <!-- <v-btn 
-                flat 
-                to="/"
-                >
-                Home
-            </v-btn>
-            <v-btn 
-                flat 
-                to="/appeals"
-                >
-                Appeals
-            </v-btn> -->
-            <v-btn
-                color="red"
-                flat 
-                v-show="!isLoggedIn"
-                to="/login"
-                >
-                Sign in
-            </v-btn>
-            
-        </v-toolbar-items>        
+            <v-toolbar-items class="hidden-sm-and-down">          
+                <!-- <v-btn 
+                    flat 
+                    to="/"
+                    >
+                    Home
+                </v-btn>
+                <v-btn 
+                    flat 
+                    to="/appeals"
+                    >
+                    Appeals
+                </v-btn> -->
+                <v-btn
+                    color="red"
+                    flat 
+                    v-show="!isLoggedIn"
+                    to="/login"
+                    >
+                    Sign in
+                </v-btn>
+                
+            </v-toolbar-items>        
 
-        <v-menu origin="top right" transition="scale-transition" bottom left offset-y dark v-show="isLoggedIn">
-            <v-btn icon slot="activator">
-                <v-badge overlap>
-                    <span slot="badge" class="caption">3</span>
-                    <!-- <v-avatar size="32px">
-                        <img src="https://randomuser.me/api/portraits/men/1.jpg">
-                    </v-avatar> -->
-                    <v-icon>notifications</v-icon>
-                </v-badge>               
-            </v-btn>
+            <v-menu origin="top right" transition="scale-transition" bottom left offset-y dark v-show="isLoggedIn">
+                <v-btn icon slot="activator">
+                    <v-badge overlap>
+                        <span slot="badge" class="caption">3</span>
+                        <!-- <v-avatar size="32px">
+                            <img src="https://randomuser.me/api/portraits/men/1.jpg">
+                        </v-avatar> -->
+                        <v-icon>notifications</v-icon>
+                    </v-badge>               
+                </v-btn>
 
-            <v-list>
-                <v-list-tile v-for="(item, index) in notifications" :key="`item-${index}`" :to="item.link">
-                    <v-list-tile-title class="body-1"> {{item.message}}</v-list-tile-title>
-                </v-list-tile>
-            </v-list>
-        </v-menu>    
-
-        <v-menu
-            origin="top right"
-            transition="scale-transition"
-            :nudge-width="180"
-            v-model="menu"
-            bottom
-            right
-            offset-y
-            dark
-            v-show="isLoggedIn"
-            >
-            <v-btn icon slot="activator">
-                <span slot="badge" class="caption">3</span>
-                <v-avatar size="32px">
-                    <img src="https://randomuser.me/api/portraits/men/1.jpg">
-                </v-avatar>             
-            </v-btn>  
-            <v-card>
                 <v-list>
-                <v-list-tile avatar>
-                    <v-list-tile-avatar>
-                    <img src="https://vuetifyjs.com/static/doc-images/john.jpg" alt="John">
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                    <v-list-tile-title>{{ fullName }}</v-list-tile-title>
-                    <v-list-tile-sub-title> @{{ username }} </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <!-- <v-list-tile-action>
-                        
-                            <v-btn
-                                :class="fav ? 'yellow--text' : ''"
-                                icon
-                                @click="fav = !fav"
-                            >
-                                <v-icon>fas fa-star</v-icon>
-                            </v-btn>
+                    <v-list-tile v-for="(item, index) in notifications" :key="`item-${index}`" :to="item.link">
+                        <v-list-tile-title class="body-1"> {{item.message}}</v-list-tile-title>
+                    </v-list-tile>
+                </v-list>
+            </v-menu>    
+
+            <v-menu
+                origin="top right"
+                transition="scale-transition"
+                :nudge-width="180"
+                v-model="menu"
+                bottom
+                right
+                offset-y
+                dark
+                v-show="isLoggedIn"
+                >
+                <v-btn icon slot="activator">
+                    <span slot="badge" class="caption">3</span>
+                    <v-avatar size="32px">
+                        <img src="https://randomuser.me/api/portraits/men/1.jpg">
+                    </v-avatar>             
+                </v-btn>  
+                <v-card>
+                    <v-list>
+                    <v-list-tile avatar>
+                        <v-list-tile-avatar>
+                        <img src="https://vuetifyjs.com/static/doc-images/john.jpg" alt="John">
+                        </v-list-tile-avatar>
+                        <v-list-tile-content>
+                        <v-list-tile-title>{{ fullName }}</v-list-tile-title>
+                        <v-list-tile-sub-title> @{{ username }} </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                        <!-- <v-list-tile-action>
+                            
+                                <v-btn
+                                    :class="fav ? 'yellow--text' : ''"
+                                    icon
+                                    @click="fav = !fav"
+                                >
+                                    <v-icon>fas fa-star</v-icon>
+                                </v-btn>
+                                
                             
                         
-                    
-                    </v-list-tile-action> -->
-                </v-list-tile>
-                </v-list>
-                <v-divider></v-divider>
-                <v-list>
-                    <v-list-tile :to="`/profile/${username}`">
-                        <v-list-tile-action>
-                            <v-icon size="20">fas fa-user-circle</v-icon>
-                        </v-list-tile-action>
-                        
-                        <v-list-tile-title class="body-1">Profile</v-list-tile-title>
+                        </v-list-tile-action> -->
                     </v-list-tile>
-                    <v-list-tile to="/settings">
-                        <v-list-tile-action>
-                            <v-icon size="20">fas fa-cog</v-icon>
-                        </v-list-tile-action>
-                        
-                        <v-list-tile-title class="body-1">Settings</v-list-tile-title>
-                    </v-list-tile>                    
-                    <v-list-tile to="/logout">
-                        <v-list-tile-action>
-                            <v-icon size="20">fas fa-sign-out-alt</v-icon>
-                        </v-list-tile-action>
-                        
-                        <v-list-tile-title class="body-1">Logout</v-list-tile-title>
-                    </v-list-tile>
-                </v-list>
-                <!-- <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn flat @click="menu = false">Cancel</v-btn>
-                <v-btn color="primary" flat @click="menu = false">Save</v-btn>
-                </v-card-actions> -->
-            </v-card>
-        </v-menu>        
-    </v-toolbar>
+                    </v-list>
+                    <v-divider></v-divider>
+                    <v-list>
+                        <v-list-tile :to="`/profile/${username}`">
+                            <v-list-tile-action>
+                                <v-icon size="20">fas fa-user-circle</v-icon>
+                            </v-list-tile-action>
+                            
+                            <v-list-tile-title class="body-1">Profile</v-list-tile-title>
+                        </v-list-tile>
+                        <v-list-tile to="/settings">
+                            <v-list-tile-action>
+                                <v-icon size="20">fas fa-cog</v-icon>
+                            </v-list-tile-action>
+                            
+                            <v-list-tile-title class="body-1">Settings</v-list-tile-title>
+                        </v-list-tile>                    
+                        <v-list-tile to="/logout">
+                            <v-list-tile-action>
+                                <v-icon size="20">fas fa-sign-out-alt</v-icon>
+                            </v-list-tile-action>
+                            
+                            <v-list-tile-title class="body-1">Logout</v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                    <!-- <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn flat @click="menu = false">Cancel</v-btn>
+                    <v-btn color="primary" flat @click="menu = false">Save</v-btn>
+                    </v-card-actions> -->
+                </v-card>
+            </v-menu>        
+        </v-toolbar>
 
-    <v-navigation-drawer
-      v-model="drawer"
-      temporary
-      dark
-      class="black"
-      absolute
-    >
-    <v-toolbar flat>
-      <v-list>
-        <v-list-tile>
-          <v-list-tile-title class="title">
-            Navigation
-          </v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-toolbar>
-    <v-divider></v-divider>
-      <v-spacer></v-spacer>
-      <v-list class="pa-1" dense>
-        <v-list-tile avatar tag="div" to="/">
-          <v-list-tile-action>
-              <v-list-tile-title>John Leider</v-list-tile-title>
-          </v-list-tile-action>
-        </v-list-tile>
+        <v-navigation-drawer
+        v-model="drawer"
+        temporary
+        dark
+        class="black"
+        absolute
+        >
+        <v-toolbar flat>
+        <v-list>
+            <v-list-tile>
+            <v-list-tile-title class="title">
+                Navigation
+            </v-list-tile-title>
+            </v-list-tile>
+        </v-list>
+        </v-toolbar>
+        <v-divider></v-divider>
+        <v-spacer></v-spacer>
+        <v-list class="pa-1" dense>
+            <v-list-tile avatar tag="div" to="/">
+            <v-list-tile-action>
+                <v-list-tile-title>John Leider</v-list-tile-title>
+            </v-list-tile-action>
+            </v-list-tile>
 
-        <v-list-tile avatar tag="div" to="/">
-          <v-list-tile-action>
-              <v-list-tile-title>John Leider</v-list-tile-title>
-          </v-list-tile-action>
-        </v-list-tile>
+            <v-list-tile avatar tag="div" to="/">
+            <v-list-tile-action>
+                <v-list-tile-title>John Leider</v-list-tile-title>
+            </v-list-tile-action>
+            </v-list-tile>
 
-        <v-list-tile avatar tag="div" to="/">
-          <v-list-tile-action>
-              <v-list-tile-title>John Leider</v-list-tile-title>
-          </v-list-tile-action>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>        
+            <v-list-tile avatar tag="div" to="/">
+            <v-list-tile-action>
+                <v-list-tile-title>John Leider</v-list-tile-title>
+            </v-list-tile-action>
+            </v-list-tile>
+        </v-list>
+        </v-navigation-drawer>        
     </div>
     
 </template>
@@ -203,7 +203,7 @@ export default {
     },
 
     created() {
-        
+        //axios requests here
     },
     
     computed: { 

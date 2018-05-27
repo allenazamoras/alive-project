@@ -68,7 +68,8 @@ export default {
 
     methods: { 
         login() {
-            axios.post("http://192.168.1.2:8000/login/", {
+            console.log(`${process.env.API_URL}`)
+            axios.post(`${process.env.API_URL}/login`, {
                 username: this.username,
                 password: this.password
             })
@@ -94,6 +95,8 @@ export default {
         if(localStorage.getItem("token") != null) { 
             this.$router.push("/")
         }
+
+        console.log(process.env)
     },
 
     mounted() { 
@@ -102,7 +105,6 @@ export default {
             easing: 'easeInOutQuad',
             duration: 1000,
             opacity: 1,
-            // autoplay: false,
         });
     },
 

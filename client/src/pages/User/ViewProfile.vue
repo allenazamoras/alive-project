@@ -183,7 +183,8 @@ export default {
     appeals
   },
 
-  created() { 
+  created() {
+    
   }
 }
 </script>
