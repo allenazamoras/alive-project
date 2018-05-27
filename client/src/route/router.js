@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 //Pages
 import Login from '.././pages/Login.vue'
 import Logout from '.././pages/Logout.vue'
-import Appeal from '.././pages/Appeal/Appeal.vue'
+import AppealList from '.././pages/Appeal/AppealList.vue'
 import AppealCategory from '.././pages/Appeal/AppealCategory.vue'
 import Register from '.././pages/Register.vue'
 import UserProfile from '.././pages/User/ViewProfile.vue'
@@ -23,8 +23,8 @@ const routes = [
   },
 
   {
-    path: "/appeal", 
-    component: Appeal
+    path: "/appeals", 
+    component: AppealList
   },
 
   {

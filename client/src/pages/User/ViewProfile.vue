@@ -68,15 +68,15 @@
             </v-flex>
 
             <v-flex xs12 lg8>
-                <v-tabs centered dark class="elevation-1">
-                  <v-tabs-slider color="white"></v-tabs-slider>
+                <v-tabs icons-and-text class="elevation-1">
+                  <v-tabs-slider color="black"></v-tabs-slider>
                   <v-tab href="#tab-appeals">
-                    <!-- <v-icon>fas fa-hands</v-icon> -->
+                    <v-icon>fas fa-hands</v-icon>
                     Appeals ({{ userInfo.appeals.length }})
                   </v-tab>
                   <v-tab href="#tab-assists">
-                    <!-- <v-icon>fas fa-handshake</v-icon> -->
-                    Assists (10)
+                    <v-icon>fas fa-handshake</v-icon>
+                    Assists ({{ userInfo.assists.length }})
                   </v-tab>
                   <v-tab-item
                     v-for="tab in tabs"

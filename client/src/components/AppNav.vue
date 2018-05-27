@@ -1,23 +1,24 @@
 <template>
-    <v-toolbar flat dark prominent>
-        <v-toolbar-title>
-            Alive
-        </v-toolbar-title>
+    <div>
+<v-toolbar dark>
+        <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
+        <v-toolbar-title><h1>A<span class="red--text">LIVE</span></h1></v-toolbar-title>
+        <v-spacer></v-spacer>
     
         <v-spacer></v-spacer>
-
-        <!-- <v-text-field
+<!-- append-icon="mic" -->
+        <v-text-field
             prepend-icon="search"
-            append-icon="mic"
+            
             label="Search"
             solo-inverted
             class="mx-3"
             flat
             align-center
-        ></v-text-field> -->
+        ></v-text-field>
 
         <v-toolbar-items class="hidden-sm-and-down">          
-            <v-btn 
+            <!-- <v-btn 
                 flat 
                 to="/"
                 >
@@ -25,11 +26,12 @@
             </v-btn>
             <v-btn 
                 flat 
-                to="/appeal"
+                to="/appeals"
                 >
-                Appeal
-            </v-btn>
-            <v-btn 
+                Appeals
+            </v-btn> -->
+            <v-btn
+                color="red"
                 flat 
                 v-show="!isLoggedIn"
                 to="/login"
@@ -39,15 +41,7 @@
             
         </v-toolbar-items>        
 
-        <v-menu
-        origin="top right"
-        transition="scale-transition"
-        bottom 
-        left
-        offset-y
-        dark
-        v-show="isLoggedIn"
-        >
+        <v-menu origin="top right" transition="scale-transition" bottom left offset-y dark v-show="isLoggedIn">
             <v-btn icon slot="activator">
                 <v-badge overlap>
                     <span slot="badge" class="caption">3</span>
@@ -139,12 +133,56 @@
             </v-card>
         </v-menu>        
     </v-toolbar>
+
+    <v-navigation-drawer
+      v-model="drawer"
+      temporary
+      dark
+      class="black"
+      absolute
+    >
+    <v-toolbar flat>
+      <v-list>
+        <v-list-tile>
+          <v-list-tile-title class="title">
+            Navigation
+          </v-list-tile-title>
+        </v-list-tile>
+      </v-list>
+    </v-toolbar>
+    <v-divider></v-divider>
+      <v-spacer></v-spacer>
+      <v-list class="pa-1" dense>
+        <v-list-tile avatar tag="div" to="/">
+          <v-list-tile-action>
+              <v-list-tile-title>John Leider</v-list-tile-title>
+          </v-list-tile-action>
+        </v-list-tile>
+
+        <v-list-tile avatar tag="div" to="/">
+          <v-list-tile-action>
+              <v-list-tile-title>John Leider</v-list-tile-title>
+          </v-list-tile-action>
+        </v-list-tile>
+
+        <v-list-tile avatar tag="div" to="/">
+          <v-list-tile-action>
+              <v-list-tile-title>John Leider</v-list-tile-title>
+          </v-list-tile-action>
+        </v-list-tile>
+      </v-list>
+    </v-navigation-drawer>        
+    </div>
+    
 </template>
 
 <script>
 export default {
     data() { 
         return { 
+            drawer: false,
+
+            //Navbar data
             avatarMenu: [
                 {name: "Profile", link: ``, clickable: true, icon: "fas fa-user-circle"},
                 {name: "Settings", link: `/settings`, clickable: true, icon: "fas fa-cog"},
@@ -179,14 +217,3 @@ export default {
     }
 }
 </script>
-
-<style>
-    .pl-10 { 
-        padding-left: 160px
-    }
-
-    .pr-10 { 
-        padding-right: 160px
-    }
-</style>
-

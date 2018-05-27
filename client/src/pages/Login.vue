@@ -1,41 +1,57 @@
 <template>
-    <v-container>
-        <v-layout row justify-center> 
-            <v-flex xs8 sm6 md5 lg4 xl4 mt-5 pa-2>
-                <v-card class="pa-4" tile>
-                    <v-form class="ma-2">
-                        <v-text-field
-                            label="Username"
-                            v-model="username"
-                        ></v-text-field>
-                        <v-text-field
-                            label="Password"
-                            v-model="password"
-                            :append-icon="seePass ? 'visibility_off' : 'visibility'"
-                            :append-icon-cb="() => (seePass = !seePass)"
-                            :type="seePass ? 'text' : 'password'"
+    <main :style="`background-image: url(${patternURL}); background-repeat: repeat;`">
+        <v-container fill-height>
+            <v-layout align-center justify-center> 
+                <v-flex xs10 sm8 md7 lg4 xl3>
+                    <v-card class="pa-4 elevation-10">
+                        <v-card-text class="text-xs-center">
+                            <sun/>
+                        </v-card-text>
                         
-                        ></v-text-field>
-                        <v-btn color="success" @click="login()">Login</v-btn>
-                    </v-form>
-                </v-card>
-            </v-flex>
+                        <v-card-text class="subheading text-xs-center grey--text text--darken-2" id="greeting" style="opacity: 0;">
+                            We're glad you're here.
+                        </v-card-text>
+                        <v-form class="pa-4 pb-5">
+                            <v-text-field
+                                label="Username"
+                                v-model="username"
+                                color="red"
+                            ></v-text-field>
+                            <v-text-field
+                                label="Password"
+                                v-model="password"
+                                :append-icon="seePass ? 'visibility_off' : 'visibility'"
+                                :append-icon-cb="() => (seePass = !seePass)"
+                                :type="seePass ? 'text' : 'password'"
+                                color="red"
+                            
+                            ></v-text-field>
+                        </v-form>
+                        <v-card-text flex>
+                                <v-btn color="primary" @click="login()" large>Login</v-btn>
+                                <router-link to="/register">Create an account</router-link>
+                        </v-card-text>
+                        
+                    </v-card>
+                </v-flex>
 
-            <v-snackbar
-                v-model="snackbar"
-                bottom
-                right>
+                <v-snackbar
+                    v-model="snackbar"
+                    bottom
+                    right>
 
-                {{ snackbarMessage }}
-                <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
-            </v-snackbar>            
-        </v-layout>
-    </v-container>
-        
+                    {{ snackbarMessage }}
+                    <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
+                </v-snackbar>            
+            </v-layout>
+        </v-container>
+    </main>
 </template>
 
 <script>
 import axios from 'axios'
+import sun from '../components/Sun.vue'
+import anime from 'animejs'
 
 export default {
     data() { 
@@ -46,6 +62,7 @@ export default {
 
             snackbarMessage: "",
             snackbar: false,
+            patternURL: require('../assets/science.png'),
         }
     },
 
@@ -77,8 +94,26 @@ export default {
         if(localStorage.getItem("token") != null) { 
             this.$router.push("/")
         }
+    },
 
-        console.log(process.env.baseUrl)
+    mounted() { 
+        anime({
+            targets: '#greeting',
+            easing: 'easeInOutQuad',
+            duration: 1000,
+            opacity: 1,
+            // autoplay: false,
+        });
+    },
+
+    components: { 
+        sun
     }
 }
 </script>
+
+<style>
+    main > .container {
+    height: 100vh;
+    }
+</style>

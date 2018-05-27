@@ -2,10 +2,10 @@
   <div>
     <app-nav/>
     <v-container grid-list-lg>
-      <v-layout justify-center>
+      <v-layout justify-center row>
         <v-flex lg7>
-          <v-subheader>Categories</v-subheader>
-          <v-layout row>
+          <v-subheader class="pl-0">Categories</v-subheader>
+          <v-layout row wrap>
             <v-flex xs12 sm3 md2 lg3 v-for="(category, index) in categories" :key="`category-${index}`">
               <v-card 
                 hover
@@ -25,57 +25,47 @@
           
           <v-layout wrap justify-center>
             <v-flex xs12>
-              <v-subheader>Most Recent Appeals</v-subheader>
+              <v-subheader class="pl-0">Most Recent Appeals</v-subheader>
             </v-flex>
             <v-layout row>
-              <v-flex xs12 sm12 md9>
+              <v-flex xs12 sm12 md12>
                 <v-card class="elevation-3">
                   <v-list three-line>
-                    <v-list-tile v-for="(appeal, index) in appeals" :key="`appeal-${index}`">
-                      <v-list-tile-avatar>
-                        <img src="https://picsum.photos/200/300/?random" :alt="appeal.owner.username">
-                      </v-list-tile-avatar>
-                      <v-list-tile-content :to="appeal.url">
-                        <v-list-tile-title>
-                          {{ appeal.request_title}}
-                        </v-list-tile-title>
-                        <v-list-tile-sub-title>
-                          <span class="text--primary">
-                            {{ appeal.username }}
-                          </span>
-                          {{ appeal.owner.username }} <span class="grey--text text--lighten-1">{{ getMoment(appeal.date_pub) }}</span>
-                        </v-list-tile-sub-title>
-                      </v-list-tile-content>              
-                      <v-list-tile-action>
-                        <v-tooltip top>
+                    <div v-for="(appeal, index) in appeals" :key="`appeal-${index}`">
+                      <v-list-tile>
+                        <v-list-tile-avatar>
+                          <img src="https://picsum.photos/200/300/?random" :alt="appeal.owner.username">
+                        </v-list-tile-avatar>
+                        <v-list-tile-content :to="appeal.url">
+                          <v-list-tile-title>
+                            {{ appeal.request_title}}
+                          </v-list-tile-title>
+                          <v-list-tile-sub-title>
+                            <span class="text--primary">
+                              {{ appeal.username }}
+                            </span>
+                            {{ appeal.owner.username }} - {{ appeal.detail }} <span class="grey--text text--lighten-1">{{ getMoment(appeal.date_pub) }}</span>
+                          </v-list-tile-sub-title>
+                        </v-list-tile-content>              
+                        <v-list-tile-action>
                           <v-btn depressed slot="activator">
-                            <h3><i class="fas fa-user-plus"></i></h3>
+                            <h3><v-icon>video_call</v-icon> Call</h3>
                           </v-btn>
-                          <span>I can help!</span>
-                        </v-tooltip>
-                        
-                      </v-list-tile-action>
-                    </v-list-tile>
+                        </v-list-tile-action>
+                      </v-list-tile>
+                      <v-divider inset v-show="index < appeals.length - 1"></v-divider>
+                    </div>
+                    
                   </v-list>
-                </v-card>
-              </v-flex>
-              <v-flex xs4 sm4 md3>
-                <v-card color="blue" class="white--text pa-3">
-                  <v-card-media
-                    src="src/assets/pills.svg"
-                    height="100px"
-                    contain
-                  ></v-card-media>
-                  <v-card-title primary-title>
-                    <h3>kill me pls</h3>
-                  </v-card-title>
                 </v-card>
               </v-flex>
             </v-layout>
           </v-layout>
         </v-flex>
       </v-layout>   
-    <v-dialog v-model="userDialog" max-width="500px">
+
+      <!-- dialog component -->
+    <!-- <v-dialog v-model="userDialog" max-width="500px">
       <v-card>
         <v-card-title>
           <span>Dialog 3</span>
@@ -91,7 +81,7 @@
           <v-btn color="primary" flat @click.stop="userDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>    
-    </v-dialog>
+    </v-dialog> -->
     </v-container>
   </div>
   
@@ -116,7 +106,27 @@ export default {
         {name: "Others", url: "/appeal/category/others", img: "https://picsum.photos/200/300/?random"},
       ],
 
-      appeals: []
+      appeals: [
+        {
+          owner: { 
+            username: "johndoe"
+          },
+
+          request_title: "I want to cook my dog",
+          detail: "But then I don't have the sauce for it",
+          date_pub: "20180527"
+        },
+
+        {
+          owner: { 
+            username: "johndee"
+          },
+
+          request_title: "I want to cook my cat",
+          detail: "But then I don't have the sauce for it",
+          date_pub: "20180526"
+        }
+      ]
     }
   },
 
@@ -138,3 +148,10 @@ export default {
   }
 }
 </script>
+
+<style>
+  .drop-shadow { 
+    text-shadow: 1.5px 1.5px #000;
+  }
+</style>
+

@@ -1,10 +1,16 @@
 <template>
-  <v-container>
-    {{ category }} category
-  </v-container>
+  <div>
+    <app-nav/>
+    <v-container>
+      {{ category }} category
+    </v-container>
+  </div>
+  
 </template>
 
 <script>
+import appNav from '../.././components/AppNav.vue'
+
 export default {
   data() { 
     return { 
@@ -13,6 +19,10 @@ export default {
   },
   created() { 
     this.category = this.$route.params
+  },
+
+  components: { 
+    appNav
   }
 }
 </script>
