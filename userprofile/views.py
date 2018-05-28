@@ -34,7 +34,13 @@ class Login(ObtainAuthToken):
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        serializer = UserSerializer(user)
         token = Token.objects.get(user=user)
         return Response({'token': token.key,
-                         'user': user.pk,
+                         'pk': user.pk,
+                         'username': user.username,
+                         'first_name': user.first_name,
+                         'last_name': user.last_name,
+                         'profile_picture': serializer.data['profile_picture']
+                         # 'profile_picture': user.profile_picture.decode('utf-16')
                          })

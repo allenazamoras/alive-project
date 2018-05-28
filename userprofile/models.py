@@ -25,13 +25,14 @@ class User(AbstractUser):
     def last_seen(self):
         return cache.get(self.username)
 
+    @property
     def online(self):
-        if self.last_seen():
-            now = datetime.datetime.now()
-            if now > self.last_seen() + datetime.timedelta(
-                    seconds=settings.USER_ONLINE_TIMEOUT):
-                return False
-            else:
-                return True
-        else:
+        if not self.last_seen():
             return False
+
+        now = datetime.datetime.now()
+        if now > self.last_seen() + datetime.timedelta(
+                seconds=settings.USER_ONLINE_TIMEOUT):
+            return False
+        else:
+            return True
