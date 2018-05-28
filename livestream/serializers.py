@@ -8,7 +8,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('username',
                   'first_name', 'last_name',
-                  'reputation')
+                  'profile_picture')
 
 
 class PendingListSerializer(serializers.ModelSerializer):
