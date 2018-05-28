@@ -35,7 +35,6 @@ class Login(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token = Token.objects.get(user=user)
-
         return Response({'token': token.key,
                          'user': user.pk,
                          })

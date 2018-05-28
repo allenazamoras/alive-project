@@ -1,5 +1,8 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.cache import cache
+from aLive import settings
 
 
 class User(AbstractUser):
@@ -18,3 +21,17 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def last_seen(self):
+        return cache.get(self.username)
+
+    def online(self):
+        if self.last_seen():
+            now = datetime.datetime.now()
+            if now > self.last_seen() + datetime.timedelta(
+                    seconds=settings.USER_ONLINE_TIMEOUT):
+                return False
+            else:
+                return True
+        else:
+            return False

@@ -8,12 +8,13 @@ class UserSerializer(serializers.ModelSerializer):
     offers = serializers.SerializerMethodField()
     openappeals = serializers.SerializerMethodField()
     closedappeals = serializers.SerializerMethodField()
+    online = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'first_name',
+        fields = ('id', 'username', 'first_name',
                   'last_name', 'gender', 'profile_picture',
-                  'openappeals', 'closedappeals', 'offers')
+                  'online', 'openappeals', 'closedappeals', 'offers')
 
     def get_offers(self, obj):
         offers = AppealSerializer(obj.offers.all(), many=True)
@@ -28,3 +29,6 @@ class UserSerializer(serializers.ModelSerializer):
         appeals = Appeal.objects.filter(owner=obj, is_active=False)
         serializer = AppealSerializer(appeals, many=True)
         return serializer.data
+
+    def get_online(self, obj):
+        return obj.online()
