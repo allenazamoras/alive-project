@@ -34,7 +34,7 @@
                     </v-subheader>
                     <v-layout row wrap>
                         <v-flex xs4 v-for="appeal in closedAppeals" :key="appeal.id" v-if="closedAppeals.length > 0" pt-0>
-                            <v-card dark class="elevation-2">
+                            <v-card dark hover @click="info(appeal)">
                                 <v-card-title primary-title>
                                 <div>
                                     <h3 class="body-2 mb-0"> {{ appeal.request_title }} </h3>
