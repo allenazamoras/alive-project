@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Created by https://www.gitignore.io/api/python,django
 
@@ -38,3 +39,17 @@ npm-debug.log
 
 # Nuxt generate
 dist
+=======
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+>>>>>>> 86c7e782bc708892d2b69d46527c3833fde90e44
