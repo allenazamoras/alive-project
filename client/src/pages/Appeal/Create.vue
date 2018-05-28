@@ -49,15 +49,16 @@ export default {
   methods: { 
     send() { 
       const config = { 
-        Authorization: `Token ${localStorage.getItem("token")}`
+        headers: { 
+          Authorization: `Token ${localStorage.getItem("token")}`
+        }
       }
 
       console.log(config)
 
       axios.post(`${process.env.API_URL}/request/`, {
         request_title: this.request_title,
-        detail: this.detail,
-        username: this.$store.getters.getUsername
+        detail: this.detail
       }, config)
 
       .then((res) => { 
