@@ -2,16 +2,24 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 //Pages
+import IndexPage from '.././pages/IndexPage.vue'
 import Login from '.././pages/Login.vue'
 import Logout from '.././pages/Logout.vue'
+import CreateAppeal from '.././pages/Appeal/Create.vue'
 import AppealList from '.././pages/Appeal/AppealList.vue'
 import AppealCategory from '.././pages/Appeal/AppealCategory.vue'
 import Register from '.././pages/Register.vue'
 import UserProfile from '.././pages/User/ViewProfile.vue'
+import NotFound from '.././pages/404.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: "/",
+    component: IndexPage
+  },
+
   {
     path: "/login", 
     component: Login,
@@ -36,6 +44,11 @@ const routes = [
     path: "/appeal/category/:categName/:subcategName", 
     component: AppealCategory
   },
+
+  {
+    path: "/appeal/create",
+    component: CreateAppeal
+  },
   
   {
     path: "/logout", 
@@ -45,6 +58,16 @@ const routes = [
   {
     path: "/profile/:username",
     component: UserProfile
+  },
+
+  {
+    path: "/404",
+    component: NotFound
+  },
+
+  { 
+    path: "*",
+    redirect: "/404"
   }
 ]
 

@@ -8,13 +8,11 @@
                     </v-subheader>
 
                     <v-layout row wrap>
-                        <v-flex xs12 v-for="(appeal, index) in appeals" :key="`appeal-${index}`" pt-0 v-if="appeal.status == 'active'">
-                            <v-card color="teal" dark class="elevation-2 pb-3">
-                                <!-- <v-card-media src="/static/doc-images/cards/desert.jpg" height="200px">
-                                </v-card-media> -->
+                        <v-flex xs12 v-for="appeal in openAppeals" :key="appeal.id" pt-0 v-if="openAppeals.length > 0">
+                            <v-card dark class="elevation-2 pb-3">
                                 <v-card-title primary-title>
                                 <div>
-                                    <h2 class="headline"> {{ appeal.title }} </h2>
+                                    <h2 class="headline"> {{ appeal.request_title }} </h2>
                                     <div> {{ appeal.detail }} </div>
                                 </div>
                                 </v-card-title>
@@ -22,6 +20,9 @@
                                 <v-btn flat class="ml-2"><v-icon>video_call</v-icon> Call</v-btn>
                                 </v-card-actions>
                             </v-card>
+                        </v-flex>
+                        <v-flex v-if="openAppeals.length == 0" xs12 class="grey--text">
+                            There's nothing here.
                         </v-flex>
                     </v-layout>
                     
@@ -32,17 +33,18 @@
                             Completed
                     </v-subheader>
                     <v-layout row wrap>
-                        <v-flex xs12 v-for="(appeal, index) in appeals" :key="`appeal-${index}`" pt-0 v-if="appeal.status == 'completed'">
-                            <v-card color="blue-grey darken-1" dark class="elevation-2">
-                                <!-- <v-card-media src="/static/doc-images/cards/desert.jpg" height="200px">
-                                </v-card-media> -->
+                        <v-flex xs4 v-for="appeal in closedAppeals" :key="appeal.id" v-if="closedAppeals.length > 0" pt-0>
+                            <v-card dark class="elevation-2">
                                 <v-card-title primary-title>
                                 <div>
-                                    <h3 class="body-1 mb-0"> {{ appeal.title }} </h3>
+                                    <h3 class="body-2 mb-0"> {{ appeal.request_title }} </h3>
                                     <div class="caption"> {{ appeal.detail }} </div>
                                 </div>
                                 </v-card-title>
                             </v-card>
+                        </v-flex>
+                        <v-flex v-if="closedAppeals.length == 0" xs12 class="grey--text">
+                            There's nothing here.
                         </v-flex>
                     </v-layout>
                     
@@ -54,6 +56,6 @@
 
 <script>
 export default {
-    props: ["appeals"]
+    props: ["openAppeals", "closedAppeals"]
 }
 </script>

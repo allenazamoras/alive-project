@@ -6,28 +6,66 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: { 
-    username: "",
+    user: {
+      username: "",
+      userID: -1,
+      profilePic: "",
+      fullName: ""
+    }
   },
 
   plugins: [persistedState()],
 
-  mutations: { 
+  mutations: {
     setUsername(state, username) { 
       state.username = username
     },
+
+    setUserID(state, userID) { 
+      state.userID = userID
+    },
+
+    setProfilePic(state, profilePic) { 
+      state.profilePic = profilePic
+    },
+
+    setFullName(state, fullName) { 
+      state.fullname = fullName
+    },
+
+    setUserAll(state, user) { 
+      state.user = user
+    }
   },
 
   actions: { 
-    setUsername(state, username) { 
-      if(state.username.length == 0) { 
-        context.commit("setUsername", username)
+    setUserData({commit}, user) { 
+      commit("setUserAll", user)
+    },
+
+    removeUserData({commit})  {
+      const user = {
+        username: "",
+        userID: -1,
+        profilePic: "",
+        fullName: ""
       }
+
+      commit("setUserAll", user)
     }
   },
 
   getters: { 
     getUsername(state) { 
-      return state.username
+      return state.user.username
+    },
+
+    getUserID(state) { 
+      return state.user.userID
+    },
+
+    getUserData(state) { 
+      return state.user
     }
   }
 })

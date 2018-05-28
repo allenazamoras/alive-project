@@ -13,7 +13,6 @@
 
 <script>
 import appNav from './components/AppNav.vue'
-import subNav from './components/SubNav.vue'
 
 export default {
   name: 'app',
@@ -24,8 +23,7 @@ export default {
   },
 
   components: { 
-    appNav,
-    subNav
+    appNav
   },
 }
 </script>

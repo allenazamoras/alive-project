@@ -63,25 +63,6 @@
           </v-layout>
         </v-flex>
       </v-layout>   
-
-      <!-- dialog component -->
-    <!-- <v-dialog v-model="userDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span>Dialog 3</span>
-          <v-spacer></v-spacer>
-          <v-menu bottom left>
-            <v-btn slot="activator" icon>
-              <v-icon>more_vert</v-icon>
-            </v-btn>
-          
-          </v-menu>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn color="primary" flat @click.stop="userDialog = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>    
-    </v-dialog> -->
     </v-container>
   </div>
   
@@ -102,7 +83,6 @@ export default {
         {name: "Work", url: "/appeal/category/work", img: "https://picsum.photos/200/300/?random"},
         {name: "Family", url: "/appeal/category/family", img: "https://picsum.photos/200/300/?random"},
         {name: "Relationships", url: "/appeal/category/others", img: "https://picsum.photos/200/300/?random"},
-        {name: "Dahyun Best Girl", url: "/appeal/category/family", img: "https://picsum.photos/200/300/?random"},
         {name: "Others", url: "/appeal/category/others", img: "https://picsum.photos/200/300/?random"},
       ],
 
@@ -137,7 +117,7 @@ export default {
   },
 
   created() { 
-    axios.get(`${process.env.API_URL}/request`)
+    axios.get(`${process.env.API_URL}/request/`)
     .then((res) => { 
       this.appeals = res.data
     })
@@ -151,7 +131,7 @@ export default {
 
 <style>
   .drop-shadow { 
-    text-shadow: 1.5px 1.5px #000;
+    text-shadow: 0.5px 0.5px #000;
   }
 </style>
 

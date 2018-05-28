@@ -1,10 +1,18 @@
 <template>
-  <v-container grid-list-lg>
-    <v-layout row justify-center> 
-      <v-flex xs8 sm6 md5 lg5 xl12 mt-5>
-          <v-card class="pa-4">
-              <v-form class="ma-2">
-                  <v-text-field
+    <main :style="`background-image: url(${patternURL}); background-repeat: repeat;`">
+        <v-container fill-height>
+            <v-layout align-center justify-center> 
+                <v-flex xs10 sm8 md7 lg4 xl3>
+                    <v-card class="pa-4 elevation-10">
+                        <!-- <v-card-text class="text-xs-center">
+                        
+                        </v-card-text> -->
+                        
+                        <v-card-text class="subheading text-xs-center grey--text text--darken-2" id="greeting" style="opacity: 0;">
+                            We're glad you're here.
+                        </v-card-text>
+                        <v-form class="pa-4 pb-5">
+                            <v-text-field
                       label="Username"
                       v-model="username"
                   ></v-text-field>
@@ -40,12 +48,34 @@
                     single-line>
                   </v-select>
                   <v-btn color="success" @click="register()">Register</v-btn>
-              </v-form>
-          </v-card>
-      </v-flex>
-  </v-layout>
-  </v-container>
+                        </v-form>
+                        <v-card-text flex>
+                                <v-btn color="primary" @click="register()" large>Register</v-btn>
+                                <router-link to="/login">Sign in instead</router-link>
+                        </v-card-text>
+                        
+                    </v-card>
+                </v-flex>
+
+                <v-snackbar
+                    v-model="snackbar"
+                    bottom
+                    right>
+
+                    {{ snackbarMessage }}
+                    <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
+                </v-snackbar>            
+            </v-layout>
+        </v-container>
+    </main>
 </template>
+
+<style>
+    main > .container {
+    height: 100vh;
+    }
+</style>
+
 
 <script>
 import axios from 'axios'
@@ -59,6 +89,9 @@ export default {
             last_name: "",
             gender: "",
             seePass: false,
+            snackbarMessage: "",
+            patternURL: require('../assets/ahoy.jpg'),
+            snackbar: false,
             genderList: [
               {text: "Male"},
               {text: "Female"}
@@ -68,7 +101,7 @@ export default {
 
     methods: { 
         register() {
-            axios.post("http://192.168.1.2:8000/user/", {
+            axios.post(`${process.env.API_URL}/user/`, {
                 username: this.username,
                 password: this.password,
                 first_name: this.first_name,

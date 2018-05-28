@@ -62,22 +62,31 @@ export default {
 
             snackbarMessage: "",
             snackbar: false,
-            patternURL: require('../assets/science.png'),
+            patternURL: require('../assets/ahoy.jpg'),
         }
     },
 
     methods: { 
         login() {
-            console.log(`${process.env.API_URL}`)
             axios.post(`${process.env.API_URL}/login`, {
                 username: this.username,
                 password: this.password
             })
 
             .then((res) => { 
-                if(res.data.user > 0) { 
+                if(res.data.pk > 0) { 
+                    console.log("nice!")
+
+                    const user = {
+                        username: res.data.username,
+                        userID: res.data.pk,
+                        profilePic: process.env.API_URL + res.data.profile_picture,
+                        fullName: res.data.first_name + " " + res.data.last_name
+                    }
+
                     localStorage.setItem("token", res.data.token)
-                    this.$store.commit("setUsername", this.username)
+
+                    this.$store.dispatch("setUserData", user)
                     this.$router.push("/")
                 }
 
@@ -95,8 +104,6 @@ export default {
         if(localStorage.getItem("token") != null) { 
             this.$router.push("/")
         }
-
-        console.log(process.env)
     },
 
     mounted() { 

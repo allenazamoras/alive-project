@@ -11,11 +11,11 @@
                   <v-layout row justify-center align-center>
                       <v-flex md12 lg12 sm12 class="text-sm-center">
                         <v-avatar size="80">
-                          <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="">
+                          <img :src="`${user.profile_picture}`" alt="">
                         </v-avatar>
 
-                        <h2 class="grey--text text--darken-4">{{ userInfo.fullName }}</h2>
-                        <h3 class="body-1 grey--text text--darken-4"> {{ userInfo.bio }} </h3>
+                        <h2 class="grey--text text--darken-3">{{ user.first_name }} {{ user.last_name }}</h2>
+                        <!-- <h3 class="body-1 grey--text text--darken-4"> {{ userInfo.bio }} </h3> -->
                       </v-flex>          
                     </v-layout>
                 </v-parallax> 
@@ -31,19 +31,19 @@
                     <v-card-text primary-title>
                       <h3>Basic Information</h3>
                       <span>
-                        <span class="body-2">Username: </span> <router-link to="/">@{{ userInfo.username }}</router-link>
+                        <span class="body-2">Username: </span>{{ user.username }}
                       </span>
                       <br>
                       <span>
-                        <span class="body-2">Full Name: </span> {{ userInfo.fullName }}
+                        <span class="body-2">Full Name: </span> {{ user.first_name }} {{ user.last_name }}
                       </span>
                       <br>
                       <span>
-                        <span class="body-2">Gender: </span> {{ userInfo.gender }}
+                        <span class="body-2">Gender: </span> {{ user.gender }}
                       </span>
                       <br>
                       <span>
-                        <span class="body-2">Joined Date: </span> {{ userInfo.joinedDate }}
+                        <!-- <span class="body-2">Joined Date: </span> {{ userInfo.joinedDate }} -->
                       </span>
                     </v-card-text>
                   </v-card>
@@ -71,12 +71,12 @@
                 <v-tabs icons-and-text class="elevation-1">
                   <v-tabs-slider color="black"></v-tabs-slider>
                   <v-tab href="#tab-appeals">
-                    <v-icon>fas fa-hands</v-icon>
-                    Appeals ({{ userInfo.appeals.length }})
+                    <!-- <v-icon>fas fa-hands</v-icon> -->
+                    Appeals ({{ user.openappeals.length + user.closedappeals.length }})
                   </v-tab>
                   <v-tab href="#tab-assists">
-                    <v-icon>fas fa-handshake</v-icon>
-                    Assists ({{ userInfo.assists.length }})
+                    <!-- <v-icon>fas fa-handshake</v-icon> -->
+                    Assists ({{ user.offers.openappeals.length + user.offers.closedappeals.length }})
                   </v-tab>
                   <v-tab-item
                     v-for="tab in tabs"
@@ -84,8 +84,8 @@
                     :id="'tab-' + tab"
                   >
                     <v-card flat>
-                      <appeals :appeals="userInfo.appeals" v-show="tab == 'appeals'"></appeals>
-                      <appeals :appeals="userInfo.assists" v-show="tab == 'assists'"></appeals>
+                      <appeals :openAppeals="user.openappeals" :closedAppeals="user.closedappeals" v-show="tab == 'appeals'"></appeals>
+                      <appeals :openAppeals="user.offers.openappeals" :closedAppeals="user.offers.closedappeals" v-show="tab == 'assists'"></appeals>
                     </v-card>
                   </v-tab-item>
                 </v-tabs>
@@ -100,79 +100,21 @@
 </template>
 
 <script>
+import axios from 'axios'
 import appNav from '../.././components/AppNav.vue'
 import appeals from '../.././components/User/Appeals.vue'
 
 export default {
   data() { 
     return {
-      userInfo: {
-        username: "johndoe",
-        fullName: "John Doe",
-        gender: "Male",
-        bio: "Programmer | Knee Gore | I want 2 live oh wow",
-        joinedDate: "May 27, 2018",
-        appeals: [
-          {
-            title: "I want to eat my dog because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "active"
-          },
-
-          {
-            title: "I want to eat my cat because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "completed"
-          },
-
-          {
-            title: "I want to eat my pig because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "completed"
-
-          },
-        ],
-
-        assists: [
-          {
-            title: "I want to eat my dog because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "active"
-          },
-
-          {
-            title: "I want to eat my dog because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "active"
-          },
-
-          {
-            title: "I want to eat my dog because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "completed"
-          },
-
-          {
-            title: "I want to eat my dog because he keeps hitting me",
-            detail: "Is it better if I marinate it overnight or for an hour?",
-            datePosted: "May 27, 2018",
-            status: "completed"
-          },
-        ],
-      },
-
-      viewedUsername: this.$route.params.username,
       patternURL: require('../../assets/sun-pattern.png'),
       tabs: ["appeals", "assists"],
+      
+      //user info 
+      user: {},
+      viewedUsername: this.$route.params.username,
 
-
-      //For the Awards
+      //awards
       firstReviewReceived: require("../../assets/achievements/medal.svg"),
       firstAssist: require("../../assets/achievements/badge.svg")
     }
@@ -184,7 +126,13 @@ export default {
   },
 
   created() {
-    
+    axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`)
+    .then((res) => { 
+      this.user = res.data
+    })
+    .catch((err) => { 
+      console.log(err)
+    })
   }
 }
 </script>
