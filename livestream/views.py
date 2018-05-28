@@ -4,7 +4,7 @@ from rest_framework import status, viewsets
 
 from .serializers import AppealSerializer, ApprovalRequestSerializer
 from .models import Appeal, ApprovalRequest
-from .permissions import AppealsViewSetPermissions
+from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -44,7 +44,8 @@ class AppealViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        queryset = Appeal.objects.filter(is_active=None).order_by('date_pub')
+        queryset = Appeal.objects.filter(status=Appeal.INACTIVE).\
+            order_by('date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -60,7 +61,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         '''
         appeal = self.get_object()
 
-        if appeal.is_active is False:
+        if appeal.status is Appeal.COMPLETED:
             return Response({'return': 'Appeal no longer exists'},
                             status=status.HTTP_404_NOT_FOUND)
 
@@ -74,6 +75,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
+    permission_classes = (ApprovalRequestPermissions,)
     queryset = ApprovalRequest.objects.all()
     serializer_class = ApprovalRequestSerializer
 
@@ -90,15 +92,9 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         if appeal_instance is None:
             return Response({'return': 'request does not exist'})
 
-        # owner should NOT BE ABLE TO create approvalrequess
-        # for their OWN appeals
-        if appeal_instance.owner == self.request.user:
-            return Response({'return': 'action impossible'})
-
         if ApprovalRequest.objects.filter(appeal=appeal_instance,
                                           helper=self.request.user).exists():
-            print('approval request already exists')
-            if appeal_instance.is_active is False:
+            if appeal_instance.status is Appeal.COMPLETED:
                 # WARNING: if request gets rejected (is_accepted holds false)
                 # return message will still be 'pending approval...'
                 return Response({'return': 'request no longer exists'},
@@ -115,10 +111,10 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         # display list of all ApprovalRequests by current user
         # should only display ApprovalRequests for
-        # Appeals that are still inactive (is_active is null) and
+        # Appeals that are still inactive (status is null) and
         # Requests have not been rejected (is_accepted holds null)
         queryset = ApprovalRequest.objects.filter(
-            helper=request.user).exclude(is_approved=False)
+            helper=request.user).exclude(status=ApprovalRequest.REJECTED)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -129,32 +125,23 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
-        # TODO 
-        ar_instance = self.get_object()
-        # if request.data['']
-        # print(request.data.keys())
         kwargs['partial'] = True
-        # return self.update(request, *args, **kwargs)
-        return ''
+        return self.update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         # when user revokes approval request it gets deleted from the db
         instance = self.get_object()
-        user_inst = request.user
-        message = {'return': 'You cannot delete this instance'}
-        # request instance can only be deleted by
-        # user who offered help and only if it is still pending
-        if (instance.helper == user_inst and instance.is_approved is None):
+        # can only be deleted only if it is still pending
+        if instance.status == ApprovalRequest.PENDING:
             self.perform_destroy(instance)
-            message['return'] = 'Successfully cancelled pending offer'
+            message = {'return': 'Successfully cancelled pending offer'}
             return Response(message, status=status.HTTP_204_NO_CONTENT)
+
+        message = {'return': 'cannot perform action'}
         return Response(message, status=status.HTTP_403_FORBIDDEN)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.helper != request.user:
-            return Response({'return': 'Access not allowed'},
-                            status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
