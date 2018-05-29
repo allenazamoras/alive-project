@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from django.views.generic.detail import SingleObjectMixin
 from django.views import generic
+from django.views.generic.detail import SingleObjectMixin
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
 
-from .serializers import AppealSerializer, ApprovalRequestSerializer
 from .models import Appeal, ApprovalRequest
+from .serializers import AppealSerializer, ApprovalRequestSerializer
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -26,7 +26,6 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
     context = {}
 
     def create(self, request, *args, **kwargs):
-
         session = opentok.create_session(media_mode=MediaModes.routed)
         req = request.data
         if session:
@@ -34,6 +33,7 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
                                  session_id=session.session_id,
                                  owner=request.user,
                                  helper=None,
+                                 status=Appeal.ACTIVE,
                                  detail=req['detail'],)
             new_session.save()
             return Response({'return': 'Successfully created new request'},
@@ -42,8 +42,7 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         return Response({'return': 'Failed to create request'})
 
     def list(self, request, *args, **kwargs):
-        queryset = Appeal.objects.filter(is_active=None).order_by('date_pub')
-
+        queryset = Appeal.objects.filter(status=Appeal.INACTIVE).order_by('date_pub')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -74,41 +73,41 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
             'TOKEN': token,
         }
         print(self.context)
-        # serializer = self.get_serializer(session)
-        return render(request, 'livestream/stream.html', self.context)
-        # return Response(serializer.data,
+        serializer = self.get_serializer(appeal)
+        # return render(request, 'livestream/stream.html', self.context)
+        return Response(serializer.data)
         #                 template_name='livestream/stream.html')
 
 
-class AppealDetailView(generic.DetailView):
-    model = Appeal
-    template_name = 'livestream/stream.html'
+# class AppealDetailView(generic.DetailView):
+#     model = Appeal
+#     template_name = 'livestream/stream.html'
 
-    context = {}
+#     context = {}
 
-    def get(self, request, *args, **kwargs):
-        print("i get rendered")
+#     def get(self, request, *args, **kwargs):
+#         print("i get rendered")
 
-        user = request.user
-        print(user)
-        # get current session
-        appeal = self.get_object()
-        print(appeal)
-        # check if session owner ang nag generate sa token
-        # or check if puno na ang session (max: 2 publishers)
-        # generate token for current user (default: publisher) valid for 24h
-        # UMIMPLEMENTED PA ANG CHECKING HAP
-        token = opentok.generate_token(appeal.session_id)
-        # check if token is created successfully
-        print(token)
-        self.context = {
-            'API_KEY': OPENTOK_API,
-            'SESSION_ID': appeal.session_id,
-            'TOKEN': token,
-        }
-        print(self.context)
+#         user = request.user
+#         print(user)
+#         # get current session
+#         appeal = self.get_object()
+#         print(appeal)
+#         # check if session owner ang nag generate sa token
+#         # or check if puno na ang session (max: 2 publishers)
+#         # generate token for current user (default: publisher) valid for 24h
+#         # UMIMPLEMENTED PA ANG CHECKING HAP
+#         token = opentok.generate_token(appeal.session_id)
+#         # check if token is created successfully
+#         print(token)
+#         self.context = {
+#             'API_KEY': OPENTOK_API,
+#             'SESSION_ID': appeal.session_id,
+#             'TOKEN': token,
+#         }
+#         print(self.context)
 
-        return self.render_to_response(self.context)
+#         return self.render_to_response(self.context)
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
@@ -137,7 +136,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         if ApprovalRequest.objects.filter(appeal=appeal_instance,
                                           helper=self.request.user).exists():
             print('approval request already exists')
-            if appeal_instance.is_active is False:
+            if appeal_instance.status is False:
                 # WARNING: if request gets rejected (is_accepted holds false)
                 # return message will still be 'pending approval...'
                 return Response({'return': 'request no longer exists'},
@@ -154,7 +153,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         # display list of all ApprovalRequests by current user
         # should only display ApprovalRequests for
-        # Appeals that are still inactive (is_active is null) and
+        # Appeals that are still inactive (status is null) and
         # Requests have not been rejected (is_accepted holds null)
         queryset = ApprovalRequest.objects.filter(
             helper=request.user).exclude(is_approved=False)

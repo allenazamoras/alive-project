@@ -7,14 +7,16 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username',
-                  'first_name', 'last_name',
+                  'first_name',
+                  'last_name',
                   'profile_picture')
 
 
 class PendingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
-        fields = ('helper', 'is_approved')
+        fields = ('helper',
+                  'is_approved')
 
 
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,7 +28,7 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'session_id', 'detail',
-                  'date_pub', 'owner', 'helper', 'is_active',
+                  'date_pub', 'owner', 'helper', 'status',
                   'pending_list')
 
     def get_pending_list(self, obj):
@@ -41,7 +43,7 @@ class AppealSerializerForHelpers(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'session_id', 'detail',
-                  'date_pub', 'owner', 'is_active')
+                  'date_pub', 'owner', 'status')
 
 
 class ApprovalRequestSerializer(serializers.ModelSerializer):
