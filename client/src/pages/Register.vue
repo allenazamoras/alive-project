@@ -57,14 +57,7 @@
                     </v-card>
                 </v-flex>
 
-                <v-snackbar
-                    v-model="snackbar"
-                    bottom
-                    right>
-
-                    {{ snackbarMessage }}
-                    <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
-                </v-snackbar>            
+                <snackbar :text="snackbarTitle"/>         
             </v-layout>
         </v-container>
     </main>
@@ -78,6 +71,10 @@
 
 
 <script>
+//Components
+import snackbar from '../../components/Snackbar.vue'
+
+//Plugins
 import axios from 'axios'
 
 export default {
@@ -88,10 +85,11 @@ export default {
             first_name: "",
             last_name: "",
             gender: "",
+
             seePass: false,
-            snackbarMessage: "",
             patternURL: require('../assets/ahoy.jpg'),
-            snackbar: false,
+            snackbarTitle: "",
+
             genderList: [
               {text: "Male"},
               {text: "Female"}
@@ -112,12 +110,15 @@ export default {
 
             .then((res) => { 
               if(res.data.return == "Account successfully created.") { 
+                this.snackbarTitle = res.data.return
+                this.$store.commit("setSnackbarState", true)
                 this.$router.push("/login")
               }
             })
 
             .catch((err) => { 
-                console.log(err)
+                this.snackbarTitle = "An error has occured."
+                this.$store.commit("setSnackbarState", true)
             })
         }
     },

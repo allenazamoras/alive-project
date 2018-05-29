@@ -44,13 +44,18 @@
                     <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
                 </v-snackbar>            
             </v-layout>
+            <snackbar :text="snackbarTitle"/>
         </v-container>
     </main>
 </template>
 
 <script>
-import axios from 'axios'
+//Components
 import sun from '../components/Sun.vue'
+import snackbar from '../../components/Snackbar.vue'
+
+//Plugins
+import axios from 'axios'
 import anime from 'animejs'
 
 export default {
@@ -58,10 +63,9 @@ export default {
         return { 
             username: "",
             password: "",
-            seePass: false,
 
-            snackbarMessage: "",
-            snackbar: false,
+            seePass: false,
+            snackbarTitle: "",
             patternURL: require('../assets/ahoy.jpg'),
         }
     },
@@ -74,9 +78,8 @@ export default {
             })
 
             .then((res) => { 
-                if(res.data.pk > 0) { 
-                    console.log("nice!")
-
+                //Checks if there was a user pk returned
+                if(res.data.pk != undefined) { 
                     const user = {
                         username: res.data.username,
                         userID: res.data.pk,
@@ -84,8 +87,10 @@ export default {
                         fullName: res.data.first_name + " " + res.data.last_name
                     }
 
-                    localStorage.setItem("token", res.data.token)
+                    this.snackbarTitle = "Welcome back"
+                    this.$store.commit("setSnackbarState", true)
 
+                    localStorage.setItem("token", res.data.token)
                     this.$store.dispatch("setUserData", user)
                     this.$router.push("/")
                 }
@@ -94,8 +99,8 @@ export default {
             })
 
             .catch((err) => { 
-                this.snackbarMessage = "Invalid login."
-                this.snackbar = true
+                this.snackbarTitle = "Invalid login."
+                this.$store.commit("setSnackbarState", true)
             })
         }
     },

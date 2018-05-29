@@ -10,31 +10,22 @@ export const store = new Vuex.Store({
       username: "",
       userID: -1,
       profilePic: "",
-      fullName: ""
+      fullName: "",
+
+      snackbar: false,
+      timeout: 3000,
     }
   },
 
   plugins: [persistedState()],
 
   mutations: {
-    setUsername(state, username) { 
-      state.username = username
-    },
-
-    setUserID(state, userID) { 
-      state.userID = userID
-    },
-
-    setProfilePic(state, profilePic) { 
-      state.profilePic = profilePic
-    },
-
-    setFullName(state, fullName) { 
-      state.fullname = fullName
-    },
-
     setUserAll(state, user) { 
       state.user = user
+    },
+
+    setSnackbarState(state, boolean) {
+      state.snackbar = boolean
     }
   },
 
@@ -66,6 +57,14 @@ export const store = new Vuex.Store({
 
     getUserData(state) { 
       return state.user
+    },
+
+    getSnackbarState(state) { 
+      return state.snackbar
+    },
+
+    getSnackbarTimeout(state) { 
+      return state.timeout
     }
   }
 })

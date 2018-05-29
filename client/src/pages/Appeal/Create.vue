@@ -18,7 +18,7 @@
                 ></v-text-field>
               </v-form>
 
-              <v-btn @click="send()">
+              <v-btn @click="send">
                 Send
               </v-btn>
             </v-card-text>
@@ -26,24 +26,32 @@
         </v-flex>
         
       </v-layout>
+      <snackbar :text="snackbarTitle"/>
     </v-container>
   </div>
 </template>
 
 <script>
+//Components
 import appNav from '../../components/AppNav.vue'
+import snackbar from '../../components/Snackbar.vue'
+
+//Plugins
 import axios from 'axios'
 
 export default {
   data() { 
     return { 
       request_title: "",
-      detail: ""
+      detail: "",
+
+      snackbarTitle: ""
     }
   },
 
   components: { 
-    appNav
+    appNav,
+    snackbar
   },
 
   methods: { 
@@ -54,15 +62,14 @@ export default {
         }
       }
 
-      console.log(config)
-
       axios.post(`${process.env.API_URL}/request/`, {
         request_title: this.request_title,
         detail: this.detail
       }, config)
 
       .then((res) => { 
-        console.log("NICE")
+        this.snackbarTitle = res.data
+        this.$store.commit("setSnackbarState", true)
       })
     }
   }
