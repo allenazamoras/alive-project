@@ -28,7 +28,7 @@
                             ></v-text-field>
                         </v-form>
                         <v-card-text flex>
-                                <v-btn color="primary" @click="login()" large>Login</v-btn>
+                                <v-btn color="primary" @click="login" large>Login</v-btn>
                                 <router-link to="/register">Create an account</router-link>
                         </v-card-text>
                         

@@ -50,7 +50,7 @@
                   <v-btn color="success" @click="register()">Register</v-btn>
                         </v-form>
                         <v-card-text flex>
-                                <v-btn color="primary" @click="register()" large>Register</v-btn>
+                                <v-btn color="primary" @click="register" large>Register</v-btn>
                                 <router-link to="/login">Sign in instead</router-link>
                         </v-card-text>
                         
