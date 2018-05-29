@@ -22,6 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'online', 'openappeals', 'closedappeals', 'offers')
 
     def get_offers(self, obj):
+
         openappeals = AppealSerializer(obj.offers.exclude(is_active=False),
                                        many=True)
         closedappeals = AppealSerializer(

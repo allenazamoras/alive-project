@@ -1,7 +1,5 @@
 from django.db import models
 from userprofile.models import User
-from django.contrib.auth import get_user_model
-from django.db import models
 
 
 class Appeal(models.Model):
@@ -21,6 +19,16 @@ class Appeal(models.Model):
         (RELATIONSHIP, 'relationship'),
     )
 
+    INACTIVE = 'INACTIVE'
+    ACTIVE = 'ACTIVE'
+    COMPLETED = 'COMPLETED'
+
+    STATUS = (
+        (INACTIVE, 'inactive'),
+        (ACTIVE, 'active'),
+        (COMPLETED, 'completed'),
+    )
+
     # Session id
     session_id = models.CharField(max_length=100)
     # Appeal name
@@ -29,10 +37,8 @@ class Appeal(models.Model):
     detail = models.TextField(max_length=500, blank=True)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
-    # holds null by default
-    # holds true when appeal is being addressed
-    # holds false when appeal is completed/closed/deleted
-    is_active = models.NullBooleanField()
+    status = models.CharField(max_length=9,
+                              choices=STATUS, default=INACTIVE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
     # User that accepts the request
@@ -56,12 +62,20 @@ class Appeal(models.Model):
 
 
 class ApprovalRequest(models.Model):
+    PENDING = 'p'
+    REJECTED = 'r'
+    APPROVED = 'a'
+
+    STATUS = (
+        (PENDING, 'pending'),
+        (REJECTED, 'rejected'),
+        (APPROVED, 'approved'),
+    )
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
                                related_name='approval_requests')
     helper = models.ForeignKey(User, on_delete=models.CASCADE)
-    # holds null if pending, false if rejected
-    # true if accepted/approved
-    is_approved = models.NullBooleanField()
+    status = models.CharField(max_length=1,
+                                   choices=STATUS, default=PENDING)
 
     def __str__(self):
         to_string = {'Request Title': self.appeal.request_title,
