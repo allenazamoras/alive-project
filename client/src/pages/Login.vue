@@ -52,7 +52,7 @@
 <script>
 //Components
 import sun from '../components/Sun.vue'
-import snackbar from '../../components/Snackbar.vue'
+import snackbar from '../components/Snackbar.vue'
 
 //Plugins
 import axios from 'axios'

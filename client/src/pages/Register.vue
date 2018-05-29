@@ -72,7 +72,7 @@
 
 <script>
 //Components
-import snackbar from '../../components/Snackbar.vue'
+import snackbar from '../components/Snackbar.vue'
 
 //Plugins
 import axios from 'axios'
