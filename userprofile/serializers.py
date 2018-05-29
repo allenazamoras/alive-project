@@ -1,49 +1,48 @@
 from rest_framework import serializers
 from userprofile.models import User
-from livestream.models import Appeal, ApprovalRequest
+from livestream.models import Appeal
 
 
-class BaseAppealSerializer(serializers.ModelSerializer):
+class AppealSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appeal
-        fields = ('request_title', 'detail',)
-
-
-class OpenAppealSerializer(BaseAppealSerializer):
-    class Meta:
-        model = Appeal
-        fields = BaseAppealSerializer.Meta.fields + ('date_pub',)
-
-
-class OfferSerializer(serializers.ModelSerializer):
-    appeal = OpenAppealSerializer()
-
-    class Meta:
-        model = ApprovalRequest
-        fields = ('appeal', 'is_approved')
+        fields = ('request_title', 'detail', 'date_pub',)
 
 
 class UserSerializer(serializers.ModelSerializer):
     offers = serializers.SerializerMethodField()
     openappeals = serializers.SerializerMethodField()
     closedappeals = serializers.SerializerMethodField()
+    online = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'first_name',
+        fields = ('id', 'username', 'first_name',
                   'last_name', 'gender', 'profile_picture',
-                  'openappeals', 'closedappeals', 'offers')
+                  'online', 'openappeals', 'closedappeals', 'offers')
 
     def get_offers(self, obj):
-        offers = OpenAppealSerializer(obj.offers.all(), many=True)
-        return offers.data
+
+        openappeals = AppealSerializer(obj.offers.exclude(is_active=False),
+                                       many=True)
+        closedappeals = AppealSerializer(
+            obj.offers.filter(is_active=False), many=True)
+        offers = {'openappeals': openappeals.data,
+                  'closedappeals': closedappeals.data
+                  }
+        return offers
 
     def get_openappeals(self, obj):
-        appeals = Appeal.objects.filter(owner=obj, is_active=None)
-        serializer = OpenAppealSerializer(appeals, many=True)
+        appeals = Appeal.objects.filter(owner=obj,
+                                        is_active=True).order_by('date_pub')
+        serializer = AppealSerializer(appeals, many=True)
         return serializer.data
 
     def get_closedappeals(self, obj):
-        appeals = Appeal.objects.filter(owner=obj, is_active=False)
-        serializer = BaseAppealSerializer(appeals, many=True)
+        appeals = Appeal.objects.filter(owner=obj,
+                                        is_active=False).order_by('date_pub')
+        serializer = AppealSerializer(appeals, many=True)
         return serializer.data
+
+    def get_online(self, obj):
+        return obj.online
