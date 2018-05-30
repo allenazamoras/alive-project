@@ -1,10 +1,13 @@
+from django.contrib.auth import authenticate, login, logout
+from rest_framework import status
 from rest_framework import viewsets
-from rest_framework import views
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+
 from userprofile.models import User
-from userprofile.serializers import UserSerializer
+from livestream.models import Rating
+from userprofile.serializers import UserSerializer, RatingSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -13,14 +16,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         req = request.data
-
         if User.objects.filter(username=req['username']).exists():
             ret = {'return': 'That username is already taken.'}
         else:
+            gender = {'Male': 'M', 'Female': 'F'}
             user = User.objects.create_user(username=req['username'],
                                             first_name=req['first_name'],
                                             last_name=req['last_name'],
-                                            gender=req['gender'],
+                                            gender=gender[req['gender']],
                                             password=req['password'])
             user.save()
             ret = {'return': 'Account successfully created.'}
@@ -44,5 +47,9 @@ class Login(ObtainAuthToken):
                          'first_name': user.first_name,
                          'last_name': user.last_name,
                          'profile_picture': serializer.data['profile_picture']
-                         # 'profile_picture': user.profile_picture.decode('utf-16')
                          })
+
+
+class RatingViewSet(viewsets.ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer

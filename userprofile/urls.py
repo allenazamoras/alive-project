@@ -9,6 +9,7 @@ app_name = 'userprofile'
 
 router = routers.DefaultRouter()
 router.register(r'user', views.UserViewSet, base_name='user')
+router.register(r'rating', views.RatingViewSet, base_name='rating')
 
 urlpatterns = [
     url(r'^login', views.Login.as_view()),

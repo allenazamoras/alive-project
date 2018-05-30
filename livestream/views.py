@@ -2,9 +2,8 @@ from django.views import generic
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 
-from .serializers import AppealSerializer, ApprovalRequestSerializer
 from .models import Appeal, ApprovalRequest
-from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
+from .serializers import AppealSerializer, ApprovalRequestSerializer
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -15,20 +14,12 @@ API_SECRET = OPENTOK_SECRET
 opentok = OpenTok(API_KEY, API_SECRET)
 
 
-# TODO: connect the helper to the appeal once owner accepts approvalrequest
-#       partial_update for appeal detail ?
-#       be sure user can stream na pls
-#       chat interface
-# User can create OpenTok Session
-# What if ako ning himuon ug read only
-# then mag create ko ug CreateSessionView(CreateAPIView) ?? HUH ?? HUUUH??
 class AppealViewSet(viewsets.ModelViewSet):
-    permission_classes = (AppealsViewSetPermissions,)
+    # permission_classes = (AppealsViewSetPermissions,)
     queryset = Appeal.objects.all()
     serializer_class = AppealSerializer
 
     def create(self, request, *args, **kwargs):
-
         session = opentok.create_session(media_mode=MediaModes.routed)
         req = request.data
         if not session:
@@ -44,7 +35,7 @@ class AppealViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        queryset = Appeal.objects.filter(status=Appeal.INACTIVE).\
+        queryset = Appeal.objects.filter(status=Appeal.AVAILABLE).\
             order_by('date_pub')
 
         page = self.paginate_queryset(queryset)
@@ -73,6 +64,11 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = AppealSerializer(appeal, context={'token': token})
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.remove()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
     permission_classes = (ApprovalRequestPermissions,)
@@ -81,7 +77,6 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         '''
-        when user presses "HELP" button
         an ApprovalRequest instance gets created,
         UNLESS it already exists
         '''
@@ -109,10 +104,12 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                         headers=headers)
 
     def list(self, request, *args, **kwargs):
-        # display list of all ApprovalRequests by current user
-        # should only display ApprovalRequests for
-        # Appeals that are still inactive (status is null) and
-        # Requests have not been rejected (is_accepted holds null)
+        '''
+        display list of all ApprovalRequests by current user
+        should only display ApprovalRequests for
+        Appeals that are still AVAILABLE (not in session) and
+        Requests that are still PENDING
+        '''
         queryset = ApprovalRequest.objects.filter(
             helper=request.user).exclude(status=ApprovalRequest.REJECTED)
 
@@ -137,7 +134,8 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
             message = {'return': 'Successfully cancelled pending offer'}
             return Response(message, status=status.HTTP_204_NO_CONTENT)
 
-        message = {'return': 'cannot perform action'}
+        message = {'return': 'cannot perform 
+                   '}
         return Response(message, status=status.HTTP_403_FORBIDDEN)
 
     def retrieve(self, request, *args, **kwargs):

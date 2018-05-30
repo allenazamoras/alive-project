@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from userprofile.models import User
 
 
@@ -19,14 +20,16 @@ class Appeal(models.Model):
         (RELATIONSHIP, 'relationship'),
     )
 
-    INACTIVE = 'INACTIVE'
-    ACTIVE = 'ACTIVE'
+    AVAILABLE = 'AVAILABLE'
+    UNAVAILABLE = 'UNAVAILABLE'
     COMPLETED = 'COMPLETED'
+    REMOVED = 'REMOVED'
 
     STATUS = (
-        (INACTIVE, 'inactive'),
-        (ACTIVE, 'active'),
+        (AVAILABLE, 'available'),
+        (UNAVAILABLE, 'unavailable'),
         (COMPLETED, 'completed'),
+        (REMOVED, 'removed'),
     )
 
     # Session id
@@ -38,7 +41,7 @@ class Appeal(models.Model):
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=9,
-                              choices=STATUS, default=INACTIVE)
+                              choices=STATUS, default=AVAILABLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
     # User that accepts the request
@@ -49,16 +52,26 @@ class Appeal(models.Model):
                                 choices=CATEGORY, default=OTHERS)
 
     def __str__(self):
-        return self.session_id
+        return self.request_title
 
     def get_description(self):
         return self.detail
 
-    def activate(self):
-        self.is_active = True
+    def set_available(self):
+        self.status = self.AVAILABLE
+        self.save()
 
-    def deactivate(self):
-        self.is_active = False
+    def set_unavailable(self):
+        self.status = self.UNAVAILABLE
+        self.save()
+
+    def completed(self):
+        self.status = self.COMPLETED
+        self.save()
+
+    def remove(self):
+        self.status = self.REMOVED
+        self.save()
 
 
 class ApprovalRequest(models.Model):
@@ -71,13 +84,31 @@ class ApprovalRequest(models.Model):
         (REJECTED, 'rejected'),
         (APPROVED, 'approved'),
     )
+
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
                                related_name='approval_requests')
     helper = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=1,
-                                   choices=STATUS, default=PENDING)
+                              choices=STATUS, default=PENDING)
 
     def __str__(self):
         to_string = {'Request Title': self.appeal.request_title,
                      'Helper': self.helper.username}
         return str(to_string)
+
+    def approve(self):
+        self.status = self.APPROVED
+        self.save()
+
+    def reject(self):
+        self.status = self.REJECTED
+        self.save()
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='rating', null=True)
+    appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
+                               related_name='rating', blank=True)
+    rating = models.IntegerField(validators=[MinValueValidator(0),
+                                             MaxValueValidator(5)])

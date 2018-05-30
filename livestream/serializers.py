@@ -7,25 +7,16 @@ class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username',
-                  'first_name', 'last_name',
-                  'profile_picture',)
-
-
-class HelperSerializer(BaseUserSerializer):
-    reputation = serializers.SerializerMethodField()
-
-    class Meta(BaseUserSerializer.Meta):
-        fields = BaseUserSerializer.Meta.fields + ('reputation',)
-
-    def get_reputation(self, obj):
-        # TO DO when user rating is up
-        return ''
+                  'first_name',
+                  'last_name',
+                  'profile_picture')
 
 
 class PendingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
-        fields = ('helper', 'is_approved')
+        fields = ('helper',
+                  'status')
 
 
 class AppealSerializer(serializers.ModelSerializer):
@@ -38,12 +29,13 @@ class AppealSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'detail',
-                  'date_pub', 'owner', 'helper', 'is_active',
+                  'date_pub', 'owner', 'helper', 'status',
                   'pending_list', 'session_id', 'token')
 
     def get_pending_list(self, obj):
         plist = PendingListSerializer(
-            obj.approval_requests.filter(is_approved=None), many=True)
+            obj.approval_requests.filter(
+                status=ApprovalRequest.PENDING), many=True)
         return plist.data
 
     def get_token(self, obj):
@@ -56,7 +48,7 @@ class AppealSerializerForHelpers(serializers.ModelSerializer):
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'session_id', 'detail',
-                  'date_pub', 'owner', 'is_active')
+                  'date_pub', 'owner', 'status')
 
 
 class ApprovalRequestSerializer(serializers.ModelSerializer):
@@ -65,4 +57,4 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApprovalRequest
-        fields = ('id', 'helper', 'appeal', 'is_approved')
+        fields = ('id', 'helper', 'appeal', 'status')
