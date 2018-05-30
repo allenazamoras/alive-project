@@ -1,13 +1,20 @@
 from rest_framework import serializers
 from userprofile.models import User
-from livestream.models import Appeal, Rating
+from livestream.models import Appeal, Rating, Report
+
+
+class ReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Report
+        fields = ('__all__')
 
 
 class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ('id', 'appeal', 'user', 'rating')
+        fields = ('__all__')
 
 
 class AppealSerializer(serializers.ModelSerializer):
@@ -57,10 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
         appeals = Appeal.objects.filter(
             owner=obj, status=Appeal.ACTIVE).order_by('date_pub')
         serializer = AppealSerializer(appeals, many=True)
-        ret = {
-            'appeal': serializer.data,
-        }
-        return ret
+        return serializer.data
 
     def get_closedappeals(self, obj):
         appeals = Appeal.objects.filter(

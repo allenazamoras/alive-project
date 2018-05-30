@@ -24,17 +24,21 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
     owner = UserSerializer()
     helper = UserSerializer()
     pending_list = serializers.SerializerMethodField()
+    opentok_token = serializers.SerializerMethodField()
 
     class Meta:
         model = Appeal
         fields = ('id', 'request_title', 'session_id', 'detail',
                   'date_pub', 'owner', 'helper', 'status',
-                  'pending_list')
+                  'pending_list', 'opentok_token')
 
     def get_pending_list(self, obj):
         plist = PendingListSerializer(
             obj.approval_requests.filter(is_approved=None), many=True)
         return plist.data
+
+    def get_opentok_token(self, obj):
+        return self.context.get('token', '')
 
 
 class AppealSerializerForHelpers(serializers.HyperlinkedModelSerializer):

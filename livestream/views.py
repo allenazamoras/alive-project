@@ -53,30 +53,21 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         '''
-        retrieve method gets called when a user accesses a unique session
-        user will be given a token to connect to this session
+        user will be given a token to connect to this session instance
         '''
-        # get current user
-        user = request.user
-        # get current session
         appeal = self.get_object()
-        # check if session owner ang nag generate sa token
-        # or check if puno na ang session (max: 2 publishers)
-        # generate token for current user (default: publisher) valid for 24h
-        # UMIMPLEMENTED PA ANG CHECKING HAP
+
+        if appeal.status is Appeal.COMPLETED:
+            return Response({'return': 'Appeal no longer exists'},
+                            status=status.HTTP_404_NOT_FOUND)
+
         token = opentok.generate_token(appeal.session_id)
-        # check if token is created successfully
-        print(token)
-        self.context = {
-            'API_KEY': OPENTOK_API,
-            'SESSION_ID': appeal.session_id,
-            'TOKEN': token,
-        }
-        print(self.context)
-        serializer = self.get_serializer(appeal)
-        # return render(request, 'livestream/stream.html', self.context)
+        if not token:
+            return Response({'return': 'Token creation failed'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        serializer = AppealSerializer(appeal, context={'token': token})
         return Response(serializer.data)
-        #                 template_name='livestream/stream.html')
 
 
 # class AppealDetailView(generic.DetailView):
