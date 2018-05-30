@@ -20,14 +20,16 @@ class Appeal(models.Model):
         (RELATIONSHIP, 'relationship'),
     )
 
-    INACTIVE = 'INACTIVE'
-    ACTIVE = 'ACTIVE'
+    AVAILABLE = 'AVAILABLE'
+    UNAVAILABLE = 'UNAVAILABLE'
     COMPLETED = 'COMPLETED'
+    REMOVED = 'REMOVED'
 
     STATUS = (
-        (INACTIVE, 'inactive'),
-        (ACTIVE, 'active'),
+        (AVAILABLE, 'available'),
+        (UNAVAILABLE, 'unavailable'),
         (COMPLETED, 'completed'),
+        (REMOVED, 'removed'),
     )
 
     # Session id
@@ -39,7 +41,7 @@ class Appeal(models.Model):
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=9,
-                              choices=STATUS, default=INACTIVE)
+                              choices=STATUS, default=AVAILABLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
     # User that accepts the request
@@ -55,11 +57,17 @@ class Appeal(models.Model):
     def get_description(self):
         return self.detail
 
-    def activate(self):
-        self.status = self.ACTIVE
+    def set_available(self):
+        self.status = Appeal.AVAILABLE
 
-    def deactivate(self):
-        self.status = self.INACTIVE
+    def set_unavailable(self):
+        self.status = Appeal.UNAVAILABLE
+
+    def completed(self):
+        self.status = Appeal.COMPLETED
+
+    def remove(self):
+        self.status = Appeal.REMOVED
 
 
 class ApprovalRequest(models.Model):
@@ -76,9 +84,8 @@ class ApprovalRequest(models.Model):
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
                                related_name='approval_requests')
     helper = models.ForeignKey(User, on_delete=models.CASCADE)
-    # holds null if pending, false if rejected
-    # true if accepted/approved
-    is_approved = models.NullBooleanField()
+    status = models.CharField(max_length=1,
+                              choices=STATUS, default=PENDING)
 
     def __str__(self):
         to_string = {'Request Title': self.appeal.request_title,

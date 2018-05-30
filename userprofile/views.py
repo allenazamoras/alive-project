@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from rest_framework import views
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -16,14 +16,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         req = request.data
-
         if User.objects.filter(username=req['username']).exists():
             ret = {'return': 'That username is already taken.'}
         else:
+            gender = {'Male': 'M', 'Female': 'F'}
             user = User.objects.create_user(username=req['username'],
                                             first_name=req['first_name'],
                                             last_name=req['last_name'],
-                                            gender=req['gender'],
+                                            gender=gender[req['gender']],
                                             password=req['password'])
             user.save()
             ret = {'return': 'Account successfully created.'}

@@ -16,7 +16,7 @@ class PendingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
         fields = ('helper',
-                  'is_approved')
+                  'status')
 
 
 class AppealSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,7 +33,8 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_pending_list(self, obj):
         plist = PendingListSerializer(
-            obj.approval_requests.filter(is_approved=None), many=True)
+            obj.approval_requests.filter(
+                status=ApprovalRequest.PENDING), many=True)
         return plist.data
 
 
@@ -52,4 +53,4 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApprovalRequest
-        fields = ('id', 'helper', 'appeal', 'is_approved')
+        fields = ('id', 'helper', 'appeal', 'status')

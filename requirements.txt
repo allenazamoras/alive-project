@@ -7,9 +7,11 @@ ecdsa==0.13
 future==0.16.0
 idna==2.6
 opentok==2.6.0
+Pillow==5.1.0
 psycopg2==2.7.4
 pyasn1==0.4.2
 python-jose==3.0.0
+python-memcached==1.59
 pytz==2018.4
 requests==2.18.4
 rsa==3.4.2

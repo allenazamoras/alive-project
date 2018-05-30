@@ -45,9 +45,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_offers(self, obj):
         openappeals = AppealSerializer(obj.offers.exclude(
-                                       status=Appeal.INACTIVE), many=True)
+                                       status=Appeal.AVAILABLE), many=True)
         closedappeals = AppealSerializer(
-            obj.offers.filter(status=Appeal.INACTIVE), many=True)
+            obj.offers.filter(status=Appeal.AVAILABLE), many=True)
         offers = {'openappeals': openappeals.data,
                   'closedappeals': closedappeals.data
                   }
@@ -55,7 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_openappeals(self, obj):
         appeals = Appeal.objects.filter(
-            owner=obj, status=Appeal.ACTIVE).order_by('date_pub')
+            owner=obj, status=Appeal.UNAVAILABLE).order_by('date_pub')
         serializer = AppealSerializer(appeals, many=True)
         ret = {
             'appeal': serializer.data,
@@ -64,7 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_closedappeals(self, obj):
         appeals = Appeal.objects.filter(
-            owner=obj, status=Appeal.INACTIVE).order_by('date_pub')
+            owner=obj, status=Appeal.AVAILABLE).order_by('date_pub')
         serializer = AppealSerializer(appeals, many=True)
         return serializer.data
 

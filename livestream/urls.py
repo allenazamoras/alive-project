@@ -11,8 +11,6 @@ router.register(r'pending', views.ApprovalRequestViewSet)
 
 urlpatterns = [
     path('index/', views.IndexView.as_view(), name='index'),
-    # It worked I have no idea how ref: livestream/index.html
-    # path('request/<int:pk>', views.AppealDetailView.as_view(), name='stream'),
 ]
 
 urlpatterns += router.urls
