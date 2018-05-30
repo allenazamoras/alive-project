@@ -58,16 +58,20 @@ class Appeal(models.Model):
         return self.detail
 
     def set_available(self):
-        self.status = Appeal.AVAILABLE
+        self.status = self.AVAILABLE
+        self.save()
 
     def set_unavailable(self):
-        self.status = Appeal.UNAVAILABLE
+        self.status = self.UNAVAILABLE
+        self.save()
 
     def completed(self):
-        self.status = Appeal.COMPLETED
+        self.status = self.COMPLETED
+        self.save()
 
     def remove(self):
-        self.status = Appeal.REMOVED
+        self.status = self.REMOVED
+        self.save()
 
 
 class ApprovalRequest(models.Model):
@@ -91,6 +95,14 @@ class ApprovalRequest(models.Model):
         to_string = {'Request Title': self.appeal.request_title,
                      'Helper': self.helper.username}
         return str(to_string)
+
+    def approve(self):
+        self.status = self.APPROVED
+        self.save()
+
+    def reject(self):
+        self.status = self.REJECTED
+        self.save()
 
 
 class Rating(models.Model):
