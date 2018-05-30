@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/python,django
 
 ### Django ###
@@ -26,3 +25,21 @@ env.bak/
 venv.bak/
 
 # End of https://www.gitignore.io/api/python,django
+
+# dependencies
+node_modules
+
+# logs
+npm-debug.log
+
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
