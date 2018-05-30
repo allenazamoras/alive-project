@@ -42,7 +42,7 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
         return Response({'return': 'Failed to create request'})
 
     def list(self, request, *args, **kwargs):
-        queryset = Appeal.objects.filter(status=Appeal.INACTIVE).order_by('date_pub')
+        queryset = Appeal.objects.filter(status=Appeal.ACTIVE).order_by('-date_pub')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -68,6 +68,11 @@ class AppealViewSet(SingleObjectMixin, viewsets.ModelViewSet):
 
         serializer = AppealSerializer(appeal, context={'token': token})
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.remove()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # class AppealDetailView(generic.DetailView):
