@@ -5,5 +5,6 @@ from userprofile.models import User
 
 # Register your models here.
 
+
 admin.site.register(Appeal)
 admin.site.register(User, UserAdmin)

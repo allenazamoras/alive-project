@@ -22,6 +22,7 @@ npm run build
 ## .env configuration
 ```
 API_URL=http://localhost:8000
+API_KEY=OPENTOK_API_KEY
 ```
 
 For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).

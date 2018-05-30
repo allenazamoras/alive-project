@@ -91,7 +91,6 @@
                 </v-tabs>
             </v-flex>    
           </v-layout>
-              
         </v-flex>
       </v-layout>
     </v-container>
@@ -100,9 +99,12 @@
 </template>
 
 <script>
-import axios from 'axios'
+//Components
 import appNav from '../.././components/AppNav.vue'
 import appeals from '../.././components/User/Appeals.vue'
+
+//Plugins
+import axios from 'axios'
 
 export default {
   data() { 
@@ -116,23 +118,35 @@ export default {
 
       //awards
       firstReviewReceived: require("../../assets/achievements/medal.svg"),
-      firstAssist: require("../../assets/achievements/badge.svg")
+      firstAssist: require("../../assets/achievements/badge.svg"),
+    }
+  },
+
+  methods: { 
+    getProfileData() { 
+      axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`)
+      .then((res) => { 
+        this.user = res.data
+      })
+      .catch((err) => { 
+        console.log(err)
+      })
     }
   },
 
   components: { 
     appNav,
-    appeals
+    appeals,
   },
 
   created() {
-    axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`)
-    .then((res) => { 
-      this.user = res.data
-    })
-    .catch((err) => { 
-      console.log(err)
-    })
+    this.getProfileData()
+  },
+
+  watch: {
+    '$route' (to, from) {
+      this.getProfileData()
+    }
   }
 }
 </script>

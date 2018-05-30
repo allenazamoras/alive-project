@@ -8,7 +8,7 @@
             <v-spacer></v-spacer>
         
             <v-spacer></v-spacer>
-            <v-text-field
+            <!-- <v-text-field
                 prepend-icon="search"
                 
                 label="Search"
@@ -16,7 +16,7 @@
                 class="mx-3"
                 flat
                 align-center
-            ></v-text-field>
+            ></v-text-field> -->
 
                 <v-btn icon to="/appeal/create">
                     <v-avatar>
@@ -37,7 +37,7 @@
                 
             </v-toolbar-items>        
 
-            <v-menu origin="top right" transition="scale-transition" bottom left offset-y v-show="isLoggedIn">
+            <!-- <v-menu origin="top right" transition="scale-transition" bottom left offset-y v-show="isLoggedIn">
                 <v-btn icon slot="activator">
                     <v-badge overlap>
                         <span slot="badge" class="caption">3</span>
@@ -50,7 +50,7 @@
                         <v-list-tile-title class="body-1"> {{item.message}}</v-list-tile-title>
                     </v-list-tile>
                 </v-list>
-            </v-menu>   
+            </v-menu>    -->
 
             <v-menu
                 origin="top right"

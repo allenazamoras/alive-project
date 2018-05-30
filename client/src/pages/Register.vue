@@ -50,7 +50,7 @@
                         </v-card-text>
                     </v-card>
                 </v-flex>
-                <snackbar :text="snackbarTitle"/>         
+                <snackbar :snackbar="snackbar"/>         
             </v-layout>
         </v-container>
     </main>
@@ -81,12 +81,17 @@ export default {
 
             seePass: false,
             patternURL: require('../assets/ahoy.jpg'),
-            snackbarTitle: "",
 
             genderList: [
               {text: "Male"},
               {text: "Female"}
-            ]
+            ],
+
+            snackbar: { 
+                text: "",
+                timeout: 3000,
+                flag: false
+            }
         }
     },
 
@@ -98,20 +103,19 @@ export default {
                 first_name: this.first_name,
                 last_name: this.last_name,
                 gender: this.gender.text
-
             })
 
             .then((res) => { 
               if(res.data.return == "Account successfully created.") { 
-                this.snackbarTitle = res.data.return
-                this.$store.commit("setSnackbarState", true)
+                this.snackbar.text = res.data.return
+                this.snackbar.flag = true
                 this.$router.push("/login")
               }
             })
 
             .catch((err) => { 
-                this.snackbarTitle = "An error has occured."
-                this.$store.commit("setSnackbarState", true)
+                this.snackbar.text = "Something went wrong."
+                this.snackbar.flag = true
             })
         }
     },
@@ -120,6 +124,10 @@ export default {
         if(localStorage.getItem("token") != null) { 
             this.$router.push("/")
         }
+    },
+
+    components: { 
+        snackbar
     }
 }
 </script>

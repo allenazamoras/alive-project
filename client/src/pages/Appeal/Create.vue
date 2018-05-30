@@ -4,8 +4,9 @@
     <v-container>
       <v-layout justify-center>
         <v-flex xs12 sm12 md12 lg4 xl4>
-          <v-card>
+          <v-card class="pa-3">
             <v-card-text>
+              <h3 class="headline text-xs-center">Create a new appeal</h3>
               <v-form>
                 <v-text-field
                     label="Title"
@@ -18,7 +19,7 @@
                 ></v-text-field>
               </v-form>
 
-              <v-btn @click="send">
+              <v-btn @click="send" :loading="isLoading">
                 Send
               </v-btn>
             </v-card-text>
@@ -26,7 +27,7 @@
         </v-flex>
         
       </v-layout>
-      <snackbar :text="snackbarTitle"/>
+      <snackbar :snackbar="snackbar"/>
     </v-container>
   </div>
 </template>
@@ -44,8 +45,9 @@ export default {
     return { 
       request_title: "",
       detail: "",
+      isLoading: false,
 
-      snackbarTitle: ""
+      snackbar: {}
     }
   },
 
@@ -62,16 +64,53 @@ export default {
         }
       }
 
+      this.isLoading = true
+
       axios.post(`${process.env.API_URL}/request/`, {
         request_title: this.request_title,
         detail: this.detail
       }, config)
 
       .then((res) => { 
-        this.snackbarTitle = res.data
-        this.$store.commit("setSnackbarState", true)
+        this.isLoading = false
+        
+        this.snackbar = { 
+          text: res.data.return,
+          flag: true,
+        }
+
+        this.request_title = ""
+        this.detail = ""
+      })
+
+      .catch((res) => { 
+        this.snackbar = { 
+          text: "An error has occured",
+          flag: true,
+        }
       })
     }
+  },
+
+  test() { 
+    const config = { 
+        headers: { 
+          Authorization: `Token ${localStorage.getItem("token")}`
+        }
+      }
+
+    axios.patch(`${process.env.API_URL}/request/19/`, {
+      "request_title": "CHANGED",
+      "detail": "detail change"
+    }, config)
+
+    .then((res)=>{
+      console.log("nice")
+    })
+
+    .catch((err) => { 
+      console.log(err)
+    })
   }
 }
 </script>

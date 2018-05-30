@@ -21,6 +21,7 @@
     "not ie <= 8"
   ],
   "devDependencies": {
+    "@opentok/client": "^2.14.2",
     "animejs": "^2.2.0",
     "axios": "^0.18.0",
     "babel-core": "^6.26.0",
