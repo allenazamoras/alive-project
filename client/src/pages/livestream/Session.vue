@@ -59,9 +59,9 @@ const errorHandler = (err) => {
 export default {
   data() {
     return { 
-      "API_KEY": '46116232',
-      "SESSION_ID": "1_MX40NjExNjIzMn5-MTUyNjg3MzM0ODU3MH5aUGZQL1lnSi9UTm5hcTRrN25TRjRkcUJ-fg",
-      "TOKEN_ID": "T1==cGFydG5lcl9pZD00NjExNjIzMiZzaWc9ZDViOGQ5NGMxYTBiM2NjMTg4YWU1YzcyOGFmZDM2OGUzMzUyNzAwZTppbml0aWFsX2xheW91dF9jbGFzc19saXN0PSZleHBpcmVfdGltZT0xNTI3NzU1NjIzJmNyZWF0ZV90aW1lPTE1Mjc2NjkyMjMmcm9sZT1wdWJsaXNoZXImbm9uY2U9OTM1NzQ2JnNlc3Npb25faWQ9MV9NWDQwTmpFeE5qSXpNbjUtTVRVeU5qZzNNek0wT0RVM01INWFVR1pRTDFsblNpOVVUbTVoY1RSck4yNVRSalJrY1VKLWZn",
+      "API_KEY": '',
+      "SESSION_ID": "",
+      "TOKEN_ID": "",
       
       loaded: false,
       streams: [],
@@ -79,7 +79,6 @@ export default {
   created () {
     axios.get(`${process.env.API_URL}/request/${this.$store.state.session.appealID}/`, this.$store.state.user.config)
     .then((res) => { 
-      this.API_KEY = '46116232'
       this.SESSION_ID = res.data.session_id
       this.TOKEN_ID = res.data.opentok_token
       this.requestTitle = res.data.request_title
@@ -93,7 +92,7 @@ export default {
     errorHandler,
 
     initStream() { 
-      this.session = OT.initSession(this.API_KEY, this.SESSION_ID);
+      this.session = OT.initSession(process.env.API_KEY, this.SESSION_ID);
       console.log(this.session);
       this.session.connect(this.TOKEN_ID, (err) => {
         console.log('connect callback');
