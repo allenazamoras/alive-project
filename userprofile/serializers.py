@@ -1,3 +1,4 @@
+from django.db.models import Count, Q
 from rest_framework import serializers
 from userprofile.models import User
 from livestream.models import Appeal, Rating, Report
@@ -40,21 +41,28 @@ class UserSerializer(serializers.ModelSerializer):
                   'closedappeals', 'offers')
 
     def get_overallrating(self, obj):
-        ret = {
-            '0': Rating.objects.filter(user=obj, rating=0).count(),
-            '1': Rating.objects.filter(user=obj, rating=1).count(),
-            '2': Rating.objects.filter(user=obj, rating=2).count(),
-            '3': Rating.objects.filter(user=obj, rating=3).count(),
-            '4': Rating.objects.filter(user=obj, rating=4).count(),
-            '5': Rating.objects.filter(user=obj, rating=5).count(),
-        }
+        rate_0 = Count('id', filter=Q(rating=0))
+        rate_1 = Count('id', filter=Q(rating=1))
+        rate_2 = Count('id', filter=Q(rating=2))
+        rate_3 = Count('id', filter=Q(rating=3))
+        rate_4 = Count('id', filter=Q(rating=4))
+        rate_5 = Count('id', filter=Q(rating=5))
+
+        rating = Rating.objects.filter(user=obj).annotate(rate_0=rate_0)\
+            .annotate(rate_1=rate_1).annotate(rate_2=rate_2)\
+            .annotate(rate_3=rate_3).annotate(rate_4=rate_4)\
+            .annotate(rate_5=rate_5).distinct().first()
+
+        if rating is None:
+            return {}
+        ret = {i: getattr(rating, 'rate_' + str(i)) for i in range(6)}
         return ret
 
     def get_offers(self, obj):
         openappeals = AppealSerializer(obj.offers.exclude(
                                        status=Appeal.INACTIVE), many=True)
         closedappeals = AppealSerializer(
-            obj.offers.filter(status=Appeal.INACTIVE), many=True)
+            obj.offers.filter(status=Appeal.COMPLETED), many=True)
         offers = {'openappeals': openappeals.data,
                   'closedappeals': closedappeals.data
                   }
@@ -62,13 +70,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_openappeals(self, obj):
         appeals = Appeal.objects.filter(
-            owner=obj, status=Appeal.ACTIVE).order_by('date_pub')
+            owner=obj, status=Appeal.INACTIVE).order_by('date_pub')
         serializer = AppealSerializer(appeals, many=True)
         return serializer.data
 
     def get_closedappeals(self, obj):
         appeals = Appeal.objects.filter(
-            owner=obj, status=Appeal.INACTIVE).order_by('date_pub')
+            owner=obj, status=Appeal.COMPLETED).order_by('date_pub')
         serializer = AppealSerializer(appeals, many=True)
         return serializer.data
 
