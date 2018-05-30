@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import persistedState from 'vuex-persistedstate'
 
+//Modules
+// import navbar from './navbar-store.js'
+
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
@@ -12,8 +15,17 @@ export const store = new Vuex.Store({
       profilePic: "",
       fullName: "",
 
-      snackbar: false,
-      timeout: 3000,
+      config: { 
+        headers: { 
+          Authorization: "",
+        }
+      }
+    },
+
+    session: { 
+      appealID: -1,
+      sessionID: "",
+      tokenID: "",
     }
   },
 
@@ -24,12 +36,12 @@ export const store = new Vuex.Store({
       state.user = user
     },
 
-    setSnackbarState(state, boolean) {
-      state.snackbar = boolean
+    setSession(state, session) { 
+      state.session = session
     }
   },
 
-  actions: { 
+  actions: {
     setUserData({commit}, user) { 
       commit("setUserAll", user)
     },
@@ -59,12 +71,6 @@ export const store = new Vuex.Store({
       return state.user
     },
 
-    getSnackbarState(state) { 
-      return state.snackbar
-    },
-
-    getSnackbarTimeout(state) { 
-      return state.timeout
-    }
+    getConfig: (state) => state.user.config
   }
 })

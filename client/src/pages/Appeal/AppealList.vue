@@ -2,7 +2,7 @@
   <div>
     <app-nav/>
     <v-container grid-list-lg>
-      <v-layout justify-center row>
+      <!-- <v-layout justify-center row>
         <v-flex lg7>
           <v-subheader class="pl-0">Categories</v-subheader>
           <v-layout row wrap>
@@ -21,7 +21,7 @@
                 </v-card-media>
               </v-card>
             </v-flex>
-          </v-layout> 
+          </v-layout>  -->
           
           <v-layout wrap justify-center>
             <v-flex xs12>
@@ -32,9 +32,10 @@
                 <v-card class="elevation-3">
                   <v-list three-line>
                     <div v-for="(appeal, index) in appeals" :key="`appeal-${index}`">
+                      {{appeal}}
                       <v-list-tile>
                         <v-list-tile-avatar>
-                          <img src="https://picsum.photos/200/300/?random" :alt="appeal.owner.username">
+                          <img :src="appeal.owner.profile_picture" :alt="appeal.owner.username">
                         </v-list-tile-avatar>
                         <v-list-tile-content :to="appeal.url">
                           <v-list-tile-title>
@@ -48,7 +49,7 @@
                           </v-list-tile-sub-title>
                         </v-list-tile-content>              
                         <v-list-tile-action>
-                          <v-btn depressed slot="activator">
+                          <v-btn depressed slot="activator" @click="toSession(appeal)">
                             <h3><v-icon>video_call</v-icon> Call</h3>
                           </v-btn>
                         </v-list-tile-action>
@@ -87,32 +88,26 @@ export default {
       ],
 
       appeals: [
-        {
-          owner: { 
-            username: "johndoe"
-          },
 
-          request_title: "I want to cook my dog",
-          detail: "But then I don't have the sauce for it",
-          date_pub: "20180527"
-        },
-
-        {
-          owner: { 
-            username: "johndee"
-          },
-
-          request_title: "I want to cook my cat",
-          detail: "But then I don't have the sauce for it",
-          date_pub: "20180526"
-        }
       ]
     }
   },
 
   methods: {
     getMoment(time) { 
-      return moment(time, "YYYY-MM-DD").fromNow()
+      console.log(time)
+      return moment(time, "YYYY-MM-DD hh:mm:ss").fromNow()
+    },
+
+    toSession(appeal) { 
+      const session = { 
+        appealID: appeal.id,
+        sessionID: appeal.session_id,
+        tokenID: "",
+      }
+
+      this.$store.commit("setSession", session)
+      this.$router.push("/session")
     }
   },
 
@@ -120,6 +115,7 @@ export default {
     axios.get(`${process.env.API_URL}/request/`)
     .then((res) => { 
       this.appeals = res.data
+      console.log("data", res)
     })
   },
 

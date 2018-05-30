@@ -28,23 +28,15 @@
                             ></v-text-field>
                         </v-form>
                         <v-card-text flex>
-                                <v-btn color="primary" @click="login" large>Login</v-btn>
-                                <router-link to="/register">Create an account</router-link>
+                            <v-btn color="primary" @click="login" large>Login</v-btn>
+                            <router-link to="/register">Create an account</router-link>
                         </v-card-text>
                         
                     </v-card>
                 </v-flex>
+            </v-layout> 
 
-                <v-snackbar
-                    v-model="snackbar"
-                    bottom
-                    right>
-
-                    {{ snackbarMessage }}
-                    <v-btn flat color="white" @click.native="snackbar = false">Close</v-btn>
-                </v-snackbar>            
-            </v-layout>
-            <snackbar :text="snackbarTitle"/>
+            <snackbar :snackbar="snackbar"/>
         </v-container>
     </main>
 </template>
@@ -65,30 +57,40 @@ export default {
             password: "",
 
             seePass: false,
-            snackbarTitle: "",
             patternURL: require('../assets/ahoy.jpg'),
+
+            snackbar: {}
         }
     },
 
     methods: { 
         login() {
-            axios.post(`${process.env.API_URL}/login`, {
+            console.log(`${process.env.API_URL}/login/`)
+            console.log(this.username, this.password)
+
+            axios.post(`${process.env.API_URL}/login/`, {
                 username: this.username,
                 password: this.password
             })
 
             .then((res) => { 
-                //Checks if there was a user pk returned
-                if(res.data.pk != undefined) { 
+                if(res.data.pk > 0) { 
                     const user = {
                         username: res.data.username,
                         userID: res.data.pk,
                         profilePic: process.env.API_URL + res.data.profile_picture,
-                        fullName: res.data.first_name + " " + res.data.last_name
+                        fullName: res.data.first_name + " " + res.data.last_name, 
+                        config: { 
+                            headers: {
+                                Authorization: `Token ${res.data.token}`
+                            }
+                        }
                     }
 
-                    this.snackbarTitle = "Welcome back"
-                    this.$store.commit("setSnackbarState", true)
+                    this.snackbar = { 
+                        text: "Welcome back",
+                        flag: true
+                    }
 
                     localStorage.setItem("token", res.data.token)
                     this.$store.dispatch("setUserData", user)
@@ -99,8 +101,12 @@ export default {
             })
 
             .catch((err) => { 
-                this.snackbarTitle = "Invalid login."
-                this.$store.commit("setSnackbarState", true)
+                console.log(err)
+
+                this.snackbar = { 
+                    text: "Something went wrong.",
+                    flag: true
+                }
             })
         }
     },
@@ -121,7 +127,8 @@ export default {
     },
 
     components: { 
-        sun
+        sun,
+        snackbar
     }
 }
 </script>

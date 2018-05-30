@@ -1,36 +1,34 @@
 <template>
     <div>
         <v-snackbar
-        v-model="snackbar"
+        v-model="snackbar.flag"
         :timeout="timeout"
         bottom left
         >
-      {{ text }}
-      <!-- <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn> -->
+      {{ snackbar.text }}
     </v-snackbar>
     </div>
 </template>
 
 <script>
 export default {
-
-    computed: { 
-        snackbar: { 
-            get: function() { 
-                return this.$store.getters.getSnackbarState
-            },
-
-            set: function(flag) { 
-                this.$store.commit("setSnackbarState", flag)
-            }
-            
-        },
-
-        timeout() { 
-            return this.$store.getters.getSnackbarTimeout
+    data() { 
+        return { 
+            timeout: 3000
         }
     },
 
-    props: ['text']
+    props: { 
+        snackbar: { 
+            type: Object,
+
+            default: function() { 
+                return {
+                    text: "",
+                    flag: false
+                }
+            }
+        }
+    }
 }
 </script>

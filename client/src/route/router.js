@@ -11,6 +11,7 @@ import AppealCategory from '.././pages/Appeal/AppealCategory.vue'
 import Register from '.././pages/Register.vue'
 import UserProfile from '.././pages/User/ViewProfile.vue'
 import NotFound from '.././pages/404.vue'
+import Session from '.././pages/livestream/Session.vue'
 
 Vue.use(VueRouter)
 
@@ -58,6 +59,11 @@ const routes = [
   {
     path: "/profile/:username",
     component: UserProfile
+  },
+
+  {
+    path: "/session",
+    component: Session
   },
 
   {
