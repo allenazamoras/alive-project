@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -62,7 +63,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         req = request.data
         count = Report.objects.filter(user=req['user']).count()
         user = User.objects.get(pk=req['user'])
-        if count < 4:
+        if count < settings.MAX_REPORT:
             reported_by = User.objects.get(pk=req['reported_by'])
             report = Report(user=user,
                             reported_by=reported_by,
