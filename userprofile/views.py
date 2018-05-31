@@ -62,7 +62,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         req = request.data
         count = Report.objects.filter(user=req['user']).count()
         user = User.objects.get(pk=req['user'])
-        if count is not 4:
+        if count < 4:
             reported_by = User.objects.get(pk=req['reported_by'])
             report = Report(user=user,
                             reported_by=reported_by,
