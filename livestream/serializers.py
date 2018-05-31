@@ -43,6 +43,7 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AppealSerializerForHelpers(serializers.ModelSerializer):
+
     owner = UserSerializer()
 
     class Meta:
