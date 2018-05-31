@@ -1,13 +1,13 @@
-from django.contrib.auth import authenticate, login, logout
-from rest_framework import status
-from rest_framework import viewsets
+from django.conf import settings
+from rest_framework import viewsets, status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from userprofile.models import User
-from livestream.models import Rating
+from livestream.models import Rating, Report
 from userprofile.serializers import UserSerializer, RatingSerializer
+from userprofile.serializers import ReportSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -27,7 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                             password=req['password'])
             user.save()
             ret = {'return': 'Account successfully created.'}
-        return Response(ret)
+        return Response(ret, status=status.HTTP_201_CREATED)
 
 
 class Login(ObtainAuthToken):
@@ -53,3 +53,24 @@ class Login(ObtainAuthToken):
 class RatingViewSet(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
+
+
+class ReportViewSet(viewsets.ModelViewSet):
+    queryset = Report.objects.all()
+    serializer_class = ReportSerializer
+
+    def create(self, request):
+        req = request.data
+        count = Report.objects.filter(user=req['user']).count()
+        user = User.objects.get(pk=req['user'])
+        if count < settings.MAX_REPORT:
+            reported_by = User.objects.get(pk=req['reported_by'])
+            report = Report(user=user,
+                            reported_by=reported_by,
+                            reason=req['reason'])
+            report.save()
+        else:
+            user.is_active = False
+            user.save()
+        ret = {'return': 'User reported.'}
+        return Response(ret, status=status.HTTP_201_CREATED)
