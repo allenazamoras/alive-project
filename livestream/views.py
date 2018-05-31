@@ -71,7 +71,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
-    permission_classes = (ApprovalRequestPermissions,)
+    # permission_classes = (ApprovalRequestPermissions,)
     queryset = ApprovalRequest.objects.all()
     serializer_class = ApprovalRequestSerializer
 
@@ -134,8 +134,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
             message = {'return': 'Successfully cancelled pending offer'}
             return Response(message, status=status.HTTP_204_NO_CONTENT)
 
-        message = {'return': 'cannot perform 
-                   '}
+        message = {'return': 'cannot perform '}
         return Response(message, status=status.HTTP_403_FORBIDDEN)
 
     def retrieve(self, request, *args, **kwargs):

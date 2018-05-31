@@ -10,4 +10,3 @@ from userprofile.models import User
 admin.site.register(Appeal)
 admin.site.register(Rating)
 admin.site.register(User)
-admin.site.register(Session, SessionAdmin)

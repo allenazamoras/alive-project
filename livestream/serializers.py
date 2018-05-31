@@ -3,7 +3,7 @@ from livestream.models import Appeal, ApprovalRequest
 from userprofile.models import User
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username',
@@ -19,10 +19,10 @@ class PendingListSerializer(serializers.ModelSerializer):
                   'status')
 
 
-class AppealSerializer(serializers.ModelSerializer):
+class AppealSerializer(serializers.HyperlinkedModelSerializer):
     # nested serialization see drf docu for more info
-    owner = BaseUserSerializer()
-    helper = HelperSerializer()
+    owner = UserSerializer()
+    helper = UserSerializer()
     pending_list = serializers.SerializerMethodField()
     token = serializers.SerializerMethodField()
 
@@ -43,7 +43,7 @@ class AppealSerializer(serializers.ModelSerializer):
 
 
 class AppealSerializerForHelpers(serializers.ModelSerializer):
-    owner = BaseUserSerializer()
+    owner = UserSerializer()
 
     class Meta:
         model = Appeal
@@ -53,7 +53,7 @@ class AppealSerializerForHelpers(serializers.ModelSerializer):
 
 class ApprovalRequestSerializer(serializers.ModelSerializer):
     appeal = AppealSerializerForHelpers()
-    helper = HelperSerializer()
+    helper = UserSerializer()
 
     class Meta:
         model = ApprovalRequest

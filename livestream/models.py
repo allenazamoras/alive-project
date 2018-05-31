@@ -112,3 +112,11 @@ class Rating(models.Model):
                                related_name='rating', blank=True)
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
+
+
+class Report(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='reported_user')
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                    related_name='reported_by')
+    reason = models.CharField(max_length=255, blank=True)
