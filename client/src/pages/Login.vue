@@ -65,9 +65,6 @@ export default {
 
     methods: { 
         login() {
-            console.log(`${process.env.API_URL}/login/`)
-            console.log(this.username, this.password)
-
             axios.post(`${process.env.API_URL}/login/`, {
                 username: this.username,
                 password: this.password
@@ -101,8 +98,6 @@ export default {
             })
 
             .catch((err) => { 
-                console.log(err)
-
                 this.snackbar = { 
                     text: "Something went wrong.",
                     flag: true

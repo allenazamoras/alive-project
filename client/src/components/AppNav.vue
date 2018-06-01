@@ -8,15 +8,20 @@
             <v-spacer></v-spacer>
         
             <v-spacer></v-spacer>
-            <!-- <v-text-field
+            <v-select
+                :items="items"
+                v-model="searchText"
+                item-text="request_title"
+
+                @keyup="updateResults"
                 prepend-icon="search"
-                
+                autocomplete
                 label="Search"
-                solo-inverted
+                solo
                 class="mx-3"
                 flat
                 align-center
-            ></v-text-field> -->
+            ></v-select>
 
                 <v-btn icon to="/appeal/create">
                     <v-avatar>
@@ -37,10 +42,10 @@
                 
             </v-toolbar-items>        
 
-            <!-- <v-menu origin="top right" transition="scale-transition" bottom left offset-y v-show="isLoggedIn">
+            <v-menu origin="top right" transition="scale-transition" bottom left offset-y v-show="isLoggedIn">
                 <v-btn icon slot="activator">
                     <v-badge overlap>
-                        <span slot="badge" class="caption">3</span>
+                        <span slot="badge" class="caption" v-if="numOfNewNotifications > 0">{{ numOfNewNotifications }}</span>
                         <v-icon>notifications</v-icon>
                     </v-badge>               
                 </v-btn>
@@ -50,7 +55,7 @@
                         <v-list-tile-title class="body-1"> {{item.message}}</v-list-tile-title>
                     </v-list-tile>
                 </v-list>
-            </v-menu>    -->
+            </v-menu>
 
             <v-menu
                 origin="top right"
@@ -138,18 +143,22 @@
             </v-list-tile>
         </v-list>
         </v-navigation-drawer>        
+
+        {{ notifications }}
     </div>
     
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     data() { 
         return { 
             drawer: false,
 
             notifications: [
-                {message: "You received a request from LOMAO"}
+                
             ],
 
 
@@ -157,12 +166,24 @@ export default {
             menu: false,
             message: false,
             hints: true,
-            fullName: "John Doe"
+            fullName: "John Doe",
+            searchText: "",
+
+            items: [],
         }
     },
 
-    created() {
-        //axios requests here
+    methods: { 
+        updateResults() { 
+            axios.get(`${process.env.API_URL}/search?search=${this.searchText}`, this.$store.getters.getConfig)
+            .then((res) => { 
+                this.items = res.data
+            })
+        },
+
+        notifyMe() {
+
+        }
     },
     
     computed: { 
@@ -180,7 +201,32 @@ export default {
 
         userData() { 
             return this.$store.getters.getUserData
+        }, 
+
+        numOfNewNotifications() { 
+            let ctr = 0;
+
+            for(let i = 0; i < this.notifications.length; i++) { 
+                if(!this.notifications[i].seen) { 
+                    ctr++
+                }
+            }
+
+            return ctr
         }
-    }
+    },
+
+    watch: { 
+
+    },
+
+    created() { 
+        setInterval(function() { 
+            axios.get(`${process.env.API_URL}/notification/`, this.$store.getters.getConfig)
+            .then((res) => { 
+                this.notifications = res.data
+            })
+        }.bind(this), 1000)
+    },
 }
 </script>

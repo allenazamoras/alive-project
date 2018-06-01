@@ -124,7 +124,7 @@ export default {
 
   methods: { 
     getProfileData() { 
-      axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`)
+      axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`, this.$store.getters.getConfig)
       .then((res) => { 
         this.user = res.data
       })

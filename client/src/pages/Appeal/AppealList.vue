@@ -22,7 +22,6 @@
               </v-card>
             </v-flex>
           </v-layout>  -->
-          
           <v-layout wrap justify-center>
             <v-flex xs12>
               <v-subheader class="pl-0">Most Recent Appeals</v-subheader>
@@ -32,7 +31,6 @@
                 <v-card class="elevation-3">
                   <v-list three-line>
                     <div v-for="(appeal, index) in appeals" :key="`appeal-${index}`">
-                      {{appeal}}
                       <v-list-tile>
                         <v-list-tile-avatar>
                           <img :src="appeal.owner.profile_picture" :alt="appeal.owner.username">
