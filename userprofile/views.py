@@ -109,13 +109,15 @@ class NotificationListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)\
                                        .order_by('-date_created')
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+
+        notif = Notification.objects.filter(seen=False)
+        notif.update(seen=True)
         return Response(serializer.data)
 
     def notify(notification, obj):
