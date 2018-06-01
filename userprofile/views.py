@@ -1,4 +1,6 @@
 from django.conf import settings
+from rest_framework import filters
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, status
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -7,9 +9,9 @@ from rest_framework.response import Response
 
 from userprofile.permissions import UserViewSetPermissions
 from userprofile.models import User
-from livestream.models import Rating, Report
+from livestream.models import Rating, Report, Appeal
 from userprofile.serializers import UserSerializer, RatingSerializer
-from userprofile.serializers import ReportSerializer
+from userprofile.serializers import ReportSerializer, AppealSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -77,3 +79,11 @@ class ReportViewSet(viewsets.ModelViewSet):
             user.save()
         ret = {'return': 'User reported.'}
         return Response(ret, status=status.HTTP_201_CREATED)
+
+
+class SearchListView(generics.ListAPIView):
+    queryset = Appeal.objects.all()
+    serializer_class = AppealSerializer
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('request_title', 'detail')
