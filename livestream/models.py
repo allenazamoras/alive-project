@@ -123,3 +123,11 @@ class Report(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='notification')
+    seen = models.BooleanField(default=False)
+    message = models.CharField(max_length=1000)
+    date_created = models.DateTimeField(auto_now_add=True)

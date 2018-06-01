@@ -16,6 +16,8 @@ router.register(r'report', views.ReportViewSet, base_name='report')
 urlpatterns = [
     url(r'^login', views.Login.as_view()),
     url(r'^search', views.SearchListView.as_view()),
+    url(r'^notification', views.NotificationListView.as_view()),
+
 ]
 
 urlpatterns += router.urls

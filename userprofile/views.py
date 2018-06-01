@@ -9,9 +9,10 @@ from rest_framework.response import Response
 
 from userprofile.permissions import UserViewSetPermissions
 from userprofile.models import User
-from livestream.models import Rating, Report, Appeal
+from livestream.models import Rating, Report, Appeal, Notification
 from userprofile.serializers import UserSerializer, RatingSerializer
 from userprofile.serializers import ReportSerializer, AppealSerializer
+from userprofile.serializers import NotificationSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -31,6 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                             gender=gender[req['gender']],
                                             password=req['password'])
             user.save()
+            NotificationListView.notify("Register", user)
             ret = {'return': 'Account successfully created.'}
         return Response(ret, status=status.HTTP_201_CREATED)
 
@@ -58,6 +60,15 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     permission_classes = (IsAuthenticated,)
 
+    def create(self, request, *args, **kwargs):
+        req = request.data
+        rate = Rating(user_id=req['user'], appeal_id=req['appeal'],
+                      rating=req['rating'])
+        rate.save()
+        NotificationListView.notify("Rating", rate)
+        serializer = RatingSerializer(rate)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
@@ -74,6 +85,7 @@ class ReportViewSet(viewsets.ModelViewSet):
                             reported_by=reported_by,
                             reason=req['reason'])
             report.save()
+            NotificationListView.notify("Report", report)
         else:
             user.is_active = False
             user.save()
@@ -87,3 +99,51 @@ class SearchListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('request_title', 'detail')
+
+
+class NotificationListView(generics.ListAPIView):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = Notification.objects.filter(user=request.user)\
+                                       .order_by('-date_created')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def notify(notification, obj):
+        if notification == 'Register':
+            message = 'Welcome to aLive, ' + obj.username + '!'
+            notif = Notification(user=obj, message=message)
+            notif.save()
+        elif notification == 'Rating':
+            print(obj)
+            message1 = 'You were rated ' + str(obj.rating) +\
+                       ' by ' + obj.appeal.owner.username +\
+                       ' in your last session.'
+            notif = Notification(user=obj.user, message=message1)
+            notif.save()
+
+            message2 = 'You rated ' + obj.user.username +\
+                       ' ' + str(obj.rating) + ' in your last session.'
+            notif = Notification(user=obj.appeal.owner, message=message2)
+            notif.save()
+        elif notification == 'Report':
+            reason = 'Unspecified' if obj.reason == '' else obj.reason
+            message1 = 'You were reported by ' + obj.reported_by.username +\
+                       ' in your last session. Reason: ' + reason
+            notif = Notification(user=obj.user, message=message1)
+            notif.save()
+
+            message2 = 'You reported ' + obj.user.username +\
+                       ' in your last session. Reason: ' + reason
+            notif = Notification(user=obj.reported_by, message=message2)
+            notif.save()
+        return True
