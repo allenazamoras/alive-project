@@ -1,9 +1,11 @@
 from django.views import generic
-from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
+from .permissions import AppealsViewSetPermissions
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -15,7 +17,7 @@ opentok = OpenTok(API_KEY, API_SECRET)
 
 
 class AppealViewSet(viewsets.ModelViewSet):
-    # permission_classes = (AppealsViewSetPermissions,)
+    permission_classes = (AppealsViewSetPermissions,)
     queryset = Appeal.objects.all()
     serializer_class = AppealSerializer
 
@@ -45,6 +47,33 @@ class AppealViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def list_by_category(self, request, *args, **kwargs):
+        # TODO
+        category = 'others'
+        queryset = Appeal.objects.filter(
+            status=Appeal.AVAILABLE, category=category).\
+            order_by('date_pub')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def edit_description(self, request):
+        # TODO
+        appeal = self.get_object()
+        serializer = AppealSerializer(appeal)
+        if serializer.is_valid():
+            appeal.set_description(serializer.data['description'])
+            return Response(serializer.data)
+
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def retrieve(self, request, *args, **kwargs):
         '''
@@ -121,9 +150,33 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)
+    @action(methods=['post'], detail=False)
+    def approve(self, request):
+        # TODO
+        obj = self.get_object()
+        if not obj:
+            return Response({'return': 'Approval request does not exist'})
+        # can only approve pending requests
+        if not obj.status == ApprovalRequest.PENDING:
+            return Response({'return': 'cannot perform this action'},
+                            status=status.HTTP_403_FORBIDDEN)
+        obj.approve()
+        serializer = ApprovalRequestSerializer(obj)
+        return Response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def reject(self, request):
+        # TODO
+        obj = self.get_object()
+        if not obj:
+            return Response({'return': 'Approval request does not exist'})
+        # can only reject pending requests
+        if not obj.status == ApprovalRequest.PENDING:
+            return Response({'return': 'cannot perform this action'},
+                            status=status.HTTP_403_FORBIDDEN)
+        obj.reject()
+        serializer = ApprovalRequestSerializer(obj)
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         # when user revokes approval request it gets deleted from the db

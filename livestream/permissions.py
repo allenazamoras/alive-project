@@ -37,15 +37,16 @@ class AppealsViewSetPermissions(BasePermission):
     Appeal Owner        ['destroy', 'retrieve', 'partial_update', 'update']
     Appeal Helper       ['retrieve']
     '''
-
-    def has_permission(self, request, view):
-        return view.action in ['create', 'list'] and \
-            request.user.is_authenticated
-
     def has_object_permission(self, request, view, obj):
+
+        if view.action in ['create', 'list']:
+            return request.user.is_authenticated
+
         if view.action == 'retrieve':
-            return IsOwnerOrHelper.has_object_permission(
-                self, request, view, obj)
+            owner = getattr(obj, 'owner', None)
+            helper = getattr(obj, 'helper', None)
+
+            return owner == request.user or helper == request.user
 
         if view.action in ['destroy', 'partial_update', 'update']:
             return obj.owner == request.user
@@ -57,12 +58,11 @@ class ApprovalRequestPermissions(BasePermission):
     AR appeal.owner     ['list', 'partial_update', 'retrieve', update]
     AR helper           [all]
     '''
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-
     def has_object_permission(self, request, view, obj):
         if view.action == ['destroy', 'create']:
             return not obj.appeal.owner == request.user
 
         if view.action == ['partial_update', 'update']:
             return not obj.helper == request.user
+
+        return request.user.is_authenticated

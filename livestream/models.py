@@ -57,6 +57,10 @@ class Appeal(models.Model):
     def get_description(self):
         return self.detail
 
+    def set_description(self, description):
+        self.description = description
+        self.save()
+
     def set_available(self):
         self.status = self.AVAILABLE
         self.save()
