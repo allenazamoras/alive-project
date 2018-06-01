@@ -82,7 +82,7 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 
 class SearchListView(generics.ListAPIView):
-    queryset = Appeal.objects.all()
+    queryset = Appeal.objects.filter(status='AVAILABLE')
     serializer_class = AppealSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
