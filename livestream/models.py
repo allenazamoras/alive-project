@@ -107,9 +107,9 @@ class ApprovalRequest(models.Model):
 
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='rating', null=True)
+                             related_name='rating')
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
-                               related_name='rating', blank=True)
+                               related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
 
