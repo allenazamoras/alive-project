@@ -11,12 +11,13 @@ router = routers.DefaultRouter()
 router.register(r'user', views.UserViewSet, base_name='user')
 router.register(r'rating', views.RatingViewSet, base_name='rating')
 router.register(r'report', views.ReportViewSet, base_name='report')
+router.register(r'notification', views.NotificationViewSet,
+                base_name='notification')
 
 
 urlpatterns = [
     url(r'^login', views.Login.as_view()),
     url(r'^search', views.SearchListView.as_view()),
-    url(r'^notification', views.NotificationListView.as_view()),
 
 ]
 

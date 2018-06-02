@@ -10,9 +10,11 @@ from rest_framework.response import Response
 from userprofile.permissions import UserViewSetPermissions
 from userprofile.models import User
 from livestream.models import Rating, Report, Appeal, Notification
+from livestream.models import ApprovalRequest
 from userprofile.serializers import UserSerializer, RatingSerializer
 from userprofile.serializers import ReportSerializer, AppealSerializer
 from userprofile.serializers import NotificationSerializer
+from livestream.serializers import ApprovalRequestSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,7 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
                                             gender=gender[req['gender']],
                                             password=req['password'])
             user.save()
-            NotificationListView.notify("Register", user)
+            NotificationViewSet.notify("Register", user)
             ret = {'return': 'Account successfully created.'}
         return Response(ret, status=status.HTTP_201_CREATED)
 
@@ -65,7 +67,7 @@ class RatingViewSet(viewsets.ModelViewSet):
         rate = Rating(user_id=req['user'], appeal_id=req['appeal'],
                       rating=req['rating'])
         rate.save()
-        NotificationListView.notify("Rating", rate)
+        NotificationViewSet.notify("Rating", rate)
         serializer = RatingSerializer(rate)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -85,7 +87,7 @@ class ReportViewSet(viewsets.ModelViewSet):
                             reported_by=reported_by,
                             reason=req['reason'])
             report.save()
-            NotificationListView.notify("Report", report)
+            NotificationViewSet.notify("Report", report)
         else:
             user.is_active = False
             user.save()
@@ -101,7 +103,7 @@ class SearchListView(generics.ListAPIView):
     search_fields = ('request_title', 'detail')
 
 
-class NotificationListView(generics.ListAPIView):
+class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = (IsAuthenticated,)
@@ -109,16 +111,18 @@ class NotificationListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)\
                                        .order_by('-date_created')
+        appeal = Appeal.objects.get(owner=request.user, status='AVAILABLE')
+        approval = ApprovalRequest.objects.filter(appeal=appeal)
+        request = ApprovalRequestSerializer(approval, many=True)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-
-        notif = Notification.objects.filter(seen=False)
-        notif.update(seen=True)
-        return Response(serializer.data)
+        ret = {'notification': serializer.data,
+               'request': request.data}
+        return Response(ret)
 
     def notify(notification, obj):
         if notification == 'Register':
