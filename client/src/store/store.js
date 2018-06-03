@@ -3,14 +3,18 @@ import Vuex from 'vuex'
 import persistedState from 'vuex-persistedstate'
 
 //Modules
-// import navbar from './navbar-store.js'
+import userModule from './user/userModule'
 
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
+  modules: {
+    userModule
+  },  
+
   state: { 
     user: {
-      username: "",
+      username: "michael",
       userID: -1,
       profilePic: "",
       fullName: "",

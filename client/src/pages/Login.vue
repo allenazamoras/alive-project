@@ -4,6 +4,9 @@
             <v-layout align-center justify-center> 
                 <v-flex xs10 sm8 md7 lg4 xl3>
                     <v-card class="pa-4 elevation-10">
+                        <v-card-text class="text-xs-center headline">
+                            Login
+                        </v-card-text>
                         <v-card-text class="text-xs-center">
                             <sun/>
                         </v-card-text>
@@ -103,12 +106,6 @@ export default {
                     flag: true
                 }
             })
-        }
-    },
-
-    beforeCreate() { 
-        if(localStorage.getItem("token") != null) { 
-            this.$router.push("/")
         }
     },
 

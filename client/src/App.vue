@@ -4,10 +4,7 @@
       <v-content>
         <router-view></router-view>
       </v-content>
-      
     </main>
-      
-    
   </v-app>
 </template>
 

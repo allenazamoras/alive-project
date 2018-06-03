@@ -69,7 +69,6 @@ import appNav from '../.././components/AppNav.vue'
 import Publisher from '../.././components/Publisher.vue'
 import Subscriber from '../.././components/Subscriber.vue'
 
-
 import OT from '@opentok/client'
 import axios from 'axios'
 

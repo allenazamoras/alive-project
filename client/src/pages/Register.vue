@@ -4,8 +4,8 @@
             <v-layout align-center justify-center> 
                 <v-flex xs10 sm8 md7 lg4 xl3>
                     <v-card class="pa-4 elevation-10">
-                        <v-card-text class="subheading text-xs-center grey--text text--darken-2" id="greeting" style="opacity: 0;">
-                            We're glad you're here.
+                        <v-card-text class="headline text-xs-center">
+                            Register
                         </v-card-text>
                         <v-form class="pa-4 pb-5">
                             <v-text-field
@@ -108,8 +108,36 @@ export default {
             .then((res) => { 
               if(res.data.return == "Account successfully created.") { 
                 this.snackbar.text = res.data.return
-                this.snackbar.flag = true
-                this.$router.push("/login")
+
+                axios.post(`${process.env.API_URL}/login/`, { 
+                    username: this.username,
+                    password: this.password
+                })
+
+                .then((res) => { 
+                    if(res.data.pk > 0) { 
+                        const user = {
+                        username: res.data.username,
+                        userID: res.data.pk,
+                        profilePic: process.env.API_URL + res.data.profile_picture,
+                        fullName: res.data.first_name + " " + res.data.last_name, 
+                        config: { 
+                            headers: {
+                                Authorization: `Token ${res.data.token}`
+                            }
+                        }
+                    }
+
+                    this.snackbar = { 
+                        text: "Welcome back",
+                        flag: true
+                    }
+
+                    localStorage.setItem("token", res.data.token)
+                    this.$store.dispatch("setUserData", user)
+                    this.$router.push("/")
+                    }
+                })
               }
             })
 
@@ -117,12 +145,6 @@ export default {
                 this.snackbar.text = "Something went wrong."
                 this.snackbar.flag = true
             })
-        }
-    },
-
-    beforeCreate() { 
-        if(localStorage.getItem("token") != null) { 
-            this.$router.push("/")
         }
     },
 
