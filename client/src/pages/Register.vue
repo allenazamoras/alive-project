@@ -135,7 +135,7 @@ export default {
 
                     localStorage.setItem("token", res.data.token)
                     this.$store.dispatch("setUserData", user)
-                    this.$router.push("/")
+                    window.location.replace("/")
                     }
                 })
               }

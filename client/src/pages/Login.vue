@@ -52,6 +52,7 @@ import snackbar from '../components/Snackbar.vue'
 //Plugins
 import axios from 'axios'
 import anime from 'animejs'
+import {mapActions} from 'vuex'
 
 export default {
     data() { 
@@ -67,6 +68,10 @@ export default {
     },
 
     methods: { 
+        ...mapActions('userModule', [
+            'setUserData'
+        ]),
+        
         login() {
             axios.post(`${process.env.API_URL}/login/`, {
                 username: this.username,
@@ -79,7 +84,8 @@ export default {
                         username: res.data.username,
                         userID: res.data.pk,
                         profilePic: process.env.API_URL + res.data.profile_picture,
-                        fullName: res.data.first_name + " " + res.data.last_name, 
+                        fullName: res.data.first_name + " " + res.data.last_name,
+
                         config: { 
                             headers: {
                                 Authorization: `Token ${res.data.token}`
@@ -93,11 +99,9 @@ export default {
                     }
 
                     localStorage.setItem("token", res.data.token)
-                    this.$store.dispatch("setUserData", user)
-                    this.$router.push("/")
+                    this.setUserData(user)
+                    window.location.replace("/")
                 }
-
-                
             })
 
             .catch((err) => { 
@@ -105,6 +109,7 @@ export default {
                     text: "Something went wrong.",
                     flag: true
                 }
+                console.log(err)
             })
         }
     },
@@ -127,6 +132,6 @@ export default {
 
 <style>
     main > .container {
-    height: 100vh;
+        height: 100vh;
     }
 </style>

@@ -2,26 +2,8 @@
   <div>
     <app-nav/>
     <v-container grid-list-lg>
-      <!-- <v-layout justify-center row>
-        <v-flex lg7>
-          <v-subheader class="pl-0">Categories</v-subheader>
-          <v-layout row wrap>
-            <v-flex xs12 sm3 md2 lg3 v-for="(category, index) in categories" :key="`category-${index}`">
-              <v-card 
-                hover
-                :to="category.url"
-                >
-                <v-card-media 
-                  :src="category.img"
-                  height="90px">
-
-                  <v-card-title primary-title>
-                    <h3 class="drop-shadow white--text">{{ category.name }}</h3>
-                </v-card-title>
-                </v-card-media>
-              </v-card>
-            </v-flex>
-          </v-layout>  -->
+      <v-layout justify-center row>
+          <v-flex>
           <v-layout wrap justify-center>
             <v-flex xs12>
               <v-subheader class="pl-0">Most Recent Appeals</v-subheader>
@@ -31,6 +13,7 @@
                 <v-card class="elevation-3">
                   <v-list three-line>
                     <div v-for="(appeal, index) in appeals" :key="`appeal-${index}`">
+                      {{ appeal }}
                       <v-list-tile>
                         <v-list-tile-avatar>
                           <img :src="appeal.owner.profile_picture" :alt="appeal.owner.username">
@@ -47,8 +30,8 @@
                           </v-list-tile-sub-title>
                         </v-list-tile-content>              
                         <v-list-tile-action>
-                          <v-btn depressed slot="activator" @click="toSession(appeal)">
-                            <h3><v-icon>video_call</v-icon> Call</h3>
+                          <v-btn depressed slot="activator" @click="bell(appeal.session_id)">
+                            <h3><v-icon>notifications</v-icon> Bell</h3>
                           </v-btn>
                         </v-list-tile-action>
                       </v-list-tile>
@@ -63,15 +46,30 @@
         </v-flex>
       </v-layout>   
     </v-container>
+
+
+    <v-dialog v-model="userDialog" max-width="290" persistent>
+      <v-card>
+        <v-card-title class="headline">Belling</v-card-title>
+        <v-card-text>
+          Waiting for requester to answert
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat="flat" @click.native="userDialog = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
   
 </template>
 
 <script>
+import appNav from '../.././components/AppNav.vue'
+
 import moment from 'moment'
 import axios from 'axios'
-
-import appNav from '../.././components/AppNav.vue'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   data() { 
@@ -91,26 +89,36 @@ export default {
     }
   },
 
+  computed: { 
+    ...mapGetters('userModule', [
+      'getConfig'
+    ])
+  },
+
   methods: {
     getMoment(time) { 
       console.log(time)
       return moment(time, "YYYY-MM-DD hh:mm:ss").fromNow()
     },
 
-    toSession(appeal) { 
-      const session = { 
-        appealID: appeal.id,
-        sessionID: appeal.session_id,
-        tokenID: "",
-      }
+    bell(session_id) { 
+      this.userDialog = true
+      console.log(session_id)
+      axios.post(`${process.env.API_URL}/pending/`, {
+        "appeal.session_id": session_id
+      }, this.getConfig)
+      .then((res) => { 
+        console.log(res)
+      })
+    },
 
-      this.$store.commit("setSession", session)
-      this.$router.push("/session")
-    }
+    ...mapMutations('sessionModule', [
+      'setSession'
+    ])
   },
 
   created() { 
-    axios.get(`${process.env.API_URL}/request/`)
+    axios.get(`${process.env.API_URL}/request/`, this.getConfig)
     .then((res) => { 
       this.appeals = res.data
       console.log("data", res)

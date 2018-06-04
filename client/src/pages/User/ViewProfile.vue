@@ -49,7 +49,7 @@
                   </v-card>
                 </v-flex>
 
-                <v-flex xs12>
+                <!-- <v-flex xs12>
                   <v-card>
                     <v-card-text primary-title>
                       <h3>Awards (2)</h3>
@@ -63,7 +63,7 @@
                       </v-tooltip>
                     </v-card-text>
                   </v-card>                  
-                </v-flex>
+                </v-flex> -->
               </v-layout>
             </v-flex>
 
@@ -105,6 +105,7 @@ import appeals from '../.././components/User/Appeals.vue'
 
 //Plugins
 import axios from 'axios'
+import {mapGetters} from 'vuex'
 
 export default {
   data() { 
@@ -124,7 +125,7 @@ export default {
 
   methods: { 
     getProfileData() { 
-      axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`, this.$store.getters.getConfig)
+      axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`, this.getConfig)
       .then((res) => { 
         this.user = res.data
       })
@@ -132,6 +133,12 @@ export default {
         console.log(err)
       })
     }
+  },
+
+  computed: { 
+    ...mapGetters('userModule', [
+      'getConfig'
+    ])
   },
 
   components: { 

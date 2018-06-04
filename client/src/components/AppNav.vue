@@ -8,20 +8,6 @@
         <v-spacer></v-spacer>
     
         <v-spacer></v-spacer>
-        <v-select
-            :items="items"
-            v-model="searchText"
-            item-text="request_title"
-
-            @keyup="updateResults"
-            prepend-icon="search"
-            autocomplete
-            label="Search"
-            solo
-            class="mx-3"
-            flat
-            align-center
-        ></v-select>
 
         <v-btn icon to="/search">
             <v-avatar>
@@ -57,8 +43,13 @@
             </v-btn>
 
             <v-list>
-                <v-list-tile v-for="(item, index) in notifications" :key="`item-${index}`" :to="item.link">
+                <v-list-tile v-for="(item, index) in notifications" :key="`item-${index}`" :to="item.link" v-if="notifications.length > 0">
                     <v-list-tile-title class="body-1"> {{item.message}}</v-list-tile-title>
+                </v-list-tile>
+                <v-list-tile v-if="notifications.length == 0">
+                    <span class="grey--text body-1">
+                        No new notifications.
+                    </span>
                 </v-list-tile>
             </v-list>
         </v-menu>
@@ -76,24 +67,24 @@
             <v-btn icon slot="activator">
                 <span slot="badge" class="caption">3</span>
                 <v-avatar size="32px">
-                    <img :src="`${userData.profilePic}`">
+                    <img :src="`${getUserData.profilePic}`">
                 </v-avatar>             
             </v-btn>  
             <v-card>
                 <v-list>
                 <v-list-tile avatar>
                     <v-list-tile-avatar>
-                    <img :src="`${userData.profilePic}`" alt="John">
+                    <img :src="`${getUserData.profilePic}`" alt="John">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
-                    <v-list-tile-title>{{ userData.fullName }}</v-list-tile-title>
-                    <v-list-tile-sub-title> @{{ userData.username }} </v-list-tile-sub-title>
+                    <v-list-tile-title>{{ getUserData.fullName }}</v-list-tile-title>
+                    <v-list-tile-sub-title> @{{ getUserData.username }} </v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
                 </v-list>
                 <v-divider></v-divider>
                 <v-list>
-                    <v-list-tile :to="`/profile/${userData.userID}`">
+                    <v-list-tile :to="`/profile/${getUserData.userID}`">
                         <v-list-tile-action>
                             <v-icon size="20">fas fa-user-circle</v-icon>
                         </v-list-tile-action>
@@ -148,69 +139,74 @@
         </v-list-tile-action>
         </v-list-tile>
     </v-list>
-    </v-navigation-drawer>        
-    </div>
+    </v-navigation-drawer>    
     
+    <v-dialog v-model="userDialog" max-width="290" persistent>
+      <v-card>
+        <v-card-title class="headline">{{request[0].helper.first_name}} {{ request[0].helper.last_name }}</v-card-title>
+        <v-card-text>
+          is requesting to help you
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat="flat" @click.native="flag = false">Accept</v-btn>
+          <v-btn color="green darken-1" flat="flat" @click.native="flag = false">Decline</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    {{getConfig}}
+
+    {{request}}
+    </div>
 </template>
 
 <script>
 import axios from 'axios'
+import {mapGetters, mapState} from 'vuex'
 
 export default {
     data() { 
         return { 
             drawer: false,
 
-            notifications: [
-                
-            ],
+            flag: false,
+            notifications: [],
+            request: [],
 
             fav: true,
             menu: false,
             message: false,
             hints: true,
-            fullName: "John Doe",
             searchText: "",
-
-            items: [
-            ],
         }
     },
 
-    methods: { 
-        //Updates the search query
-        updateResults() { 
-            axios.get(`${process.env.API_URL}/search?search=${this.searchText}`, this.$store.getters.getConfig)
-            .then((res) => { 
-                this.items = res.data
-            })
-        },
-
+    methods: {
         getNotifications() { 
-            axios.get(`${process.env.API_URL}/notification/`, this.$store.getters.getConfig)
+            axios.get(`${process.env.API_URL}/notification/`, this.getConfig)
             .then((res) => { 
-                this.notifications = res.data
-                setTimeout(this.getNotifications, 1000)
+                this.notifications = res.data.notification
+                this.request = res.data.request
+                console.log(res)
+                setTimeout(this.getNotifications, 1500)
             })
         }
+    },
+
+    created() { 
+        this.getNotifications()
     },
     
     computed: { 
-        isLoggedIn() { 
-            return ( (this.$store.getters.getUsername.length == 0) ? false: true)
-        },
+        userDialog: { 
+            set() { 
+            },
 
-        username() { 
-            return this.$store.getters.getUsername
+            get() { 
+                return this.request.length > 0 ? true: false
+            },
         },
-
-        userID() { 
-            return this.$store.getters.getUserID
-        },
-
-        userData() { 
-            return this.$store.getters.getUserData
-        }, 
 
         numOfNewNotifications() { 
             let ctr = 0;
@@ -222,18 +218,15 @@ export default {
             }
 
             return ctr
-        }
-    },
+        },
 
-    watch: { 
+        ...mapGetters('userModule', [
+            'isLoggedIn', 'getUserData', 'getConfig'
+        ]),
 
-    },
-
-    created() { 
-        if(this.isLoggedIn) { 
-            
-        }
-        
-    },
+        ...mapState('sessionModule', [
+            'appealID'
+        ])
+    }
 }
 </script>

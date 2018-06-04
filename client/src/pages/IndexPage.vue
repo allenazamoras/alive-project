@@ -3,8 +3,6 @@
     <app-nav/>
     <v-container>
       index page
-
-    {{say()}}
     </v-container>
   </div>
 </template>
@@ -21,23 +19,15 @@ export default {
   },
 
   computed: { 
-    localComputed() { 
 
-    },
-
-    ...mapState('userModule', [
-      'string'
-    ]),
   },
 
   methods: { 
-    say() { 
-      console.log(this.string)
-    }
+
   },
 
   created() { 
-    // this.test = this.$store.
+    
   },
 
   components: { 

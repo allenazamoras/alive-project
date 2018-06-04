@@ -71,6 +71,7 @@ import Subscriber from '../.././components/Subscriber.vue'
 
 import OT from '@opentok/client'
 import axios from 'axios'
+import {mapState} from 'vuex'
 
 const errorHandler = (err) => {
   alert(err.message);
@@ -105,10 +106,14 @@ export default {
       this.initStream()
     })
 
-    axios.get(`${process.env.API_URL}/notification/`, this.$store.state.user.config)
+    axios.get(`${process.env.API_URL}/notification/`, this.getConfig)
     .then((res) => { 
       console.log(res)
     })
+  },
+
+  computed: { 
+    // ...mapState()
   },
 
   methods: {
