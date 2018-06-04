@@ -111,8 +111,19 @@ class ApprovalRequest(models.Model):
 
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='rating', null=True)
+                             related_name='rating')
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
-                               related_name='rating', blank=True)
+                               related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
+
+
+class Report(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='reported_user')
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                    related_name='reported_by')
+    reason = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.user.username

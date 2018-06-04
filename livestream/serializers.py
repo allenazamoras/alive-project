@@ -42,7 +42,8 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
         return self.context.get('token', '')
 
 
-class AppealSerializerForHelpers(serializers.HyperlinkedModelSerializer):
+class AppealSerializerForHelpers(serializers.ModelSerializer):
+
     owner = UserSerializer()
 
     class Meta:

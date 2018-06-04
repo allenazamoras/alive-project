@@ -2,7 +2,7 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
-from aLive import settings
+from django.conf import settings
 
 
 class User(AbstractUser):
