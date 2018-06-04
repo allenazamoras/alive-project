@@ -10,7 +10,6 @@ router.register(r'request', views.AppealViewSet, base_name='request')
 router.register(r'pending', views.ApprovalRequestViewSet)
 
 urlpatterns = [
-    path('index/', views.IndexView.as_view(), name='index'),
 ]
 
 urlpatterns += router.urls

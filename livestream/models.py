@@ -102,6 +102,8 @@ class ApprovalRequest(models.Model):
 
     def approve(self):
         self.status = self.APPROVED
+        self.appeal.helper = self.helper
+        self.appeal.save()
         self.save()
 
     def reject(self):
