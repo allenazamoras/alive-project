@@ -138,24 +138,6 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
 
-    def list(self, request, *args, **kwargs):
-        '''
-        display list of all ApprovalRequests by current user
-        should only display ApprovalRequests for
-        Appeals that are still AVAILABLE (not in session) and
-        Requests that are still PENDING
-        '''
-        queryset = ApprovalRequest.objects.filter(
-            helper=request.user, status=ApprovalRequest.PENDING)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     @action(methods=['post'], detail=False)
     def approve(self, request):
         # TODO
