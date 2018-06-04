@@ -126,8 +126,6 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                 return Response(message)
 
         if appeal_instance.status == Appeal.COMPLETED:
-            # WARNING: if request gets rejected (is_accepted holds false)
-            # return message will still be 'pending approval...'
             return Response({'return': 'request no longer exists'},
                             status=status.HTTP_404_NOT_FOUND)
 
@@ -151,10 +149,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
 
         obj.approve()
 
-        qs = ApprovalRequest.objects.filter(
-            appeal=obj.appeal, status=ApprovalRequest.PENDING)
-        for apreq in qs:
-            apreq.reject()
+        # removed dead code
 
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)

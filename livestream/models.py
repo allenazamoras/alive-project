@@ -103,6 +103,7 @@ class ApprovalRequest(models.Model):
     def approve(self):
         self.status = self.APPROVED
         self.appeal.helper = self.helper
+        self.appeal.status = Appeal.UNAVAILABLE
         self.appeal.save()
         self.save()
 
