@@ -20,10 +20,10 @@ class Appeal(models.Model):
         (RELATIONSHIP, 'relationship'),
     )
 
-    AVAILABLE = 'AVAILABLE'
-    UNAVAILABLE = 'UNAVAILABLE'
-    COMPLETED = 'COMPLETED'
-    REMOVED = 'REMOVED'
+    AVAILABLE = 'a'
+    UNAVAILABLE = 'u'
+    COMPLETED = 'c'
+    REMOVED = 'r'
 
     STATUS = (
         (AVAILABLE, 'available'),
@@ -40,7 +40,7 @@ class Appeal(models.Model):
     detail = models.TextField(max_length=500, blank=True)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=9,
+    status = models.CharField(max_length=1,
                               choices=STATUS, default=AVAILABLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
