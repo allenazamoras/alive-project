@@ -4,6 +4,7 @@ from rest_framework import status, viewsets
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
+from userprofile.views import NotificationViewSet
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -130,6 +131,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         # can only be deleted only if it is still pending
         if instance.status == ApprovalRequest.PENDING:
+            NotificationViewSet.notify('Cancel', instance)
             self.perform_destroy(instance)
             message = {'return': 'Successfully cancelled pending offer'}
             return Response(message, status=status.HTTP_204_NO_CONTENT)

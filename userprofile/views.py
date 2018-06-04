@@ -111,9 +111,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)\
                                        .order_by('-date_created')
-        appeal = Appeal.objects.get(owner=request.user, status='AVAILABLE')
-        approval = ApprovalRequest.objects.filter(appeal=appeal)
-        request = ApprovalRequestSerializer(approval, many=True)
+        appeal = Appeal.objects.get(owner=request.user, status='A')
+        request = ApprovalRequestSerializer(appeal.approval_requests)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -152,4 +151,15 @@ class NotificationViewSet(viewsets.ModelViewSet):
                        ' in your last session. Reason: ' + reason
             notif = Notification(user=obj.reported_by, message=message2)
             notif.save()
+        elif notification == 'Cancel':
+            message1 = 'You cancelled your request for the appeal ' +\
+                       obj.appeal.request_title
+            notif = Notification(message=message1, user=obj.helper)
+            notif.save()
+            message2 = 'You missed a request from ' + obj.helper.username
+            notif = Notification(message=message2,
+                                 user=obj.appeal.owner)
+            notif.save()
+        elif notification == 'Approval':
+            temp = True
         return True
