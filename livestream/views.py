@@ -52,7 +52,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(methods=['get'], detail=True)
-    def list_by_category(self, request, *args, **kwargs):
+    def list_by_category(self, request):
         # TODO
         category = 'others'
         queryset = Appeal.objects.filter(
@@ -68,7 +68,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(methods=['post'], detail=False)
-    def edit_description(self, request):
+    def edit_description(self, request, pk):
         # TODO
         appeal = self.get_object()
         serializer = AppealSerializer(appeal)
@@ -77,6 +77,29 @@ class AppealViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(methods=['post'], detail=True)
+    def update_status(self, request, pk):
+        # TODO
+        action = request.data['action']
+        is_changed = False
+        if action not in ['complete', 'remove']:
+            message = {'return': 'action impossible'}
+            return Response(message)
+
+        obj = self.queryset.get(pk=pk)
+
+        if not obj:
+            return Response({'return': 'Appeal does not exist'})
+
+        if action == 'complete':
+            is_changed = obj.complete()
+
+        if not is_changed:
+            return Response({'return': 'update failed'})
+
+        serializer = ApprovalRequestSerializer(obj)
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         '''
@@ -98,8 +121,11 @@ class AppealViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.remove()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        if instance.remove():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'return': 'failed to delete instance'})
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
@@ -136,32 +162,25 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
 
-    @action(methods=['post'], detail=False)
-    def approve(self, request):
-        # TODO
-        obj = self.get_object()
+    @action(methods=['post'], detail=True)
+    def update_status(self, request, pk):
+        action = request.data['action']
+
+        if action not in ['approve', 'reject']:
+            message = {'return': 'action impossible'}
+            return Response(message)
+
+        obj = self.queryset.get(pk=pk)
+
         if not obj:
             return Response({'return': 'Approval request does not exist'})
-        # can only approve pending requests
-        if not obj.status == ApprovalRequest.PENDING:
-            return Response({'return': 'cannot perform this action'},
-                            status=status.HTTP_403_FORBIDDEN)
 
-        obj.approve()
-        serializer = ApprovalRequestSerializer(obj)
-        return Response(serializer.data)
+        if action == 'approve':
+            obj.approve()
 
-    @action(methods=['post'], detail=False)
-    def reject(self, request):
-        # TODO
-        obj = self.get_object()
-        if not obj:
-            return Response({'return': 'Approval request does not exist'})
-        # can only reject pending requests
-        if not obj.status == ApprovalRequest.PENDING:
-            return Response({'return': 'cannot perform this action'},
-                            status=status.HTTP_403_FORBIDDEN)
-        obj.reject()
+        else:
+            obj.reject()
+
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
 

@@ -66,16 +66,28 @@ class Appeal(models.Model):
         self.save()
 
     def set_unavailable(self):
+        if not self.status == self.AVAILABLE:
+            return False
+
         self.status = self.UNAVAILABLE
         self.save()
+        return True
 
     def completed(self):
+        if self.status == self.UNAVAILABLE:
+            return False
+
         self.status = self.COMPLETED
         self.save()
+        return True
 
     def remove(self):
+        if self.status == self.AVAILABLE:
+            return False
+
         self.status = self.REMOVED
         self.save()
+        return True
 
 
 class ApprovalRequest(models.Model):
