@@ -7,12 +7,12 @@ from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
 from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
 
-from aLive.settings import OPENTOK_API, OPENTOK_SECRET
+from django.conf import settings
 
 from opentok import OpenTok, MediaModes
 
-API_KEY = OPENTOK_API
-API_SECRET = OPENTOK_SECRET
+API_KEY = settings.OPENTOK_API
+API_SECRET = settings.OPENTOK_SECRET
 opentok = OpenTok(API_KEY, API_SECRET)
 
 
@@ -41,7 +41,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = Appeal.objects.filter(status=Appeal.AVAILABLE).\
-            order_by('-date_pub')
+            exclude(owner=request.user).order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -148,9 +148,6 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_403_FORBIDDEN)
 
         obj.approve()
-
-        # removed dead code
-
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
 

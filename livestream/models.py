@@ -101,15 +101,17 @@ class ApprovalRequest(models.Model):
         return str(to_string)
 
     def approve(self):
-        self.status = self.APPROVED
-        self.appeal.helper = self.helper
-        self.appeal.status = Appeal.UNAVAILABLE
-        self.appeal.save()
-        self.save()
+        if self.status == self.PENDING:
+            self.status = self.APPROVED
+            self.appeal.helper = self.helper
+            self.appeal.status = Appeal.UNAVAILABLE
+            self.appeal.save()
+            self.save()
 
     def reject(self):
-        self.status = self.REJECTED
-        self.save()
+        if self.status == self.PENDING:
+            self.status = self.REJECTED
+            self.save()
 
 
 class Rating(models.Model):
