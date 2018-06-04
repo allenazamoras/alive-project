@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
-from .permissions import AppealsViewSetPermissions
+from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -81,8 +81,8 @@ class AppealViewSet(viewsets.ModelViewSet):
         '''
         appeal = self.get_object()
 
-        if appeal.status is Appeal.COMPLETED:
-            return Response({'return': 'Appeal no longer exists'},
+        if not appeal.status == Appeal.AVAILABLE:
+            return Response({'return': 'Appeal cannot be retrieved'},
                             status=status.HTTP_404_NOT_FOUND)
 
         token = opentok.generate_token(appeal.session_id)
@@ -100,7 +100,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
-    # permission_classes = (ApprovalRequestPermissions,)
+    permission_classes = (ApprovalRequestPermissions,)
     queryset = ApprovalRequest.objects.all()
     serializer_class = ApprovalRequestSerializer
 
@@ -140,7 +140,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         Requests that are still PENDING
         '''
         queryset = ApprovalRequest.objects.filter(
-            helper=request.user).exclude(status=ApprovalRequest.REJECTED)
+            helper=request.user, status=ApprovalRequest.PENDING)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -160,7 +160,14 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         if not obj.status == ApprovalRequest.PENDING:
             return Response({'return': 'cannot perform this action'},
                             status=status.HTTP_403_FORBIDDEN)
+
         obj.approve()
+
+        qs = ApprovalRequest.objects.filter(
+            appeal=obj.appeal, status=ApprovalRequest.PENDING)
+        for apreq in qs:
+            apreq.reject()
+
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
 
@@ -194,9 +201,3 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-
-class IndexView(generic.ListView):
-    template_name = 'livestream/index.html'
-    context_object_name = 'session_list'
-    queryset = Appeal.objects.all()
