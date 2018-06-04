@@ -22,6 +22,9 @@ class AppealViewSet(viewsets.ModelViewSet):
     serializer_class = AppealSerializer
 
     def create(self, request, *args, **kwargs):
+        if Appeal.objects.filter(owner=request.user).exists():
+            return Response({'return': 'User has too many open Appeals'})
+
         session = opentok.create_session(media_mode=MediaModes.routed)
         req = request.data
         if not session:
@@ -116,14 +119,17 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         if appeal_instance is None:
             return Response({'return': 'request does not exist'})
 
-        if ApprovalRequest.objects.filter(appeal=appeal_instance,
-                                          helper=self.request.user).exists():
-            if appeal_instance.status is Appeal.COMPLETED:
-                # WARNING: if request gets rejected (is_accepted holds false)
-                # return message will still be 'pending approval...'
-                return Response({'return': 'request no longer exists'},
-                                status=status.HTTP_404_NOT_FOUND)
-            return Response({'return': 'pending approval...'})
+        if ApprovalRequest.objects.filter(
+                appeal=appeal_instance,
+                status=ApprovalRequest.PENDING).exists():
+                message = {'return': 'cannot process request at this moment'}
+                return Response(message)
+
+        if appeal_instance.status == Appeal.COMPLETED:
+            # WARNING: if request gets rejected (is_accepted holds false)
+            # return message will still be 'pending approval...'
+            return Response({'return': 'request no longer exists'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         app_req = ApprovalRequest(appeal=appeal_instance, helper=request.user)
         serializer = ApprovalRequestSerializer(app_req)
