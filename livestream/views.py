@@ -1,9 +1,11 @@
 from django.views import generic
-from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
+from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
 
 from aLive.settings import OPENTOK_API, OPENTOK_SECRET
 
@@ -15,11 +17,14 @@ opentok = OpenTok(API_KEY, API_SECRET)
 
 
 class AppealViewSet(viewsets.ModelViewSet):
-    # permission_classes = (AppealsViewSetPermissions,)
+    permission_classes = (AppealsViewSetPermissions,)
     queryset = Appeal.objects.all()
     serializer_class = AppealSerializer
 
     def create(self, request, *args, **kwargs):
+        if Appeal.objects.filter(owner=request.user).exists():
+            return Response({'return': 'User has too many open Appeals'})
+
         session = opentok.create_session(media_mode=MediaModes.routed)
         req = request.data
         if not session:
@@ -46,14 +51,41 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(methods=['get'], detail=True)
+    def list_by_category(self, request, *args, **kwargs):
+        # TODO
+        category = 'others'
+        queryset = Appeal.objects.filter(
+            status=Appeal.AVAILABLE, category=category).\
+            order_by('date_pub')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(methods=['post'], detail=False)
+    def edit_description(self, request):
+        # TODO
+        appeal = self.get_object()
+        serializer = AppealSerializer(appeal)
+        if serializer.is_valid():
+            appeal.set_description(serializer.data['description'])
+            return Response(serializer.data)
+
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def retrieve(self, request, *args, **kwargs):
         '''
         user will be given a token to connect to this session instance
         '''
         appeal = self.get_object()
 
-        if appeal.status is Appeal.COMPLETED:
-            return Response({'return': 'Appeal no longer exists'},
+        if not appeal.status == Appeal.AVAILABLE:
+            return Response({'return': 'Appeal cannot be retrieved'},
                             status=status.HTTP_404_NOT_FOUND)
 
         token = opentok.generate_token(appeal.session_id)
@@ -71,7 +103,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
-    # permission_classes = (ApprovalRequestPermissions,)
+    permission_classes = (ApprovalRequestPermissions,)
     queryset = ApprovalRequest.objects.all()
     serializer_class = ApprovalRequestSerializer
 
@@ -87,14 +119,17 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         if appeal_instance is None:
             return Response({'return': 'request does not exist'})
 
-        if ApprovalRequest.objects.filter(appeal=appeal_instance,
-                                          helper=self.request.user).exists():
-            if appeal_instance.status is Appeal.COMPLETED:
-                # WARNING: if request gets rejected (is_accepted holds false)
-                # return message will still be 'pending approval...'
-                return Response({'return': 'request no longer exists'},
-                                status=status.HTTP_404_NOT_FOUND)
-            return Response({'return': 'pending approval...'})
+        if ApprovalRequest.objects.filter(
+                appeal=appeal_instance,
+                status=ApprovalRequest.PENDING).exists():
+                message = {'return': 'cannot process request at this moment'}
+                return Response(message)
+
+        if appeal_instance.status == Appeal.COMPLETED:
+            # WARNING: if request gets rejected (is_accepted holds false)
+            # return message will still be 'pending approval...'
+            return Response({'return': 'request no longer exists'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         app_req = ApprovalRequest(appeal=appeal_instance, helper=request.user)
         serializer = ApprovalRequestSerializer(app_req)
@@ -103,27 +138,40 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
 
-    def list(self, request, *args, **kwargs):
-        '''
-        display list of all ApprovalRequests by current user
-        should only display ApprovalRequests for
-        Appeals that are still AVAILABLE (not in session) and
-        Requests that are still PENDING
-        '''
-        queryset = ApprovalRequest.objects.filter(
-            helper=request.user).exclude(status=ApprovalRequest.REJECTED)
+    @action(methods=['post'], detail=False)
+    def approve(self, request):
+        # TODO
+        obj = self.get_object()
+        if not obj:
+            return Response({'return': 'Approval request does not exist'})
+        # can only approve pending requests
+        if not obj.status == ApprovalRequest.PENDING:
+            return Response({'return': 'cannot perform this action'},
+                            status=status.HTTP_403_FORBIDDEN)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        obj.approve()
 
-        serializer = self.get_serializer(queryset, many=True)
+        qs = ApprovalRequest.objects.filter(
+            appeal=obj.appeal, status=ApprovalRequest.PENDING)
+        for apreq in qs:
+            apreq.reject()
+
+        serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
 
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)
+    @action(methods=['post'], detail=False)
+    def reject(self, request):
+        # TODO
+        obj = self.get_object()
+        if not obj:
+            return Response({'return': 'Approval request does not exist'})
+        # can only reject pending requests
+        if not obj.status == ApprovalRequest.PENDING:
+            return Response({'return': 'cannot perform this action'},
+                            status=status.HTTP_403_FORBIDDEN)
+        obj.reject()
+        serializer = ApprovalRequestSerializer(obj)
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         # when user revokes approval request it gets deleted from the db
@@ -141,9 +189,3 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-
-class IndexView(generic.ListView):
-    template_name = 'livestream/index.html'
-    context_object_name = 'session_list'
-    queryset = Appeal.objects.all()
