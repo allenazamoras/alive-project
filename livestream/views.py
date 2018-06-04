@@ -41,7 +41,7 @@ class AppealViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = Appeal.objects.filter(status=Appeal.AVAILABLE).\
-            order_by('date_pub')
+            order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -57,7 +57,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         category = 'others'
         queryset = Appeal.objects.filter(
             status=Appeal.AVAILABLE, category=category).\
-            order_by('date_pub')
+            order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
