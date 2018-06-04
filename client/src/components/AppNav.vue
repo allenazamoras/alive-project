@@ -149,7 +149,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click.native="flag = false">Accept</v-btn>
+          <v-btn color="green darken-1" flat="flat" @click.native="accept">Accept</v-btn>
           <v-btn color="green darken-1" flat="flat" @click.native="flag = false">Decline</v-btn>
         </v-card-actions>
       </v-card>
@@ -190,6 +190,12 @@ export default {
                 this.request = res.data.request
                 console.log(res)
                 setTimeout(this.getNotifications, 1500)
+            })
+        },
+
+        accept() { 
+            axios.post(`${process.env.API_URL}/pending/${request[0].id}/`, {
+                
             })
         }
     },
