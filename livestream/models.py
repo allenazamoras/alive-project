@@ -61,33 +61,29 @@ class Appeal(models.Model):
         self.description = description
         self.save()
 
-    def set_available(self):
-        self.status = self.AVAILABLE
-        self.save()
+    def change_status(self, action):
+        if action == 'makeunavailable':
+            if self.status == self.AVAILABLE:
+                self.status = self.UNAVAILABLE
+                self.save()
+                return (True, '')
+            else:
+                return (False, 'Appeal is unavailable or no longer exists')
 
-    def set_unavailable(self):
-        if not self.status == self.AVAILABLE:
-            return False
-
-        self.status = self.UNAVAILABLE
-        self.save()
-        return True
-
-    def completed(self):
-        if self.status == self.UNAVAILABLE:
-            return False
-
-        self.status = self.COMPLETED
-        self.save()
-        return True
+        if action == 'complete':
+            if self.status == self.UNAVAILABLE:
+                self.status = self.COMPLETED
+                self.save()
+                return(True, '')
+            else:
+                return(False, 'Appeal cannot be completed at this time')
 
     def remove(self):
         if self.status == self.AVAILABLE:
-            return False
-
-        self.status = self.REMOVED
-        self.save()
-        return True
+            self.status = self.REMOVED
+            self.save()
+            return True
+        return False
 
 
 class ApprovalRequest(models.Model):
@@ -112,18 +108,25 @@ class ApprovalRequest(models.Model):
                      'Helper': self.helper.username}
         return str(to_string)
 
-    def approve(self):
-        if self.status == self.PENDING:
+    def change_status(self, action):
+        if action == 'approve':
+            if not self.status == self.PENDING:
+                return (False, 'request is no longer pending')
+
             self.status = self.APPROVED
             self.appeal.helper = self.helper
             self.appeal.status = Appeal.UNAVAILABLE
             self.appeal.save()
             self.save()
+            return (True, '')
 
-    def reject(self):
-        if self.status == self.PENDING:
+        else:
+            if not self.status == self.PENDING:
+                return (False, 'request is no longer pending')
+
             self.status = self.REJECTED
             self.save()
+            return (True, '')
 
 
 class Rating(models.Model):

@@ -30,6 +30,9 @@ class AppealViewSet(viewsets.ModelViewSet):
         if not session:
             return Response({'return': 'Failed to create request'})
 
+        if not req['request_title']:
+            return Response({'return': 'Cannot create Appeal without a title'})
+
         new_session = Appeal(request_title=req['request_title'],
                              session_id=session.session_id,
                              owner=request.user,
@@ -82,21 +85,18 @@ class AppealViewSet(viewsets.ModelViewSet):
     def update_status(self, request, pk):
         # TODO
         action = request.data['action']
-        is_changed = False
-        if action not in ['complete', 'remove']:
-            message = {'return': 'action impossible'}
-            return Response(message)
+        if action not in ['complete', 'makeunavailable']:
+            return Response({'return': 'action impossible'})
 
         obj = self.queryset.get(pk=pk)
 
         if not obj:
             return Response({'return': 'Appeal does not exist'})
 
-        if action == 'complete':
-            is_changed = obj.complete()
+        success, error = obj.change_status(action)
 
-        if not is_changed:
-            return Response({'return': 'update failed'})
+        if not success:
+            return Response(error)
 
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
@@ -124,8 +124,8 @@ class AppealViewSet(viewsets.ModelViewSet):
 
         if instance.remove():
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response({'return': 'failed to delete instance'})
+        return Response(
+            {'return': 'Appeal is unavailable or no longer exists'})
 
 
 class ApprovalRequestViewSet(viewsets.ModelViewSet):
@@ -171,15 +171,12 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
             return Response(message)
 
         obj = self.queryset.get(pk=pk)
-
         if not obj:
             return Response({'return': 'Approval request does not exist'})
 
-        if action == 'approve':
-            obj.approve()
-
-        else:
-            obj.reject()
+        success, error = obj.change_status(action)
+        if not success:
+            return Response({'return': error})
 
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
