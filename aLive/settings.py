@@ -40,8 +40,6 @@ AUTH_USER_MODEL = 'userprofile.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# ASGI_APPLICATION = "aLive.routing.application"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -56,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'channels',
 ]
 
 MIDDLEWARE = [
@@ -159,7 +156,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
