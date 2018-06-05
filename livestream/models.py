@@ -20,10 +20,10 @@ class Appeal(models.Model):
         (RELATIONSHIP, 'relationship'),
     )
 
-    AVAILABLE = 'AVAILABLE'
-    UNAVAILABLE = 'UNAVAILABLE'
-    COMPLETED = 'COMPLETED'
-    REMOVED = 'REMOVED'
+    AVAILABLE = 'a'
+    UNAVAILABLE = 'u'
+    COMPLETED = 'c'
+    REMOVED = 'r'
 
     STATUS = (
         (AVAILABLE, 'available'),
@@ -40,7 +40,7 @@ class Appeal(models.Model):
     detail = models.TextField(max_length=500, blank=True)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=9,
+    status = models.CharField(max_length=1,
                               choices=STATUS, default=AVAILABLE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='requests')
@@ -61,21 +61,29 @@ class Appeal(models.Model):
         self.description = description
         self.save()
 
-    def set_available(self):
-        self.status = self.AVAILABLE
-        self.save()
+    def change_status(self, action):
+        if action == 'makeunavailable':
+            if self.status == self.AVAILABLE:
+                self.status = self.UNAVAILABLE
+                self.save()
+                return (True, '')
+            else:
+                return (False, 'Appeal is unavailable or no longer exists')
 
-    def set_unavailable(self):
-        self.status = self.UNAVAILABLE
-        self.save()
-
-    def completed(self):
-        self.status = self.COMPLETED
-        self.save()
+        if action == 'complete':
+            if self.status == self.UNAVAILABLE:
+                self.status = self.COMPLETED
+                self.save()
+                return(True, '')
+            else:
+                return(False, 'Appeal cannot be completed at this time')
 
     def remove(self):
-        self.status = self.REMOVED
-        self.save()
+        if self.status == self.AVAILABLE:
+            self.status = self.REMOVED
+            self.save()
+            return True
+        return False
 
 
 class ApprovalRequest(models.Model):
@@ -100,15 +108,25 @@ class ApprovalRequest(models.Model):
                      'Helper': self.helper.username}
         return str(to_string)
 
-    def approve(self):
-        self.status = self.APPROVED
-        self.appeal.helper = self.helper
-        self.appeal.save()
-        self.save()
+    def change_status(self, action):
+        if action == 'approve':
+            if not self.status == self.PENDING:
+                return (False, 'request is no longer pending')
 
-    def reject(self):
-        self.status = self.REJECTED
-        self.save()
+            self.status = self.APPROVED
+            self.appeal.helper = self.helper
+            self.appeal.status = Appeal.UNAVAILABLE
+            self.appeal.save()
+            self.save()
+            return (True, '')
+
+        else:
+            if not self.status == self.PENDING:
+                return (False, 'request is no longer pending')
+
+            self.status = self.REJECTED
+            self.save()
+            return (True, '')
 
 
 class Rating(models.Model):

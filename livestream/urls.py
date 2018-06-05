@@ -7,7 +7,7 @@ app_name = 'livestream'
 
 router = routers.DefaultRouter()
 router.register(r'request', views.AppealViewSet, base_name='request')
-router.register(r'pending', views.ApprovalRequestViewSet)
+router.register(r'pending', views.ApprovalRequestViewSet, base_name='pending')
 
 urlpatterns = [
 ]
