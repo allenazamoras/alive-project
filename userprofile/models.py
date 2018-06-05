@@ -1,4 +1,4 @@
-import datetime
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
@@ -30,8 +30,8 @@ class User(AbstractUser):
         if not self.last_seen():
             return False
 
-        now = datetime.datetime.now()
-        if now > self.last_seen() + datetime.timedelta(
+        now = timezone.now()
+        if now > self.last_seen() + timezone.timedelta(
                 seconds=settings.USER_ONLINE_TIMEOUT):
             return False
         else:

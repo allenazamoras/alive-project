@@ -111,14 +111,19 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)\
                                        .order_by('-date_created')
+
         try:
-            appeal = Appeal.objects.get(owner=request.user, status='A')
+            appeal = Appeal.objects.get(owner=request.user,
+                                        status=Appeal.AVAILABLE)
             approval = ApprovalRequest.objects.get(appeal=appeal, status='p')
             request = ApprovalRequestSerializer(approval)
             req = request.data
+            accept = Appeal.objects.get(helper=request.user,
+                                        status=Appeal.UNAVAILABLE)
+            session_id = accept.session_id
         except Appeal.DoesNotExist:
             req = []
-        accept = Appeal.objects.get(helper=request.user, status='U')
+            session_id = []
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -127,7 +132,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         ret = {'notification': serializer.data,
                'request': req,
-               'session_id': accept.session_id}
+               'session_id': session_id}
         return Response(ret)
 
     def notify(notification, obj):
