@@ -16,6 +16,7 @@ from userprofile.serializers import UserSerializer, RatingSerializer
 from userprofile.serializers import ReportSerializer, AppealSerializer
 from userprofile.serializers import NotificationSerializer
 from livestream.serializers import ApprovalRequestSerializer
+from livestream.serializers import SearchSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -98,7 +99,7 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 class SearchListView(generics.ListAPIView):
     queryset = Appeal.objects.filter(status='AVAILABLE')
-    serializer_class = AppealSerializer
+    serializer_class = SearchSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('request_title', 'detail')
@@ -124,6 +125,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 req = None
         except Appeal.DoesNotExist:
             req = None
+
         try:
             status = Appeal.objects.get(helper=request.user,
                                         status=Appeal.UNAVAILABLE)
@@ -134,58 +136,60 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 helper=request.user, status=ApprovalRequest.REJECTED).last()
             status_serializer = ApprovalRequestSerializer(status)
             helper_status = status_serializer.data
+
         page = self.paginate_queryset(queryset)
         if page is None:
             serializer = self.get_serializer(queryset, many=True)
         else:
             serializer = self.get_serializer(page, many=True)
+
         ret = {'notification': serializer.data,
                'request': req,
                'helper': helper_status}
         return Response(ret)
 
     def notify(notification, obj):
+        notif_list = []
+
         if notification == 'Register':
             icon = 'fas fa-sun'
             message = 'Welcome to aLive, ' + obj.username + '!'
             notif = Notification(user=obj, message=message, icon=icon)
-            notif.save()
+            notif_list.append(notif)
         elif notification == 'Rating':
             icon = 'fas fa-smile'
             message1 = 'You were rated ' + str(obj.rating) +\
                        ' by ' + obj.appeal.owner.username +\
                        ' in your last session.'
             notif = Notification(user=obj.user, message=message1, icon=icon)
-            notif.save()
-
+            notif_list.append(notif)
             message2 = 'You rated ' + obj.user.username +\
                        ' ' + str(obj.rating) + ' in your last session.'
             notif = Notification(user=obj.appeal.owner, message=message2,
                                  icon=icon)
-            notif.save()
+            notif_list.append(notif)
         elif notification == 'Report':
             icon = 'fas fa-flag'
             reason = 'Unspecified' if obj.reason == '' else obj.reason
             message1 = 'You were reported by ' + obj.reported_by.username +\
                        ' in your last session. Reason: ' + reason
             notif = Notification(user=obj.user, message=message1, icon=icon)
-            notif.save()
-
+            notif_list.append(notif)
             message2 = 'You reported ' + obj.user.username +\
                        ' in your last session. Reason: ' + reason
             notif = Notification(user=obj.reported_by, message=message2,
                                  icon=icon)
-            notif.save()
+            notif_list.append(notif)
         elif notification == 'Cancel':
             icon = 'fas fa-phone-slash'
             message1 = 'You cancelled your request for the appeal ' +\
                        obj.appeal.request_title
             notif = Notification(message=message1, user=obj.helper, icon=icon)
-            notif.save()
+            notif_list.append(notif)
             message2 = 'You missed a request from ' + obj.helper.username + '.'
             notif = Notification(message=message2,
                                  user=obj.appeal.owner, icon=icon)
-            notif.save()
+            notif_list.append(notif)
         elif notification == 'ApprovalRequest':
             status = 'approved' if obj.status == ApprovalRequest.APPROVED\
                 else 'rejected'
@@ -195,12 +199,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 obj.appeal.owner.username + '.'
             notif = Notification(message=message1, user=obj.helper,
                                  icon=icon[status])
-            notif.save()
+            notif_list.append(notif)
             message2 = "You " + status + " " + obj.helper.username +\
                        "'s offer to help."
             notif = Notification(message=message2, user=obj.appeal.owner,
                                  icon=icon[status])
-            notif.save()
+            notif_list.append(notif)
+
+        Notification.objects.bulk_create(notif_list)
         return True
 
     @action(methods=['post'], detail=True)

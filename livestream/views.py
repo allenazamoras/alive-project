@@ -72,8 +72,8 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=False)
-    def edit_description(self, request, pk):
+    @action(methods=['post'], detail=True)
+    def edit_description(self, request, pk=None):
         # TODO
         appeal = self.get_object()
         serializer = AppealSerializer(appeal)
@@ -84,7 +84,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=['post'], detail=True)
-    def update_status(self, request, pk):
+    def update_status(self, request, pk=None):
         # TODO
         action = request.data['action']
         if action not in ['complete', 'makeunavailable']:
@@ -165,7 +165,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                         headers=headers)
 
     @action(methods=['post'], detail=True)
-    def update_status(self, request, pk):
+    def update_status(self, request, pk=None):
         action = request.data['action']
 
         if action not in ['approve', 'reject']:

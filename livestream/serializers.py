@@ -60,3 +60,13 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
         fields = ('id', 'helper', 'appeal', 'status')
+
+
+class SearchSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+    helper = UserSerializer()
+
+    class Meta:
+        model = Appeal
+        fields = ('id', 'request_title', 'detail',
+                  'date_pub', 'owner', 'helper', 'session_id')
