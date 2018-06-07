@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card round>
+    <v-card class="elevation-2">
       <v-card-text>
         <v-list>
           <v-list-tile>
@@ -11,7 +11,6 @@
               <v-list-tile-title>
                 <router-link :to="`/profile/${appeal.owner.id}`" style="text-decoration: none;" class="subheading">
                   {{ appeal.owner.first_name + " " + appeal.owner.last_name}}
-                  <span class="grey--text body-1 text--darken-2">@{{appeal.owner.username}}</span>
                 </router-link>
               </v-list-tile-title>
               <v-list-tile-sub-title>

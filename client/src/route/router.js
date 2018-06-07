@@ -13,7 +13,7 @@ import Register from '.././pages/Register.vue'
 import UserProfile from '.././pages/User/ViewProfile.vue'
 import NotFound from '.././pages/404.vue'
 import Session from '.././pages/livestream/Session.vue'
-// import Search from '.././pages/Search.vue'
+import Search from '.././pages/Search'
 import SingleAppeal from '../pages/Appeal/SingleAppeal'
 
 import {store} from '.././store/store'
@@ -102,6 +102,20 @@ const routes = [
         next({name: "Login"})
       }
     }
+  },
+
+  {
+    name: "Search",
+    path: "/search/:searchText",
+    component: Search,
+    beforeEnter: auth
+  },
+
+  {
+    name: "SearchBlank",
+    path: "/search",
+    component: Search,
+    beforeEnter: auth
   },
 
   {

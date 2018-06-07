@@ -45,11 +45,22 @@
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
                 <span>ALIVE</span>
-                <v-btn icon>
-                <v-icon class="hidden-md-and-up">search</v-icon>
-            </v-btn>
+                <v-btn icon class="hidden-md-and-up">
+                    <v-icon>search</v-icon>
+                </v-btn>
             </v-toolbar-title>
-            <app-search/>
+
+            <v-text-field
+                v-model="searchText"
+                flat
+                solo-inverted
+                prepend-icon="search"
+                label="Search"
+                class="hidden-sm-and-down"
+                @keyup.enter="search"
+            >
+            </v-text-field>
+
             <v-spacer></v-spacer>            
             <v-btn icon @click="createDialog = true">
                 <v-icon>add</v-icon>
@@ -128,7 +139,6 @@
 </template>
 
 <script>
-import appSearch from './Search'
 import createAppeal from './CreateAppeal'
 import notifications from './Notifications'
 
@@ -137,7 +147,6 @@ import { mapGetters, mapState, mapMutations } from "vuex"
 
 export default {
   components: { 
-    appSearch,
     createAppeal,
     notifications
   },
@@ -147,13 +156,16 @@ export default {
         createDialog: false,
         notifList: [],
         drawer: this.$vuetify.breakpoint.lgAndUp,
+        searchText: ""
     }
   },
 
   methods: {
-    ...mapMutations("sessionModule", [
-        "setSession"
-    ])
+    search() { 
+        console.log(this.searchText)
+        if(this.searchText.length > 0)
+            this.$router.push(`/search/${this.searchText}`)
+    }
   },
 
   computed: {
@@ -173,10 +185,6 @@ export default {
         "isLoggedIn", 
         "getUserData", 
         "getConfig"
-    ]),
-
-    ...mapState("sessionModule", [
-        "appealID"
     ])
   }
 }

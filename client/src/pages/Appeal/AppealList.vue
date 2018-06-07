@@ -5,7 +5,7 @@
     <v-container grid-list-xl>
       <v-layout justify-center row>
           <v-flex>
-            <v-layout row wrap v-if="appeals.length > 0" v-for="(appeal, index) in appeals" :key="`appeal-${index}`" justify-center>
+            <v-layout row wrap v-if="appeals.length > 0" v-for="(appeal, index) in appeals" :key="`appeal-${index}`" justify-center :class="{'pt-3': index > 0}">
               <v-flex xs12 sm12 md8 lg6>
                 <appeal-view :appeal="appeal" :promptDialog.sync="promptDialog"/>
               </v-flex>
