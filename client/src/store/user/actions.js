@@ -8,7 +8,12 @@ const actions = {
       username: "",
       userID: -1,
       profilePic: "",
-      fullName: ""
+      fullName: "",
+      config: {
+        headers: { 
+          Authorization: ""
+        }
+      }
     }
 
     commit("setUserAll", user)

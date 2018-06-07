@@ -5,7 +5,9 @@
 </template>
 
 <script>
-import OT from '@opentok/client';
+import OT from '@opentok/client'
+import {mapState} from 'vuex'
+
 export default {
   name: 'publisher',
   props: {
@@ -14,8 +16,15 @@ export default {
       required: false
     },
   },
+
+  computed: { 
+    ...mapState('userModule', [
+      'username'
+    ])
+  },
+
   mounted: function() {
-    const publisher = OT.initPublisher(this.$el, {name: this.$store.getters.getUsername, style:{ nameDisplayMode: "on"}, fitMode: "contain", width: 150, height: 150}, (err) => {
+    const publisher = OT.initPublisher(this.$el, {name: this.username, style:{ nameDisplayMode: "on"}, fitMode: "contain", width: 150, height: 150}, (err) => {
       if (err) {
         this.$emit('error', err);
       } else {

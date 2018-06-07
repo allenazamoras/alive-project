@@ -106,7 +106,7 @@ export default {
 
             .catch((err) => { 
                 this.snackbar = { 
-                    text: "Something went wrong.",
+                    text: err.response.data.non_field_errors[0],
                     flag: true
                 }
                 console.log(err)

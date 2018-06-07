@@ -16,11 +16,11 @@
                                     <div> {{ appeal.detail }} </div>
                                 </div>
                                 </v-card-title>
-                                <v-card-actions>
+                                <!-- <v-card-actions>
                                 <v-btn flat class="ml-2"><v-icon>video_call</v-icon> Call</v-btn>
                                 <v-btn flat @click="edit(appeal)" class="ml-2">Edit</v-btn>
                                 <v-btn flat @click="cancel(appeal)" class="ml-2">Cancel</v-btn>
-                                </v-card-actions>
+                                </v-card-actions> -->
                             </v-card>
                         </v-flex>
                         <v-flex v-if="openAppeals.length == 0" xs12 class="grey--text">
@@ -92,6 +92,8 @@
 import dialogThing from '../.././components/Dialog.vue'
 import snackbar from '../.././components/Snackbar.vue'
 
+import {mapGetters} from 'vuex'
+
 import axios from 'axios'
 
 export default {
@@ -101,6 +103,12 @@ export default {
             snackbar: {},
             dialog: false,
         }
+    },
+
+    computed: { 
+        ...mapGetters('userModule', [
+            'getConfig'
+        ])
     },
 
     methods: { 
@@ -113,7 +121,7 @@ export default {
             axios.patch(`${process.env.API_URL}/request/${this.appeal.id}/`, {
                 "request_title": this.appeal.request_title,
                 "detail": this.appeal.detail
-            }, this.$store.getters.getConfig)
+            }, this.getConfig)
 
             .then((res) => { 
                 this.dialog = false
@@ -133,9 +141,7 @@ export default {
         },
 
         cancel(appeal) { 
-            axios.patch(`${process.env.API_URL}/request/${appeal.id}/`, {
-                "status": "COMPLETED"
-            }, this.$store.getters.getConfig)
+            axios.delete(`${process.env.API_URL}/request/${appeal.id}/`, this.getConfig)
 
             .then((res) => { 
                 this.dialog = false
@@ -146,7 +152,8 @@ export default {
                 }
             })
 
-            .catch((res) => { 
+            .catch((res) => {
+                console.log(res) 
                 this.snackbar = {
                     text: "Unable to update appeal",
                     flag: true
@@ -155,7 +162,17 @@ export default {
         }
     },
 
-    props: ["openAppeals", "closedAppeals"],
+    props: { 
+        openAppeals: { 
+            type: Array,
+            default: []
+        },
+
+        closedAppeals: { 
+            type: Array,
+            default: []
+        }
+    },
 
     components: { 
         dialogThing,

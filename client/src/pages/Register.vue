@@ -69,6 +69,7 @@ import snackbar from '../components/Snackbar.vue'
 
 //Plugins
 import axios from 'axios'
+import {mapActions} from 'vuex'
 
 export default {
     data() { 
@@ -117,26 +118,27 @@ export default {
                 .then((res) => { 
                     if(res.data.pk > 0) { 
                         const user = {
-                        username: res.data.username,
-                        userID: res.data.pk,
-                        profilePic: process.env.API_URL + res.data.profile_picture,
-                        fullName: res.data.first_name + " " + res.data.last_name, 
-                        config: { 
-                            headers: {
-                                Authorization: `Token ${res.data.token}`
+                            username: res.data.username,
+                            userID: res.data.pk,
+                            profilePic: process.env.API_URL + res.data.profile_picture,
+                            fullName: res.data.first_name + " " + res.data.last_name, 
+                            config: { 
+                                headers: {
+                                    Authorization: `Token ${res.data.token}`
+                                }
                             }
                         }
+
+                        this.snackbar = { 
+                            text: "Welcome back",
+                            flag: true
+                        }
+                        
+                        localStorage.setItem("token", res.data.token)
+                        this.setUserData(user)
+                        window.location.replace("/")
                     }
 
-                    this.snackbar = { 
-                        text: "Welcome back",
-                        flag: true
-                    }
-
-                    localStorage.setItem("token", res.data.token)
-                    this.$store.dispatch("setUserData", user)
-                    window.location.replace("/")
-                    }
                 })
               }
             })
@@ -145,7 +147,11 @@ export default {
                 this.snackbar.text = "Something went wrong."
                 this.snackbar.flag = true
             })
-        }
+        },
+
+        ...mapActions('userModule', [
+            'setUserData'
+        ])
     },
 
     components: { 

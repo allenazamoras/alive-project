@@ -37,7 +37,7 @@
               </v-layout>
               <v-layout row>
                 <v-flex>
-                  <v-text-field v-model="message" solo prepend-icon="message" placeholder="Type your message here" @keyup.enter="send"></v-text-field>
+                  <v-text-field v-model="message" solo append-icon="send" placeholder="Type your message here" @keyup.enter="send"></v-text-field>
                 </v-flex>
               </v-layout>
             </v-card-text>
@@ -45,20 +45,17 @@
         </v-flex>
       </v-layout>
 
-      <v-dialog v-model="dialog" max-width="290" persistent>
-      <v-card>
-        <v-card-title class="headline">How was the session?</v-card-title>
-        <v-card-text>
-        <v-text-field v-model="rating">
-
-        </v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat @click="rate">Rate</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-dialog v-model="dialog" max-width="290" persistent>
+        <v-card>
+          <v-card-title class="headline">How was the session?</v-card-title>
+          <v-card-text>
+          <v-text-field placeholder="rating number" v-model="rating"></v-text-field>
+          <v-text-field placeholder="Describe what you thought." v-model="comment" multi-line counter="255"></v-text-field>
+                    <v-btn>lol</v-btn>
+          <v-btn color="green darken-1" outline round dark block @click="rate">Rate</v-btn>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-container>
 
   </div>
@@ -71,7 +68,7 @@ import Subscriber from '../.././components/Subscriber.vue'
 
 import OT from '@opentok/client'
 import axios from 'axios'
-import {mapState} from 'vuex'
+import {mapState, mapGetters} from 'vuex'
 
 const errorHandler = (err) => {
   alert(err.message);
@@ -91,29 +88,37 @@ export default {
       message: "",
       chatLog: [],
 
+      owner: "",
+      comment: "",
+
       requestTitle: "",
       requestDetail: "",
     }
   },
 
   created () {
-    axios.get(`${process.env.API_URL}/request/${this.$store.state.session.appealID}/`, this.$store.state.user.config)
+    axios.get(`${process.env.API_URL}/request/${this.$route.params.id}/`, this.getConfig)
     .then((res) => { 
+      this.owner = res.data.owner.username
       this.SESSION_ID = res.data.session_id
       this.TOKEN_ID = res.data.token
       this.requestTitle = res.data.request_title
       this.requestDetail = res.data.detail
       this.initStream()
     })
-
-    axios.get(`${process.env.API_URL}/notification/`, this.getConfig)
-    .then((res) => { 
-      console.log(res)
+    .catch((err) => { 
+      this.$router.push("/NotFound")
     })
   },
 
   computed: { 
-    // ...mapState()
+    ...mapGetters('userModule', [
+      'getConfig'
+    ]),
+
+    ...mapState('userModule', [
+      'username'
+    ])
   },
 
   methods: {
@@ -127,23 +132,21 @@ export default {
         }else { 
           self = this
           this.session.on('signal:msg', function signalCallback(event) {
-              // console.log(event.from.connectionID)
-              let person = event.from.connectionId === self.session.connection.connectionId ? 'You' : 'Other dude'
-              let text = person + ": " + event.data
-              self.chatLog.push(text)
-              // msg.scrollIntoView()
-          });
+            let person = event.from.connectionId === self.session.connection.connectionId ? 'You' : 'Other dude'
+            let text = person + ": " + event.data
+            self.chatLog.push(text)
+          })
         }
-      });
+      })
       this.session.on('streamCreated', (event) => {
         this.streams.push(event.stream);
-      });
+      })
       this.session.on('streamDestroyed', (event) => {
         const idx = this.streams.indexOf(event.stream);
         if (idx > -1) {
           this.streams.splice(idx, 1);
         }
-      });
+      })
     },
 
     send() { 
@@ -164,12 +167,14 @@ export default {
     rate() { 
       axios.post(`${process.env.API_URL}/rating/`, {
         "user": 1,
-        "appeal": 19,
+        "appeal": this.$route.params.id,
         "rating": this.rating,
-      }, this.$store.user.config)
+        "comment": this.comment
+      }, this.getConfig)
 
       .then((res) => { 
         this.dialog = false
+        console.log(res)
       })
 
       .catch((res) => {
@@ -177,20 +182,28 @@ export default {
       })
     },
 
-    stopStream() { 
-      this.session.disconnect()
+    stopStream() {
+      axios.post(`${process.env.API_URL}/request/${this.$route.params.id}/update_status/`, {
+        action: "complete"
+      }, this.getConfig)
+      .then((res) => { 
+        this.session.disconnect()
+
+        if(this.owner == this.username) { 
+          this.dialog = true
+        }
+      })
     },
 
     sendMessage() { 
       this.chatLog.push({text: this.message})
-    }
+    },
   },
 
   components: { 
     appNav,
     Publisher,
     Subscriber
-
   }
 }
 </script>

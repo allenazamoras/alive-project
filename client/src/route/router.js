@@ -13,6 +13,8 @@ import Register from '.././pages/Register.vue'
 import UserProfile from '.././pages/User/ViewProfile.vue'
 import NotFound from '.././pages/404.vue'
 import Session from '.././pages/livestream/Session.vue'
+// import Search from '.././pages/Search.vue'
+import SingleAppeal from '../pages/Appeal/SingleAppeal'
 
 import {store} from '.././store/store'
 
@@ -134,16 +136,18 @@ const routes = [
   },
 
   {
+    path: "/appeal/:id",
+    component: SingleAppeal,
+    beforeEnter: auth
+  },
+
+  {
     name: "Session",
-    path: "/session",
+    path: "/session/:id",
     component: Session,
     beforeEnter: (to, from, next) => { 
       if(store.getters['userModule/isLoggedIn']) { 
-        if(store.state.sessionModule.appealID > 0) { 
-          next()  
-        } else { 
-          next({path: from.path})
-        }
+        next()
       } else { 
         next({name: "Login"})
       }

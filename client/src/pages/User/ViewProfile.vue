@@ -13,9 +13,7 @@
                         <v-avatar size="80">
                           <img :src="`${user.profile_picture}`" alt="">
                         </v-avatar>
-
                         <h2 class="grey--text text--darken-3">{{ user.first_name }} {{ user.last_name }}</h2>
-                        <!-- <h3 class="body-1 grey--text text--darken-4"> {{ userInfo.bio }} </h3> -->
                       </v-flex>          
                     </v-layout>
                 </v-parallax> 
@@ -70,12 +68,11 @@
             <v-flex xs12 lg8>
                 <v-tabs icons-and-text class="elevation-1">
                   <v-tabs-slider color="black"></v-tabs-slider>
-                  <v-tab href="#tab-appeals">
+                  <v-tab href="#tab-appeals" v-if="user.openappeals">
                     <!-- <v-icon>fas fa-hands</v-icon> -->
                     Appeals ({{ user.openappeals.length + user.closedappeals.length }})
                   </v-tab>
                   <v-tab href="#tab-assists">
-                    <!-- <v-icon>fas fa-handshake</v-icon> -->
                     Assists ({{ user.offers.openappeals.length + user.offers.closedappeals.length }})
                   </v-tab>
                   <v-tab-item
@@ -128,6 +125,7 @@ export default {
       axios.get(`${process.env.API_URL}/user/${this.$route.params.username}/`, this.getConfig)
       .then((res) => { 
         this.user = res.data
+        console.log(res.data.offers.openappeals)
       })
       .catch((err) => { 
         console.log(err)
