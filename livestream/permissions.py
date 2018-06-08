@@ -38,7 +38,6 @@ class AppealsViewSetPermissions(BasePermission):
     Appeal Helper       ['retrieve']
     '''
     def has_object_permission(self, request, view, obj):
-        print(request.user, obj.owner)
         if request.method in ['POST', 'GET']:
             return request.user.is_authenticated
 

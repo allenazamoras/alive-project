@@ -99,7 +99,6 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 class SearchListView(generics.ListAPIView):
     queryset = Appeal.objects.filter(status='a')
-    print(queryset)
     serializer_class = SearchSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
