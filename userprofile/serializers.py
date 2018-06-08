@@ -1,7 +1,14 @@
 from django.db.models import Count, Q
 from rest_framework import serializers
 from userprofile.models import User
-from livestream.models import Appeal, Rating, Report
+from livestream.models import Appeal, Rating, Report, Notification
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = ('id', 'user', 'seen', 'message', 'icon', 'date_created')
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -15,7 +22,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ('id', 'appeal', 'user', 'rating')
+        fields = ('id', 'appeal', 'user', 'rating', 'comment')
 
 
 class AppealSerializer(serializers.ModelSerializer):

@@ -1,10 +1,12 @@
 from django.views import generic
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
+from userprofile.views import NotificationViewSet
 from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
 
 from django.conf import settings
@@ -16,13 +18,28 @@ API_SECRET = settings.OPENTOK_SECRET
 opentok = OpenTok(API_KEY, API_SECRET)
 
 
+class CustomPagination(pagination.PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'total_pages': self.page.paginator.num_pages,
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
+
 class AppealViewSet(viewsets.ModelViewSet):
     permission_classes = (AppealsViewSetPermissions,)
     queryset = Appeal.objects.all()
     serializer_class = AppealSerializer
+    pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
-        if Appeal.objects.filter(owner=request.user).exists():
+        if Appeal.objects.filter(owner=request.user,
+                                 status=Appeal.AVAILABLE).exists():
             return Response({'return': 'User has too many open Appeals'})
 
         session = opentok.create_session(media_mode=MediaModes.routed)
@@ -37,14 +54,15 @@ class AppealViewSet(viewsets.ModelViewSet):
                              session_id=session.session_id,
                              owner=request.user,
                              helper=None,
-                             detail=req['detail'],)
+                             detail=req['detail'],
+                             category=req['category'])
         new_session.save()
         return Response({'return': 'Successfully created new request'},
                         status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         queryset = Appeal.objects.filter(status=Appeal.AVAILABLE).\
-            exclude(owner=request.user).order_by('-date_pub')
+            order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -57,9 +75,9 @@ class AppealViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def list_by_category(self, request):
         # TODO
-        category = 'others'
+        req = request.data
         queryset = Appeal.objects.filter(
-            status=Appeal.AVAILABLE, category=category).\
+            status=Appeal.AVAILABLE, category=req['category']).\
             order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
@@ -70,8 +88,8 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=False)
-    def edit_description(self, request, pk):
+    @action(methods=['post'], detail=True)
+    def edit_description(self, request, pk=None):
         # TODO
         appeal = self.get_object()
         serializer = AppealSerializer(appeal)
@@ -82,7 +100,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=['post'], detail=True)
-    def update_status(self, request, pk):
+    def update_status(self, request, pk=None):
         # TODO
         action = request.data['action']
         if action not in ['complete', 'makeunavailable']:
@@ -98,7 +116,13 @@ class AppealViewSet(viewsets.ModelViewSet):
         if not success:
             return Response(error)
 
-        serializer = ApprovalRequestSerializer(obj)
+        serializer = AppealSerializer(obj)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def single_appeal(self, request, pk=None):
+        obj = self.queryset.get(pk=pk)
+        serializer = AppealSerializer(obj)
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -107,8 +131,8 @@ class AppealViewSet(viewsets.ModelViewSet):
         '''
         appeal = self.get_object()
 
-        if not appeal.status == Appeal.AVAILABLE:
-            return Response({'return': 'Appeal cannot be retrieved'},
+        if appeal.status not in [Appeal.UNAVAILABLE, Appeal.AVAILABLE]:
+            return Response({'return': 'Appeal no longer exists'},
                             status=status.HTTP_404_NOT_FOUND)
 
         token = opentok.generate_token(appeal.session_id)
@@ -163,7 +187,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
                         headers=headers)
 
     @action(methods=['post'], detail=True)
-    def update_status(self, request, pk):
+    def update_status(self, request, pk=None):
         action = request.data['action']
 
         if action not in ['approve', 'reject']:
@@ -177,7 +201,7 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         success, error = obj.change_status(action)
         if not success:
             return Response({'return': error})
-
+        NotificationViewSet.notify('ApprovalRequest', obj)
         serializer = ApprovalRequestSerializer(obj)
         return Response(serializer.data)
 
@@ -185,10 +209,12 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         # when user revokes approval request it gets deleted from the db
         instance = self.get_object()
         # can only be deleted only if it is still pending
-        if instance.status == ApprovalRequest.PENDING:
+        if instance.status in [ApprovalRequest.PENDING, ApprovalRequest.REJECTED]:
+            if instance.status == ApprovalRequest.PENDING:
+                NotificationViewSet.notify('Cancel', instance)
             self.perform_destroy(instance)
-            message = {'return': 'Successfully cancelled pending offer'}
-            return Response(message, status=status.HTTP_204_NO_CONTENT)
+            message = {'return': 'Successfully cancelled offer'}
+            return Response(message)
 
         message = {'return': 'cannot perform action'}
         return Response(message, status=status.HTTP_403_FORBIDDEN)

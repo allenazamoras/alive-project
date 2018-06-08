@@ -136,6 +136,7 @@ class Rating(models.Model):
                                related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
+    comment = models.CharField(max_length=255, blank=True)
 
 
 class Report(models.Model):
@@ -147,3 +148,12 @@ class Report(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='notification')
+    seen = models.BooleanField(default=False)
+    message = models.CharField(max_length=1000)
+    icon = models.CharField(max_length=30)
+    date_created = models.DateTimeField(auto_now_add=True)

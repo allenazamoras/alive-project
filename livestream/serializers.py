@@ -6,7 +6,8 @@ from userprofile.models import User
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('username',
+        fields = ('id',
+                  'username',
                   'first_name',
                   'last_name',
                   'profile_picture',
@@ -29,7 +30,7 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Appeal
-        fields = ('id', 'request_title', 'detail',
+        fields = ('id', 'request_title', 'detail', 'category',
                   'date_pub', 'owner', 'helper', 'status',
                   'pending_list', 'session_id', 'token')
 
@@ -60,3 +61,13 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalRequest
         fields = ('id', 'helper', 'appeal', 'status')
+
+
+class SearchSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+    helper = UserSerializer()
+
+    class Meta:
+        model = Appeal
+        fields = ('id', 'request_title', 'detail',
+                  'date_pub', 'owner', 'helper', 'session_id')
