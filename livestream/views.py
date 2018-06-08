@@ -38,7 +38,8 @@ class AppealViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
-        if Appeal.objects.filter(owner=request.user, status='a').exists():
+        if Appeal.objects.filter(owner=request.user,
+                                 status=Appeal.AVAILABLE).exists():
             return Response({'return': 'User has too many open Appeals'})
 
         session = opentok.create_session(media_mode=MediaModes.routed)
