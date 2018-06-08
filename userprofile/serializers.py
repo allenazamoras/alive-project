@@ -22,7 +22,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ('id', 'appeal', 'user', 'rating')
+        fields = ('id', 'appeal', 'user', 'rating', 'comment')
 
 
 class AppealSerializer(serializers.ModelSerializer):

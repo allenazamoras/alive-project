@@ -67,7 +67,7 @@ class RatingViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         req = request.data
         rate = Rating(user_id=req['user'], appeal_id=req['appeal'],
-                      rating=req['rating'])
+                      rating=req['rating'], comment=req['comment'])
         rate.save()
         NotificationViewSet.notify("Rating", rate)
         serializer = RatingSerializer(rate)
@@ -98,7 +98,8 @@ class ReportViewSet(viewsets.ModelViewSet):
 
 
 class SearchListView(generics.ListAPIView):
-    queryset = Appeal.objects.filter(status='AVAILABLE')
+    queryset = Appeal.objects.filter(status='a')
+    print(queryset)
     serializer_class = SearchSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
@@ -108,7 +109,7 @@ class SearchListView(generics.ListAPIView):
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         queryset = Notification.objects.filter(user=request.user)\
@@ -147,6 +148,13 @@ class NotificationViewSet(viewsets.ModelViewSet):
                'request': req,
                'helper': helper_status}
         return Response(ret)
+
+    @action(methods=['post'], detail=True)
+    def mark_seen(self, request, pk=None):
+        notif = Notification.objects.filter(user=request.user,
+                                            seen=False)
+        notif.update(seen=True)
+        return Response(True)
 
     def notify(notification, obj):
         notif_list = []
@@ -207,11 +215,4 @@ class NotificationViewSet(viewsets.ModelViewSet):
             notif_list.append(notif)
 
         Notification.objects.bulk_create(notif_list)
-        return True
-
-    @action(methods=['post'], detail=True)
-    def mark_seen(self, request):
-        notif = Notification.objects.filter(user=request.user,
-                                            seen=False)
-        notif.update(seen=True)
         return True

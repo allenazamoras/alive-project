@@ -136,6 +136,7 @@ class Rating(models.Model):
                                related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
+    comment = models.CharField(max_length=255, blank=True)
 
 
 class Report(models.Model):

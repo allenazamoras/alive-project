@@ -1,7 +1,8 @@
 from django.views import generic
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Appeal, ApprovalRequest
 from .serializers import AppealSerializer, ApprovalRequestSerializer
@@ -17,11 +18,24 @@ API_SECRET = settings.OPENTOK_SECRET
 opentok = OpenTok(API_KEY, API_SECRET)
 
 
+class CustomPagination(pagination.PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'total_pages': self.page.paginator.num_pages,
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
+
 class AppealViewSet(viewsets.ModelViewSet):
     permission_classes = (AppealsViewSetPermissions,)
     queryset = Appeal.objects.all()
     serializer_class = AppealSerializer
-    # pagination_class = ()
+    pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
         if Appeal.objects.filter(owner=request.user, status='a').exists():
@@ -39,14 +53,15 @@ class AppealViewSet(viewsets.ModelViewSet):
                              session_id=session.session_id,
                              owner=request.user,
                              helper=None,
-                             detail=req['detail'],)
+                             detail=req['detail'],
+                             category=req['category'])
         new_session.save()
         return Response({'return': 'Successfully created new request'},
                         status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         queryset = Appeal.objects.filter(status=Appeal.AVAILABLE).\
-            exclude(owner=request.user).order_by('-date_pub')
+            order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -59,9 +74,9 @@ class AppealViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def list_by_category(self, request):
         # TODO
-        category = 'others'
+        req = request.data
         queryset = Appeal.objects.filter(
-            status=Appeal.AVAILABLE, category=category).\
+            status=Appeal.AVAILABLE, category=req['category']).\
             order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
@@ -100,6 +115,12 @@ class AppealViewSet(viewsets.ModelViewSet):
         if not success:
             return Response(error)
 
+        serializer = AppealSerializer(obj)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def single_appeal(self, request, pk=None):
+        obj = self.queryset.get(pk=pk)
         serializer = AppealSerializer(obj)
         return Response(serializer.data)
 

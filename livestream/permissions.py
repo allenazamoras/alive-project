@@ -9,7 +9,7 @@ class IsOwner(BasePermission):
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        return view.action == 'retrieve' and obj.owner == request.user
+        return request.method == 'GET' and obj.owner == request.user
 
 
 class IsHelper(BasePermission):
@@ -38,17 +38,17 @@ class AppealsViewSetPermissions(BasePermission):
     Appeal Helper       ['retrieve']
     '''
     def has_object_permission(self, request, view, obj):
-
-        if view.action in ['create', 'list']:
+        print(request.user, obj.owner)
+        if request.method in ['POST', 'GET']:
             return request.user.is_authenticated
 
-        if view.action == 'retrieve':
+        if request.method == 'GET':
             owner = getattr(obj, 'owner', None)
             helper = getattr(obj, 'helper', None)
 
             return owner == request.user or helper == request.user
 
-        if view.action in ['destroy', 'partial_update', 'update']:
+        if request.method in ['DELETE', 'PATCH', 'PUT']:
             return obj.owner == request.user
 
 
@@ -59,10 +59,10 @@ class ApprovalRequestPermissions(BasePermission):
     AR helper           [all]
     '''
     def has_object_permission(self, request, view, obj):
-        if view.action == ['destroy', 'create']:
+        if request.method == ['DELETE', 'POST']:
             return not obj.appeal.owner == request.user
 
-        if view.action == ['partial_update', 'update']:
+        if request.method == ['PATCH', 'PUT']:
             return not obj.helper == request.user
 
         return request.user.is_authenticated
