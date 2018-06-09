@@ -81,10 +81,9 @@ class AppealViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def list_by_category(self, request):
         # TODO
-        print("blam")
         req = request.data
-        queryset = Appeal.objects.filter(
-            status=Appeal.AVAILABLE, category_id=req['category']).\
+        queryset = Appeal.objects.filter(status=Appeal.AVAILABLE,
+                                         category=req['category']).\
             order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
