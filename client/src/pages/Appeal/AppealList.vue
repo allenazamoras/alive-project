@@ -1,14 +1,52 @@
 <template>
   <div>
     <app-nav/>
-  
     <v-container grid-list-xl>
       <v-layout justify-center row>
-          <v-flex>
-            <v-layout row wrap v-if="appeals.length > 0" v-for="(appeal, index) in appeals" :key="`appeal-${index}`" justify-center :class="{'pt-3': index > 0}">
-              <v-flex xs12 sm12 md8 lg6>
+          <v-flex xs12 sm9 md8 lg6>
+            <v-layout
+              row
+              wrap
+              justify-center
+            >
+            <v-flex xs12 class="text-xs-center">
+            </v-flex>
+            </v-layout>
+
+            <v-layout 
+              row 
+              wrap 
+              v-if="appeals.length > 0" 
+              v-for="(appeal, index) in appeals" 
+              :key="`appeal-${index}`" 
+              justify-center 
+              :class="{'pt-3': index > 0}"
+            >
+              <v-flex 
+                xs12
+              >
                 <appeal-view :appeal="appeal" :promptDialog.sync="promptDialog"/>
               </v-flex>
+              <v-flex 
+                xs12
+                v-if="index == appeals.length - 1"
+                text-xs-center
+              >
+                <v-pagination 
+                  prev-icon="arrow_left" 
+                  next-icon="arrow_right"
+                  :length="totalPages" 
+                  v-model="currentPage"
+                ></v-pagination>
+              </v-flex>
+            </v-layout>
+
+            <v-layout
+              row
+              justify-center
+              v-if="appeals.length == 0"
+            >
+              There's nothing here.
             </v-layout>
         </v-flex>
       </v-layout>   
@@ -25,6 +63,7 @@ import appNav from '../.././components/AppNav'
 import snackbar from '../../components/Snackbar'
 import notifications from '../../components/Notifications'
 import appealView from '../../components/AppealView'
+import sweatFace from '../../components/SweatFace'
 
 import moment from 'moment'
 import axios from 'axios'
@@ -37,6 +76,13 @@ export default {
       snackbar: {},
       
       pk: -1,
+      currentPage: 1,
+      totalPages: 1,
+
+      timer: null,
+
+      //spinner for loadNew button
+      loadNewLoading: false,
 
       //single appeal component variables
       cancel: false,
@@ -59,12 +105,32 @@ export default {
     ])
   },
 
+  methods: { 
+    loadNew() { 
+      this.loadNewLoading = true
+    },
+
+    getAppeals() {
+      axios.get(`${process.env.API_URL}/request/?page=${this.currentPage}`, this.getConfig)
+      .then((res) => { 
+        this.appeals = res.data.results
+      })
+
+      setTimeout(this.getAppeals, 5600)
+    }
+  },
+
+  watch: { 
+    'currentPage' () { 
+      axios.get(`${process.env.API_URL}/request/?page=${this.currentPage}`, this.getConfig)
+      .then((res) => { 
+        this.appeals = res.data.results
+      })
+    }
+  },
+
   created() { 
-    axios.get(`${process.env.API_URL}/request/?page=1`, this.getConfig)
-    .then((res) => { 
-      this.appeals = res.data.results
-      console.log(this.appeals)
-    })
+    this.getAppeals()
   },
 
   components: { 

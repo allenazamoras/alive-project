@@ -8,8 +8,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click="action('approve')">Accept</v-btn>
-          <v-btn color="green darken-1" flat="flat" @click="action('reject')">Decline</v-btn>
+          <v-btn flat="flat" @click="action('approve')">Accept</v-btn>
+          <v-btn flat="flat" @click="action('reject')">Decline</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -75,7 +75,7 @@ export default {
 
           this.$emit("update:notifList", res.data.notification)
           this.request = res.data.request
-          setTimeout(this.getNotifications, 1500)
+          setTimeout(this.getNotifications, 5600)
       })
       .catch((err) => {
           console.log(err)

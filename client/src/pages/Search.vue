@@ -13,6 +13,7 @@
             label="Search"
             class="hidden-md-and-up"
             @keyup.enter="search"
+            loading="true"
           >
           </v-text-field>
         </v-flex>
@@ -62,8 +63,12 @@ export default {
 
   methods: { 
     search() { 
-      if(this.searchText.length > 0) { 
-        axios.get(`${process.env.API_URL}/search?search=${this.searchText}&page=1`, this.getConfig)
+      this.$router.push(`/search/${this.searchText}`)
+    },
+
+    query() { 
+      if(this.$route.params.searchText.length > 0) { 
+        axios.get(`${process.env.API_URL}/search?search=${this.$route.params.searchText}&page=1`, this.getConfig)
         .then((res) => { 
           this.results = res.data.results
         })
@@ -73,14 +78,12 @@ export default {
 
   watch: { 
     '$route' (to, from) { 
-      this.searchText = this.$route.params.searchText
-      this.search()
+      this.query()
     }
   },
 
   created() { 
-    this.searchText = this.$route.params.searchText
-    this.search()
+    this.query()
   }
 }
 </script>

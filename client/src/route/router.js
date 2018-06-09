@@ -15,6 +15,9 @@ import NotFound from '.././pages/404.vue'
 import Session from '.././pages/livestream/Session.vue'
 import Search from '.././pages/Search'
 import SingleAppeal from '../pages/Appeal/SingleAppeal'
+import MyAppeals from '../pages/Appeal/MyAppeals'
+
+import TestVideo from '../pages/TestVideo'
 
 import {store} from '.././store/store'
 
@@ -31,6 +34,11 @@ const auth = (to, from, next) => {
 }
 
 const routes = [
+  {
+    path: "/test",
+    component: TestVideo
+  },
+
   {
     name: "Home",
     path: "/",
@@ -81,10 +89,19 @@ const routes = [
   },
 
   {
-    path: "/appeals", 
+    path: "/appeals/list", 
     component: AppealList,
     meta: { 
       title: "Appeals"
+    },
+    beforeEnter: auth
+  },
+
+  {
+    path: "/appeals/mine", 
+    component: MyAppeals,
+    meta: { 
+      title: "My Appeals"
     },
     beforeEnter: auth
   },

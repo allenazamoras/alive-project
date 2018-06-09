@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueChatScroll from 'vue-chat-scroll'
 
 // Theme and stylesheet
 import Vuetify from 'vuetify'
@@ -12,6 +13,7 @@ import {store} from './store/store.js'
 import {router} from './route/router.js'
 
 Vue.use(Vuetify)
+Vue.use(VueChatScroll)
 
 new Vue({
   el: '#app',

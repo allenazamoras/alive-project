@@ -5,29 +5,30 @@
             :clipped="$vuetify.breakpoint.lgAndUp"
             app
             v-model="drawer"
-            >
+        >
             <v-list dense>
             <template>
-                <v-list-tile to="/">
+                <v-subheader>APPEALS</v-subheader>
+                <v-list-tile to="/appeals/list">
                     <v-list-tile-action>
-                        <v-icon>fas fa-home</v-icon>
+                        <v-icon>view_list</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
                         <v-list-tile-title>
-                        Home
+                        View List
                         </v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile to="/appeals">
+                <!-- <v-list-tile to="/appeals/mine">
                     <v-list-tile-action>
-                        <v-icon>fas fa-list-alt</v-icon>
+                        <v-icon>face</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
                         <v-list-tile-title>
-                        Appeals
+                        My Appeals
                         </v-list-tile-title>
                     </v-list-tile-content>
-                </v-list-tile>
+                </v-list-tile> -->
             </template>
             </v-list>
         </v-navigation-drawer>
@@ -37,17 +38,17 @@
             dark
             dense
             flat
+            
             app
             :clipped-left="$vuetify.breakpoint.mdAndUp"
             style="border-bottom: 1px solid #efefef !important;"
-            fixed
             >
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <span>ALIVE</span>
-                <v-btn icon class="hidden-md-and-up">
-                    <v-icon>search</v-icon>
-                </v-btn>
+                <router-link to="/" style="text-transform: none; color: white; text-decoration: none;">
+                    <span>a<span style="font-weight: bold;">LIVE</span></span>
+                    <v-icon size="20" color="pink">fas fa-heartbeat</v-icon>
+                </router-link>
             </v-toolbar-title>
 
             <v-text-field
@@ -59,24 +60,55 @@
                 class="hidden-sm-and-down"
                 @keyup.enter="search"
             >
-            </v-text-field>
-
-            <v-spacer></v-spacer>            
+            </v-text-field>       
+            <v-spacer></v-spacer>
             <v-btn icon @click="createDialog = true">
-                <v-icon>add</v-icon>
+                <v-icon size="20">add</v-icon>
             </v-btn>
-            <v-menu origin="top right" transition="scale-transition" bottom left offset-y max-height="250">
-                <v-btn icon slot="activator">
+            <v-menu 
+                origin="top right" 
+                transition="scale-transition" 
+                content-class="notifContent"
+                bottom 
+                left 
+                offset-y 
+                max-height="350" 
+            >
+                <v-btn 
+                    icon 
+                    slot="activator"
+                    @click="markAsSeen"
+                >
                     <v-badge overlap>
                         <span slot="badge" class="caption" v-if="numOfNewNotifications > 0">{{ numOfNewNotifications }}</span>
-                        <v-icon>notifications</v-icon>
+                        <v-icon size="20">notifications</v-icon>
                     </v-badge>               
                 </v-btn>
 
-                <v-list>
-                    <div v-for="(item, index) in notifList" :key="`item-${index}`" :to="item.link" v-if="notifList.length > 0">
-                        <v-list-tile @click="" :title="item.message">
-                            <v-list-tile-title class="body-1"> <v-icon small>{{item.icon}} fa-fw</v-icon> {{item.message}}</v-list-tile-title>
+                <v-list class="notifContent" three-line dense>
+                    <span class="body-1 pa-2" @click="">Mark all as read</span>
+                    <v-divider></v-divider>
+                    <div 
+                        v-for="(item, index) in notifList" 
+                        :key="`item-${index}`" 
+                        v-if="notifList.length > 0" 
+                        :class="{'grey lighten-4': item.seen == false}" 
+                    >
+                        <v-list-tile :title="item.message">
+                            <v-list-tile-sub-title 
+                                class="body-1"
+                            > 
+                                
+                                <v-icon 
+                                        small
+                                    >
+                                        {{item.icon}} fa-fw
+                                </v-icon> 
+                                
+                                <span class="black--text">{{item.message}}</span>
+
+                                    <v-icon size="15">access_time</v-icon> {{getMoment(item.date_created)}}
+                                </v-list-tile-sub-title>
                         </v-list-tile>
                         <v-divider v-if="index < notifList.length - 1"></v-divider>
                     </div>
@@ -86,6 +118,7 @@
                         No new notifications.
                         </span>
                     </v-list-tile>
+                    <v-divider></v-divider>
                 </v-list>
             </v-menu>
             <v-menu
@@ -98,7 +131,7 @@
                 >
                 <v-btn icon slot="activator">
                     <span slot="badge" class="caption">3</span>
-                    <v-avatar size="32px">
+                    <v-avatar size="25">
                         <img :src="`${getUserData.profilePic}`">
                     </v-avatar>             
                 </v-btn>  
@@ -132,7 +165,11 @@
                 </v-card>
             </v-menu>  
         </v-toolbar>
-        
+        <v-text-field
+            class="fade-transition"
+            solo-inverted
+            v-show="searchToggle"
+            ></v-text-field>
         <create-appeal :createDialog.sync="createDialog" />
         <notifications :notifList.sync="notifList" />
     </div>
@@ -143,6 +180,7 @@ import createAppeal from './CreateAppeal'
 import notifications from './Notifications'
 
 import axios from "axios"
+import moment from 'moment'
 import { mapGetters, mapState, mapMutations } from "vuex"
 
 export default {
@@ -156,11 +194,27 @@ export default {
         createDialog: false,
         notifList: [],
         drawer: this.$vuetify.breakpoint.lgAndUp,
-        searchText: ""
+        searchText: "",
+        searchToggle: false,
+
+        test: false
     }
   },
 
   methods: {
+    getMoment(time) { 
+      return moment(time, "YYYY-MM-DD hh:mm:ss").fromNow()
+    },
+
+    markAsSeen() { 
+        axios.post(`${process.env.API_URL}/notification/0/mark_seen/`, {
+            seen: "True"
+        }, this.getConfig)
+        .then((res) => { 
+            console.log(res)
+        })
+    },
+
     search() { 
         console.log(this.searchText)
         if(this.searchText.length > 0)
@@ -182,7 +236,6 @@ export default {
     },
 
     ...mapGetters("userModule", [
-        "isLoggedIn", 
         "getUserData", 
         "getConfig"
     ])
