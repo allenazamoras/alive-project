@@ -37,7 +37,7 @@ class Appeal(models.Model):
     # Appeal name
     request_title = models.CharField(max_length=50)
     # Additional details for the request
-    detail = models.TextField(max_length=500, blank=True)
+    detail = models.TextField(max_length=500)
     # Date and time when the request was published
     date_pub = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1,
@@ -136,7 +136,8 @@ class Rating(models.Model):
                                related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
                                              MaxValueValidator(5)])
-    comment = models.CharField(max_length=255, blank=True)
+    comment = models.CharField(max_length=255)
+    date_created = models.DateTimeField(auto_now_add=True)
 
 
 class Report(models.Model):
@@ -144,7 +145,8 @@ class Report(models.Model):
                              related_name='reported_user')
     reported_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                     related_name='reported_by')
-    reason = models.CharField(max_length=255, blank=True)
+    reason = models.CharField(max_length=255)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username

@@ -37,6 +37,10 @@ class AppealsViewSetPermissions(BasePermission):
     Appeal Owner        ['destroy', 'retrieve', 'partial_update', 'update']
     Appeal Helper       ['retrieve']
     '''
+    def has_permission(self, request, view):
+        if request.method in ['POST', 'GET', 'DELETE', 'PATCH', 'PUT']:
+            return request.user.is_authenticated
+
     def has_object_permission(self, request, view, obj):
         if request.method in ['POST', 'GET']:
             return request.user.is_authenticated

@@ -49,6 +49,8 @@ class AppealViewSet(viewsets.ModelViewSet):
 
         if not req['request_title']:
             return Response({'return': 'Cannot create Appeal without a title'})
+        if not req['detail']:
+            return Response({'return': 'Cannot create Appeal without the details'})
 
         new_session = Appeal(request_title=req['request_title'],
                              session_id=session.session_id,
@@ -72,7 +74,7 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'], detail=False)
     def list_by_category(self, request):
         # TODO
         req = request.data
