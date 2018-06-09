@@ -64,8 +64,25 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     permission_classes = (IsAuthenticated,)
 
+    def list(self, request):
+        ratings_given = Appeal.objects.filter(owner=request.user,
+                                              status=Appeal.COMPLETED)\
+            .order_by('-date_pub')
+        given_serializer = AppealSerializer(ratings_given, many=True)
+        ratings_received = Rating.objects.filter(user=request.user)\
+            .order_by('-date_created')
+        received_serializer = RatingSerializer(ratings_received, many=True)
+        return Response({'ratings_given': given_serializer.data,
+                         'ratings_received': received_serializer.data})
+
     def create(self, request, *args, **kwargs):
         req = request.data
+        if request.user == req['user']:
+            return Response({'return': "You can't rate yourself"})
+
+        if Rating.objects.filter(appeal_id=req['appeal']).exists():
+            return Response({'return': "You've already rated"})
+
         rate = Rating(user_id=req['user'], appeal_id=req['appeal'],
                       rating=req['rating'], comment=req['comment'])
         rate.save()
@@ -167,11 +184,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
             icon = 'fas fa-smile'
             message1 = 'You were rated ' + str(obj.rating) +\
                        ' by ' + obj.appeal.owner.username +\
-                       ' in your last session.'
+                       ' in your last session. Comment: ' + obj.comment
             notif = Notification(user=obj.user, message=message1, icon=icon)
             notif_list.append(notif)
             message2 = 'You rated ' + obj.user.username +\
-                       ' ' + str(obj.rating) + ' in your last session.'
+                       ' ' + str(obj.rating) + ' in your last session.' +\
+                       ' Comment: ' + obj.comment
             notif = Notification(user=obj.appeal.owner, message=message2,
                                  icon=icon)
             notif_list.append(notif)

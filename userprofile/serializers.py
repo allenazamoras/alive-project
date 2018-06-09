@@ -22,15 +22,26 @@ class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ('id', 'appeal', 'user', 'rating', 'comment')
+        fields = ('id', 'appeal', 'user', 'rating', 'comment',
+                  'date_created')
+
+
+class UserAppealSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name',
+                  'profile_picture', 'online')
 
 
 class AppealSerializer(serializers.ModelSerializer):
     rating = RatingSerializer(read_only=True, many=True)
+    helper = UserAppealSerializer()
 
     class Meta:
         model = Appeal
-        fields = ('id', 'request_title', 'detail', 'date_pub', 'rating')
+        fields = ('id', 'request_title', 'detail', 'date_pub', 'rating',
+                  'helper')
 
 
 class UserSerializer(serializers.ModelSerializer):
