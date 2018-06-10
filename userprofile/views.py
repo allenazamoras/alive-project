@@ -40,6 +40,19 @@ class UserViewSet(viewsets.ModelViewSet):
             ret = {'return': 'Account successfully created.'}
         return Response(ret, status=status.HTTP_201_CREATED)
 
+    def partial_update(self, request, *args, **kwargs):
+        req = request.data
+        user = self.get_object()
+        if not user.check_password(req['confirm_password']):
+            return Response({'return': 'Incorrect password'})
+
+        if req['password'] is not '':
+            user.set_password(req['password'])
+            user.save()
+
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
 
 class Login(ObtainAuthToken):
 
