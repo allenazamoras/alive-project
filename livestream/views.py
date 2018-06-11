@@ -62,6 +62,9 @@ class AppealViewSet(viewsets.ModelViewSet):
                              helper=None,
                              detail=req['detail'])
         new_session.save()
+        if not Category.objects.filter(id=req['category']).exists():
+            return Response({'return': 'Category does not exist'})
+
         new_session.category.add(req['category'])
         return Response({'return': 'Successfully created new request'},
                         status=status.HTTP_201_CREATED)
