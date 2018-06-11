@@ -3,23 +3,15 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from userprofile.models import User
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=20)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Appeal(models.Model):
-    OTHERS = 'OTHERS'
-    PERSONAL = 'PERSONAL'
-    FAMILY = 'FAMILY'
-    WORK = 'WORK'
-    SCHOOL = 'SCHOOL'
-    RELATIONSHIP = 'RELATIONSHIP'
-
-    CATEGORY = (
-        (OTHERS, 'others'),
-        (PERSONAL, 'personal'),
-        (FAMILY, 'family'),
-        (WORK, 'work'),
-        (SCHOOL, 'school'),
-        (RELATIONSHIP, 'relationship'),
-    )
-
     AVAILABLE = 'a'
     UNAVAILABLE = 'u'
     COMPLETED = 'c'
@@ -48,8 +40,7 @@ class Appeal(models.Model):
     helper = models.ForeignKey(User, blank=True, null=True,
                                on_delete=models.SET_NULL,
                                related_name='offers')
-    category = models.CharField(max_length=20,
-                                choices=CATEGORY, default=OTHERS)
+    category = models.ManyToManyField(Category)
 
     def __str__(self):
         return self.request_title

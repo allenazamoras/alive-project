@@ -1,3 +1,4 @@
+from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
 
@@ -69,3 +70,12 @@ class ApprovalRequestPermissions(BasePermission):
             return not obj.helper == request.user
 
         return request.user.is_authenticated
+
+
+class CategoryPermissions(BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        elif request.method in ['POST', 'PUT', 'PATCH']:
+            return request.user.is_superuser

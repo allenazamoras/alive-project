@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from livestream.models import Appeal, ApprovalRequest
+from livestream.models import Appeal, ApprovalRequest, Category
 from userprofile.models import User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -27,6 +34,7 @@ class AppealSerializer(serializers.HyperlinkedModelSerializer):
     helper = UserSerializer()
     pending_list = serializers.SerializerMethodField()
     token = serializers.SerializerMethodField()
+    category = CategorySerializer(many=True)
 
     class Meta:
         model = Appeal

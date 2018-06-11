@@ -4,10 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Appeal, ApprovalRequest
-from .serializers import AppealSerializer, ApprovalRequestSerializer
+from livestream.models import Appeal, ApprovalRequest, Category
+from livestream.serializers import (AppealSerializer,
+                                    ApprovalRequestSerializer,
+                                    CategorySerializer)
 from userprofile.views import NotificationViewSet
-from .permissions import AppealsViewSetPermissions, ApprovalRequestPermissions
+from livestream.permissions import (AppealsViewSetPermissions,
+                                    ApprovalRequestPermissions,
+                                    CategoryPermissions)
 
 from django.conf import settings
 
@@ -56,9 +60,12 @@ class AppealViewSet(viewsets.ModelViewSet):
                              session_id=session.session_id,
                              owner=request.user,
                              helper=None,
-                             detail=req['detail'],
-                             category=req['category'])
+                             detail=req['detail'])
         new_session.save()
+        if not Category.objects.filter(id=req['category']).exists():
+            return Response({'return': 'Category does not exist'})
+
+        new_session.category.add(req['category'])
         return Response({'return': 'Successfully created new request'},
                         status=status.HTTP_201_CREATED)
 
@@ -78,8 +85,8 @@ class AppealViewSet(viewsets.ModelViewSet):
     def list_by_category(self, request):
         # TODO
         req = request.data
-        queryset = Appeal.objects.filter(
-            status=Appeal.AVAILABLE, category=req['category']).\
+        queryset = Appeal.objects.filter(status=Appeal.AVAILABLE,
+                                         category=req['category']).\
             order_by('-date_pub')
 
         page = self.paginate_queryset(queryset)
@@ -89,6 +96,20 @@ class AppealViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(methods=['post'], detail=True)
+    def add_category(self, request, pk):
+        req = request.data
+        appeal = self.get_object()
+        appeal.category.add(req['category'])
+        return Response({'return': 'Category added to appeal'})
+
+    @action(methods=['post'], detail=True)
+    def remove_category(self, request, pk):
+        req = request.data
+        appeal = self.get_object()
+        appeal.category.remove(req['category'])
+        return Response({'return': 'Category removed from appeal'})
 
     @action(methods=['post'], detail=True)
     def edit_description(self, request, pk=None):
@@ -225,3 +246,9 @@ class ApprovalRequestViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (CategoryPermissions,)
