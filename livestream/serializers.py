@@ -17,7 +17,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                   'username',
                   'first_name',
                   'last_name',
-                  'profile_picture',
+                  'profile_picture_url',
                   'online')
 
 

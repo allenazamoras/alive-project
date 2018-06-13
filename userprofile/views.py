@@ -68,7 +68,7 @@ class Login(ObtainAuthToken):
                          'username': user.username,
                          'first_name': user.first_name,
                          'last_name': user.last_name,
-                         'profile_picture': serializer.data['profile_picture']
+                         'profile_picture': user.profile_picture.url
                          })
 
 
@@ -90,7 +90,8 @@ class RatingViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         req = request.data
-        if request.user == req['user']:
+        user_rated = User.objects.get(id=req['user'])
+        if request.user == user_rated:
             return Response({'return': "You can't rate yourself"})
 
         if Rating.objects.filter(appeal_id=req['appeal']).exists():

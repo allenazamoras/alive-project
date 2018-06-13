@@ -20,7 +20,7 @@ class OnlineUserMiddleware(MiddlewareMixin):
                 pass
         user = request.user
         if request.user.is_authenticated:
-            now = timezone.now()
+            now = timezone.localtime(timezone.now())
             cache.set(user.username,
                       now,
                       settings.USER_LASTSEEN_TIMEOUT)

@@ -1,21 +1,22 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Vuex from 'vuex'
-
-// Theme and stylesheet
+import App from './App'
+import router from './router'
+import store from './store/store.js'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
-//Main Vue file
-import App from './App.vue'
-
-import {store} from './store/store.js'
-import {router} from './route/router.js'
-
 Vue.use(Vuetify)
+Vue.use(Vuex)
+
+Vue.config.productionTip = false
 
 new Vue({
   el: '#app',
-  render: h => h(App),
   router,
-  store
+  store,
+  components: { App },
+  template: '<App/>'
 })

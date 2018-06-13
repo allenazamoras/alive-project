@@ -17,6 +17,7 @@ class User(AbstractUser):
     )
     profile_picture = models.ImageField(upload_to='thumbpath',
                                         default='thumbpath/none/none.jpg')
+
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='')
 
     def __str__(self):
@@ -26,11 +27,15 @@ class User(AbstractUser):
         return cache.get(self.username)
 
     @property
+    def profile_picture_url(self):
+        return self.profile_picture.url
+
+    @property
     def online(self):
         if not self.last_seen():
             return False
 
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
         if now > self.last_seen() + timezone.timedelta(
                 seconds=settings.USER_ONLINE_TIMEOUT):
             return False

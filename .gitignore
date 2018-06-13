@@ -43,3 +43,17 @@ npm-debug.log
 *.ntvs*
 *.njsproj
 *.sln
+
+# SSL Cert
+*.key
+*.pem
+*.srl
+*.cert
+v3.ext
+*.csr
+*.csr.cnf
+*.crt
+
+# Environment Variables
+dev.env.js
+prod.env.js

@@ -23,8 +23,11 @@ django-cors-headers = "==2.2.0"
 "psycopg2" = "==2.7.4"
 python-memcached = "==1.59"
 Pillow = "==5.1.0"
+django-sslserver = "*"
+ndg-httpsclient = "*"
+pyopenssl = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.5"
+python_version = "3.6.3"

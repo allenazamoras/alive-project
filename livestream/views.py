@@ -97,6 +97,22 @@ class AppealViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(methods=['get'], detail=False)
+    def list_by_category(self, request):
+        # TODO
+        req = request.data
+        queryset = Appeal.objects.filter(status=Appeal.AVAILABLE,
+                                         category=req['category']).\
+            order_by('-date_pub')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     @action(methods=['post'], detail=True)
     def add_category(self, request, pk):
         req = request.data

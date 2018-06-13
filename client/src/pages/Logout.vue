@@ -5,11 +5,19 @@
 </template>
 
 <script>
+import {mapActions} from 'vuex'
+
 export default {
-  beforeCreate() { 
+  methods: {
+    ...mapActions('userModule', [
+      'removeUserData'
+    ]),
+  },
+  
+  created() {
     localStorage.removeItem("token")
-    this.$store.dispatch("removeUserData")
-    this.$router.push("/")
+    this.removeUserData()
+    window.location.replace("/")
   }
 }
 </script>

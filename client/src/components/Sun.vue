@@ -110,6 +110,7 @@ export default {
         anime({
             targets: '#beam2',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: -5,
             translateY: 10,
@@ -121,6 +122,7 @@ export default {
         anime({
             targets: '#beam3',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: -10,
             translateY: -10,
@@ -132,6 +134,7 @@ export default {
         anime({
             targets: '#beam4',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: 10,
             translateY: 10,
@@ -143,6 +146,7 @@ export default {
         anime({
             targets: '#beam5',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: 10,
             translateY: -10,
@@ -154,6 +158,7 @@ export default {
         anime({
             targets: '#beam6',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: 0,
             translateY: 20,
@@ -165,6 +170,7 @@ export default {
         anime({
             targets: '#beam7',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: 20,
             translateY: -10,
@@ -176,6 +182,7 @@ export default {
         anime({
             targets: '#beam8',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: -10,
             translateY: 10,
@@ -187,6 +194,7 @@ export default {
         anime({
             targets: '#beam9',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             // duration: 3000,
             translateX: -10,
             translateY: -20,
@@ -198,6 +206,7 @@ export default {
         anime({
             targets: '#rays',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             translateX: -20,
             translateY: -20,
             scale: 1.08,
@@ -210,6 +219,7 @@ export default {
         anime({
             targets: '.move',
             easing: 'easeInOutQuad',
+            rotation: 0.01,
             duration: 6000,
             translateX: [-40, 0, 20],
             translateY: [70, 0, -20],

@@ -43,6 +43,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
 INSTALLED_APPS = [
+    'sslserver',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -172,7 +173,8 @@ CACHES = {
     }
 }
 
-USER_ONLINE_TIMEOUT = 6
+USER_ONLINE_TIMEOUT = 14
+
 
 USER_LASTSEEN_TIMEOUT = 60 * 60 * 24 * 7
 

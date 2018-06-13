@@ -126,7 +126,7 @@ class Rating(models.Model):
     appeal = models.ForeignKey(Appeal, on_delete=models.CASCADE,
                                related_name='rating')
     rating = models.IntegerField(validators=[MinValueValidator(0),
-                                             MaxValueValidator(5)])
+                                             MaxValueValidator(3)])
     comment = models.CharField(max_length=255)
     date_created = models.DateTimeField(auto_now_add=True)
 
