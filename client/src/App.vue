@@ -1,8 +1,13 @@
 <template>
-  <v-app>
-    <main>
+  <v-app class="grey lighten-3">
+    <app-nav v-if="isLoggedIn"/>
+    <main app>
       <v-content>
-        <router-view></router-view>
+        <v-fade-transition>
+          <router-view></router-view>
+        </v-fade-transition>
+        
+        <snackbar/>
       </v-content>
     </main>
   </v-app>
@@ -10,18 +15,24 @@
 
 <script>
 import appNav from './components/AppNav.vue'
+import snackbar from './components/Snackbar.vue'
+
+import {mapGetters} from 'vuex'
 
 export default {
-  name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
     }
   },
-
   components: { 
-    appNav
+    appNav,
+    snackbar
   },
+  computed: { 
+    ...mapGetters('userModule', [
+      'isLoggedIn'
+    ])
+  },
+  name: 'App'
 }
 </script>
-

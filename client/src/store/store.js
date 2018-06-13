@@ -1,16 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import persistedState from 'vuex-persistedstate'
-
-//Modules
 import userModule from './user/userModule'
+import dialogModule from './dialog/dialogModule'
 
 Vue.use(Vuex)
 
-export const store = new Vuex.Store({
+export default new Vuex.Store({
   modules: {
     userModule,
+    dialogModule
   },
-
   plugins: [persistedState()],
 })

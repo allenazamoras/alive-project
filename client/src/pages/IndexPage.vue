@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-nav/>
     <v-container>
       <!-- <v-dialog v-model="dialog" max-width="290" persistent>
         <v-card>
@@ -17,7 +16,6 @@
 </template>
 
 <script>
-import appNav from '../components/AppNav.vue'
 import {mapState} from 'vuex'
 
 export default {
@@ -25,22 +23,6 @@ export default {
     return { 
       dialog: true
     }
-  },
-
-  computed: { 
-
-  },
-
-  methods: { 
-
-  },
-
-  created() { 
-    
-  },
-
-  components: { 
-    appNav
-  }  
+  }
 }
 </script>

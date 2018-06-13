@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-nav/>
     <v-container grid-list-xl>
       <v-subheader>Search Results: </v-subheader>
       <v-layout row wrap justify-center>
@@ -13,6 +12,7 @@
             label="Search"
             class="hidden-md-and-up"
             @keyup.enter="search"
+            loading="true"
           >
           </v-text-field>
         </v-flex>
@@ -30,7 +30,6 @@
 </template>
 
 <script>
-import appNav from '../components/AppNav'
 import appealView from '../components/AppealView'
 import notifications from '../components/Notifications'
 
@@ -49,7 +48,6 @@ export default {
   },
 
   components: { 
-    appNav,
     appealView,
     notifications
   },
@@ -62,8 +60,12 @@ export default {
 
   methods: { 
     search() { 
-      if(this.searchText.length > 0) { 
-        axios.get(`${process.env.API_URL}/search?search=${this.searchText}&page=1`, this.getConfig)
+      this.$router.push(`/search/${this.searchText}`)
+    },
+
+    query() { 
+      if(this.$route.params.searchText.length > 0) { 
+        axios.get(`${process.env.API_URL}/search?search=${this.$route.params.searchText}&page=1`, this.getConfig)
         .then((res) => { 
           this.results = res.data.results
         })
@@ -73,14 +75,12 @@ export default {
 
   watch: { 
     '$route' (to, from) { 
-      this.searchText = this.$route.params.searchText
-      this.search()
+      this.query()
     }
   },
 
   created() { 
-    this.searchText = this.$route.params.searchText
-    this.search()
+    this.query()
   }
 }
 </script>

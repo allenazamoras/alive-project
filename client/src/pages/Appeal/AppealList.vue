@@ -1,29 +1,60 @@
 <template>
   <div>
-    <app-nav/>
-  
     <v-container grid-list-xl>
       <v-layout justify-center row>
-          <v-flex>
-            <v-layout row wrap v-if="appeals.length > 0" v-for="(appeal, index) in appeals" :key="`appeal-${index}`" justify-center :class="{'pt-3': index > 0}">
-              <v-flex xs12 sm12 md8 lg6>
-                <appeal-view :appeal="appeal" :promptDialog.sync="promptDialog"/>
-              </v-flex>
-            </v-layout>
+        <v-flex xs12 sm9 md8 lg6>
+          <v-layout
+            row
+            wrap
+            justify-center
+          >
+          <v-flex xs12 class="text-xs-center">
+          </v-flex>
+          </v-layout>
+
+          <v-layout 
+            row 
+            wrap 
+            v-if="appeals.length > 0" 
+            v-for="(appeal, index) in appeals" 
+            :key="`appeal-${index}`" 
+            justify-center 
+            :class="{'pt-3': index > 0}"
+          >
+            <v-flex 
+              xs12
+            >
+              <appeal-view :appeal="appeal"/>
+            </v-flex>
+            <v-flex 
+              xs12
+              v-if="index == appeals.length - 1"
+              text-xs-center
+            >
+              <v-pagination 
+                prev-icon="arrow_left" 
+                next-icon="arrow_right"
+                :length="totalPages" 
+                v-model="currentPage"
+              ></v-pagination>
+            </v-flex>
+          </v-layout>
+
+          <v-layout
+            row
+            justify-center
+            v-if="appeals.length == 0"
+          >
+            There's nothing here.
+          </v-layout>
         </v-flex>
       </v-layout>   
     </v-container>
-
-    <notifications :promptDialog.sync="promptDialog"/>
-    <snackbar :snackbar="snackbar"/>
   </div>
   
 </template>
 
 <script>
-import appNav from '../.././components/AppNav'
-import snackbar from '../../components/Snackbar'
-import notifications from '../../components/Notifications'
 import appealView from '../../components/AppealView'
 
 import moment from 'moment'
@@ -33,10 +64,16 @@ import {mapGetters, mapMutations} from 'vuex'
 export default {
   data() { 
     return { 
-      promptDialog: false,
       snackbar: {},
       
       pk: -1,
+      currentPage: 1,
+      totalPages: 1,
+
+      timer: null,
+
+      //spinner for loadNew button
+      loadNewLoading: false,
 
       //single appeal component variables
       cancel: false,
@@ -52,26 +89,41 @@ export default {
       appeals: []
     }
   },
-
+  components: { 
+    appealView
+  },
   computed: { 
     ...mapGetters('userModule', [
       'getConfig'
     ])
   },
+  methods: { 
+    loadNew() { 
+      this.loadNewLoading = true
+    },
+    getAppeals() {
+      axios.get(`${process.env.API_URL}/request/?page=${this.currentPage}`, this.getConfig)
+      .then((res) => { 
+        this.appeals = res.data.results
+      })
 
-  created() { 
-    axios.get(`${process.env.API_URL}/request/?page=1`, this.getConfig)
-    .then((res) => { 
-      this.appeals = res.data.results
-      console.log(this.appeals)
-    })
+      setTimeout(this.getAppeals, 5600)
+    }
   },
-
-  components: { 
-    appNav,
-    snackbar,
-    notifications,
-    appealView
+  watch: { 
+    'currentPage' () { 
+      axios.get(`${process.env.API_URL}/request/?page=${this.currentPage}`, this.getConfig)
+      .then((res) => { 
+        this.appeals = res.data.results
+      })
+    }
+  },
+  created() { 
+    this.getAppeals()
+  },
+  beforeRouteLeave(to, from, next) { 
+    clearTimeout(this.timer)
+    next()
   }
 }
 </script>

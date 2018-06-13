@@ -24,7 +24,7 @@ export default {
   },
 
   mounted: function() {
-    const publisher = OT.initPublisher(this.$el, {name: this.username, style:{ nameDisplayMode: "on"}, fitMode: "contain", width: 150, height: 150}, (err) => {
+    const publisher = OT.initPublisher(this.$el, {name: this.username, style:{ nameDisplayMode: "on"}, fitMode: "contain", width: 128, height: 72}, (err) => {
       if (err) {
         this.$emit('error', err);
       } else {

@@ -7,12 +7,10 @@ app_name = 'livestream'
 
 router = routers.DefaultRouter()
 router.register(r'request', views.AppealViewSet, base_name='request')
-router.register(r'pending', views.ApprovalRequestViewSet)
+router.register(r'pending', views.ApprovalRequestViewSet, base_name='pending')
+router.register(r'category', views.CategoryViewSet, base_name='category')
 
 urlpatterns = [
-    path('index/', views.IndexView.as_view(), name='index'),
-    # It worked I have no idea how ref: livestream/index.html
-    # path('request/<int:pk>', views.AppealDetailView.as_view(), name='stream'),
 ]
 
 urlpatterns += router.urls

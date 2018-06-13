@@ -19,12 +19,12 @@ rsa = "==3.4.2"
 six = "==1.11.0"
 "urllib3" = "==1.22"
 Django = "==2.0.5"
-django-cors-headers = "*"
+django-cors-headers = "==2.2.0"
 "psycopg2" = "==2.7.4"
-pillow = "*"
-python-memcached = "*"
+python-memcached = "==1.59"
+Pillow = "==5.1.0"
 
 [dev-packages]
 
 [requires]
-python_version = "3.5"
+python_version = "3.6.3"

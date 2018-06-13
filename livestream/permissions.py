@@ -1,3 +1,4 @@
+from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
 
@@ -9,7 +10,7 @@ class IsOwner(BasePermission):
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        return view.action == 'retrieve' and obj.owner == request.user
+        return request.method == 'GET' and obj.owner == request.user
 
 
 class IsHelper(BasePermission):
@@ -37,17 +38,21 @@ class AppealsViewSetPermissions(BasePermission):
     Appeal Owner        ['destroy', 'retrieve', 'partial_update', 'update']
     Appeal Helper       ['retrieve']
     '''
-
     def has_permission(self, request, view):
-        return view.action in ['create', 'list'] and \
-            request.user.is_authenticated
+        if request.method in ['POST', 'GET', 'DELETE', 'PATCH', 'PUT']:
+            return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        if view.action == 'retrieve':
-            return IsOwnerOrHelper.has_object_permission(
-                self, request, view, obj)
+        if request.method in ['POST', 'GET']:
+            return request.user.is_authenticated
 
-        if view.action in ['destroy', 'partial_update', 'update']:
+        if request.method == 'GET':
+            owner = getattr(obj, 'owner', None)
+            helper = getattr(obj, 'helper', None)
+
+            return owner == request.user or helper == request.user
+
+        if request.method in ['DELETE', 'PATCH', 'PUT']:
             return obj.owner == request.user
 
 
@@ -57,12 +62,20 @@ class ApprovalRequestPermissions(BasePermission):
     AR appeal.owner     ['list', 'partial_update', 'retrieve', update]
     AR helper           [all]
     '''
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-
     def has_object_permission(self, request, view, obj):
-        if view.action == ['destroy', 'create']:
+        if request.method == ['DELETE', 'POST']:
             return not obj.appeal.owner == request.user
 
-        if view.action == ['partial_update', 'update']:
+        if request.method == ['PATCH', 'PUT']:
             return not obj.helper == request.user
+
+        return request.user.is_authenticated
+
+
+class CategoryPermissions(BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        elif request.method in ['POST', 'PUT', 'PATCH']:
+            return request.user.is_superuser
