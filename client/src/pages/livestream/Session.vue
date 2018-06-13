@@ -40,17 +40,6 @@
         </v-flex>
       </v-layout>
 
-      <v-dialog v-model="ratingDialog" max-width="290" persistent>
-        <v-card>
-          <v-card-title class="headline">How was the session?</v-card-title>
-          <v-card-text>
-          <v-slider step="1" :max="5" v-model="rating"></v-slider>
-          <v-text-field placeholder="Describe what you thought." v-model="comment" multi-line counter="255"></v-text-field>
-          <v-btn color="green darken-1" outline round dark block @click="rate">Rate</v-btn>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-
       <v-dialog v-model="prompt" transition="fade-transition" persistent style="border-radius: 15px;" max-width="300">
         <v-card>
            <v-card-text>
@@ -70,20 +59,23 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+
+      <rater v-if="ratingDialog" :flag.sync="ratingDialog" :appealID="$route.params.id" :helperName="helperName" :userID="helperID"/>
     </v-container>
   </div>
 </template>
 
 <script>
-import Publisher from '../.././components/Publisher.vue'
-import Subscriber from '../.././components/Subscriber.vue'
+import Publisher from '../.././components/Publisher'
+import Subscriber from '../.././components/Subscriber'
+import Rater from '../../components/Rating'
 
 import OT from '@opentok/client'
 import axios from 'axios'
 import {mapState, mapGetters} from 'vuex'
 
 const errorHandler = (err) => {
-  alert(err.message);
+  // alert(err.message);
 };
 
 export default {
@@ -94,14 +86,14 @@ export default {
       loaded: false,
       streams: [],
       session: null,
-      ratingDialog: true,
-      rating: 0,
-      message: "",
+      ratingDialog: false,
+      message: "",       
       chatLog: [],
 
       prompt: true,
 
       ownerName: "",
+      ownerID: "",
       helperName: "",
       helperID: "",
       publisherName: "",
@@ -114,12 +106,14 @@ export default {
   },
   components: { 
     Publisher,
-    Subscriber
+    Subscriber,
+    Rater
   },
   created() { 
     axios.get(`${process.env.API_URL}/request/${this.$route.params.id}/`, this.getConfig)
     .then((res) => { 
       this.ownerName = res.data.owner.username
+      this.ownerID = res.data.owner.id
       this.helperName = res.data.helper.username
       this.helperID = res.data.helper.id
       this.SESSION_ID = res.data.session_id
@@ -145,7 +139,7 @@ export default {
     ]),
 
     ...mapState('userModule', [
-      'username', 'profilePic'
+      'username', 'profilePic', 'userID'
     ])
   },
 
@@ -222,37 +216,26 @@ export default {
           data: self.message
         }, function signalCallback(error) { 
           if(error) {
-            console.log(error.name, error.message)
+            // console.log(error.name, error.message)
           }else { 
             self.message = ""
           }
         })
       }
     },
-    rate() { 
-      axios.post(`${process.env.API_URL}/rating/`, {
-        "user": 1,
-        "appeal": this.$route.params.id,
-        "rating": this.rating,
-        "comment": this.comment
-      }, this.getConfig)
 
-      .then((res) => { 
-        this.dialog = false
-        console.log(res)
-      })
-
-      .catch((res) => {
-        console.log(res)
-      })
-    },
     stopStream() {
       this.session.disconnect()
       axios.post(`${process.env.API_URL}/request/${this.$route.params.id}/update_status/`, {
         action: "complete"
       }, this.getConfig)
       .then((res) => { 
-        this.$router.push('/')
+        if(this.userID == this.ownerID)
+          this.ratingDialog = true
+        else { 
+          //session ends
+          this.$router.push('/appeals/list')
+        }
       })
     },
     sendMessage() { 

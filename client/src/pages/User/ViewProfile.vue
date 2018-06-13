@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{user}}
     <v-container pb-0>
       <v-layout
         row
@@ -11,14 +10,13 @@
           <v-jumbotron
             class="pa-0 elevation-2"
             height="300px"
-            :gradient="gradient"
             src="https://vuetifyjs.com/static/doc-images/parallax/material2.jpg"
           >
             <v-container pa-0 fill-height>
               <v-layout justify-center align-end wrap>
                 <v-flex text-xs-center xs12>
                   <v-avatar size="60">
-                    <img :src="user.profile_picture" alt="">
+                    <img :src="api_url + user.profile_picture_url" alt="">
                   </v-avatar>
                   <h3 class="headline white--text">{{ user.first_name + " " + user.last_name }}</h3>
                   <h1 class="subheading white--text">@{{user.username}}</h1>
@@ -57,13 +55,14 @@
         >
         <v-layout
           row
+          wrap
           justify-center
         >
           <v-flex xs12 sm10 md10 lg8>
             <v-subheader class="pl-0">Active</v-subheader>
             <appeal-view v-if="user.openappeals.length > 0" :appeal="user.openappeals[0]"/>
           </v-flex>
-          <v-flex text-xs-center v-if="user.openappeals.length == 0">
+          <v-flex xs12 text-xs-center v-if="user.openappeals.length == 0">
             <span class="grey--text text--darken-2">{{user.first_name}} doesn't seem to have any active appeals.</span>
           </v-flex>
         </v-layout>
@@ -138,7 +137,7 @@ import {mapGetters} from 'vuex'
 export default {
   data() { 
     return {
-      patternURL: require('../../assets/sun-pattern.png'),
+      api_url: process.env.API_URL,
       currentTab: "appeals",
       cycle: false,
 
@@ -153,12 +152,6 @@ export default {
       },
       viewedUsername: this.$route.params.username,
       owner: {},
-
-      gradient: 'to top right, rgba(63,81,181, .7), rgba(25,32,72, .7)',
-
-      //awards
-      firstReviewReceived: require("../../assets/achievements/medal.svg"),
-      firstAssist: require("../../assets/achievements/badge.svg"),
     }
   },
 

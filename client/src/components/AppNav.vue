@@ -74,8 +74,8 @@
           </v-badge>               
         </v-btn>
 
-          <v-list class="notifContent" three-line dense>
-            <span class="body-1 pa-2" @click="">Mark all as read</span>
+          <v-list class="notifContent pl-1 pr-1" three-line dense>
+            <span class="body-1 pa-2 grey--text text--darken-2" @click="">Notifications</span>
             <v-divider></v-divider>
             <div 
               v-for="(item, index) in notifList" 
@@ -108,7 +108,6 @@
               No new notifications.
               </span>
             </v-list-tile>
-            <v-divider></v-divider>
           </v-list>
       </v-menu>
       <v-menu

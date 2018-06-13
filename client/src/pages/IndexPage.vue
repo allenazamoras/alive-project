@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import Rater from '../components/Rating'
 import {mapState} from 'vuex'
 
 export default {
@@ -23,6 +24,10 @@ export default {
     return { 
       dialog: true
     }
+  },
+
+  components: { 
+    Rater
   }
 }
 </script>

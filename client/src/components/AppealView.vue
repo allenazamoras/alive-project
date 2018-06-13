@@ -5,10 +5,10 @@
         <v-list>
           <v-list-tile>
             <v-list-tile-avatar>
-              <img :src="appeal.owner.profile_picture" :alt="appeal.owner.username">
+              <img :src="`${api_url}${appeal.owner.profile_picture_url}`" :alt="appeal.owner.username">
             </v-list-tile-avatar>
             <v-list-tile-content>
-              <v-list-tile-title >
+              <v-list-tile-title>
                 <router-link :to="`/profile/${appeal.owner.id}`" style="text-decoration: none;" class="subheading">
                   {{ appeal.owner.first_name + " " + appeal.owner.last_name}}
                 </router-link>  
@@ -36,7 +36,7 @@
           </div>
           <div class="body-1">
             {{ appeal.detail }}
-            <div v-if="appeal.helper">
+            <div v-if="appeal.helper != null">
               <v-chip 
                 disabled
                 color="teal lighten-2" 
@@ -50,6 +50,25 @@
               </v-chip>
             </div>
           </div>
+
+          <div v-if="appeal.status != 'a' && appeal.rating.length > 0">
+            <v-card-text class="ml-0 pl-0 grey--text text--darken-2">
+              <v-avatar size="25">
+                <img :src="emojis[appeal.rating[0].rating].img" alt="">
+              </v-avatar>
+              In the review, {{appeal.owner.first_name}} said: <span style="font-style: italic;">"{{appeal.rating[0].comment}}"</span>
+            </v-card-text>
+          </div>
+          <v-card-text class="ml-0 pl-0 grey--text text--darken-2" v-else>
+              <div v-if="appeal.owner.id != userID">
+                {{appeal.owner.first_name}} hasn't rated the helper yet.
+              </div>
+              <div v-else>
+                <v-btn depressed outline color="red accent-3" small round @click="ratingDialog = true">
+                  Rate {{appeal.helper.first_name}}
+                </v-btn>
+              </div>
+            </v-card-text>
         </v-card-text>
 
         <v-card-text v-else>
@@ -100,6 +119,11 @@
             Cancel
           </v-btn>
         </v-card-text>
+        <!-- <v-card-text>
+          <v-btn round >
+            Rate helper
+          </v-btn>
+        </v-card-text> -->
       </v-card-text>
       
       <v-btn
@@ -160,24 +184,49 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <rater v-if="ratingDialog" :flag.sync="ratingDialog" :appealID="appeal.id" :helperName="appeal.helper.first_name" :userID="appeal.helper.id"/>
   </div>
 </template>
 
 <script>
+import Rater from './Rating'
 import moment from 'moment'
 import axios from 'axios'
 import {mapGetters, mapState, mapMutations} from 'vuex'
 
 export default {
   data() { 
-    return { 
+    return {
+      ratingDialog: false,
       pk: -1,
       editMode: false,
-
+      api_url: process.env.API_URL,
       request_title: "",
       deletePrompt: false,
       detail: "",
+      emojis: [
+        {
+          img: require('../assets/rating/angry.svg'),
+          text: "This didn't help at all!"
+        },
+        { 
+          img: require('../assets/rating/confused.svg'),
+          text: "This sucked. It wasn't what I expected."
+        },
+        { 
+          img: require('../assets/rating/happy.svg'),
+          text: "This helped me."
+        },
+        { 
+          img: require('../assets/rating/grinning.svg'),
+          text: "This is great!"
+        }
+      ]
     }
+  },
+
+  components: { 
+    Rater
   },
 
   computed: { 
@@ -272,7 +321,7 @@ export default {
 
   props: { 
     appeal: {
-      default: []
+      type: Object
     },
     bellFlag: { 
       default: true,

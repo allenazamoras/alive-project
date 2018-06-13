@@ -10,7 +10,7 @@
       >
         <v-flex
           xs12
-          sm4
+          sm9
           md4
           lg5
         >
@@ -29,7 +29,7 @@
             </v-fade-transition>
             <v-card-text class="text-xs-center">
               <v-avatar size="100">
-                <img :src="user.profile_picture" alt="">
+                <img :src="api_url + user.profile_picture_url" alt="">
 
               </v-avatar>
             </v-card-text>
@@ -67,33 +67,50 @@
                   @change="update('gender')"
                 >
                 </v-select>
-                <v-btn @click="updateProfile" depressed round color="indigo" :loading="updateLoading" dark>Update</v-btn>
-              </v-form>
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-card-text>
-              <v-subheader  class="pl-0"><v-icon size="12">fas fa-key fa-fw</v-icon> Change Password</v-subheader>
-              <v-form
-                ref="changePassword"
-              >
-                <v-text-field
-                  type="password"
-                  label="Current password"
-                  v-model="user.confirm_password"
-                  @change="update('confirm_password')"
-                ></v-text-field>
                 <v-text-field
                   type="password"
                   label="New password"
                   v-model="user.password"
                   @change="update('password')"
                 ></v-text-field>
-                <v-btn @click="updatePassword" round depressed dark>Change Password</v-btn>
+                <v-btn @click="updateProfile" depressed round color="indigo" :loading="updateLoading" dark>Update</v-btn>
               </v-form>
             </v-card-text>
           </v-card>
         </v-flex>
       </v-layout>
+
+      <v-dialog max-width="300" v-model="passwordPrompt">
+        <v-card tile class="pa-2">
+          <v-card-title>
+            <span>
+              Enter password to confirm changes
+            </span>
+          </v-card-title>
+          <v-card-text>
+            <v-form
+              ref="passwordForm"
+            > 
+              <v-text-field
+                :rules="passwordRules"
+                label="Current password"
+                type="password"
+                v-model="updateData['confirm_password']"
+              ></v-text-field>
+                <v-btn 
+                round
+                block
+                outline
+                depressed
+                color="success"
+                @click="send"
+              >
+                Confirm
+              </v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-container>
   </div>
 </template>
@@ -105,7 +122,9 @@ import axios from 'axios'
 export default {
   data() { 
     return { 
+      passwordPrompt: false,
       updateLoading: false,
+      api_url: process.env.API_URL,
       valid: true,
       alertPrompt: { 
         text: "",
@@ -194,34 +213,47 @@ export default {
       } else { 
         //send
         this.warningFlag = false
+        if(this.updateData['password'] == null) { 
+          this.$set(this.updateData, 'password', '')
+        }
         this.$set(this.updateData, 'confirm_password', '')
-        this.$set(this.updateData, 'password', '')
-        this.send()
+        
+        this.passwordPrompt = true
       }
     },
 
     send() { 
-      this.updateLoading = true
-
-      axios.patch(`${process.env.API_URL}/user/${this.userID}/`, this.updateData, this.getConfig)
-      .then((res) => { 
-        console.log(res)
-        this.getUserData()
-        this.updateLoading = false
-        this.alertPrompt = {
-          flag: true,
-          color: "success",
-          icon: "check_circle",
-          text: "Successfully updated profile!"
-        }
-      })
-      .catch((err) => { 
-        console.log(err)
-      })
+      if(this.$refs.passwordForm.validate()) {
+        axios.patch(`${process.env.API_URL}/user/${this.userID}/`, this.updateData, this.getConfig)
+        .then((res) => {
+          console.log(res)
+          this.passwordPrompt = false
+          if(res.data.return == "Incorrect password") { 
+            this.alertPrompt = {
+              flag: true,
+              color: "red",
+              icon: "priority_high",
+              text: "Incorrect password"
+            }
+          } else { 
+            this.getUserData()
+            this.updateLoading = false
+            this.alertPrompt = {
+              flag: true,
+              color: "success",
+              icon: "check_circle",
+              text: "Successfully updated profile!"
+            }
+          }
+        })
+        .catch((err) => { 
+          console.log(err)
+        })
+      }
     },
 
     getUserData() { 
-      axios.get(`${process.env.API_URL}/user/${this.userID}`, this.getConfig)
+      axios.get(`${process.env.API_URL}/user/${this.userID}/`, this.getConfig)
       .then((res) => { 
         this.userDefault = res.data
         this.$set(this.userDefault, 'current_password', '')

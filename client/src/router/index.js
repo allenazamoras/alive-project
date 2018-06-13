@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 
 //Pages
 import UserIndex from '.././pages/IndexPage.vue'
@@ -21,11 +20,11 @@ import store from '../store/store'
 
 const firstToUpper = (string) => string.charAt(0).toUpperCase() + string.slice(1)
 
-const auth = (to, from, next) => { 
-  if(store.getters['userModule/isLoggedIn']) { 
+const auth = (to, from, next) => {
+  if (store.getters['userModule/isLoggedIn']) {
     next()
-  } else { 
-    next({name: "Login"})
+  } else {
+    next({name: 'Login'})
   }
 }
 

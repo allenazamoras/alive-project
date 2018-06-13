@@ -8,8 +8,6 @@
             wrap
             justify-center
           >
-          <v-flex xs12 class="text-xs-center">
-          </v-flex>
           </v-layout>
 
           <v-layout 
@@ -77,16 +75,8 @@ export default {
 
       //single appeal component variables
       cancel: false,
-
-      categories: [
-        {name: "School", url: "/appeal/category/school", img: "https://picsum.photos/200/300/?random"},
-        {name: "Work", url: "/appeal/category/work", img: "https://picsum.photos/200/300/?random"},
-        {name: "Family", url: "/appeal/category/family", img: "https://picsum.photos/200/300/?random"},
-        {name: "Relationships", url: "/appeal/category/others", img: "https://picsum.photos/200/300/?random"},
-        {name: "Others", url: "/appeal/category/others", img: "https://picsum.photos/200/300/?random"},
-      ],
-
-      appeals: []
+      appeals: [
+      ]
     }
   },
   components: { 
@@ -105,9 +95,8 @@ export default {
       axios.get(`${process.env.API_URL}/request/?page=${this.currentPage}`, this.getConfig)
       .then((res) => { 
         this.appeals = res.data.results
+        setTimeout(this.getAppeals, 5600)
       })
-
-      setTimeout(this.getAppeals, 5600)
     }
   },
   watch: { 
@@ -123,6 +112,7 @@ export default {
   },
   beforeRouteLeave(to, from, next) { 
     clearTimeout(this.timer)
+    console.log("nig")
     next()
   }
 }

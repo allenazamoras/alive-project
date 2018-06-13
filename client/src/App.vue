@@ -3,10 +3,7 @@
     <app-nav v-if="isLoggedIn"/>
     <main app>
       <v-content>
-        <v-fade-transition>
-          <router-view></router-view>
-        </v-fade-transition>
-        
+        <router-view></router-view>
         <snackbar/>
       </v-content>
     </main>
