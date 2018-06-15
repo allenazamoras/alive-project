@@ -1,19 +1,32 @@
 <template>
   <div>
-    <v-dialog v-model="flag" max-width="350" persistent>
+    <v-dialog v-model="dialogFlag" max-width="350">
       <v-card>
-        <v-card-title class="headline">You are rating: {{helperName}}</v-card-title>
+        <v-card-title class="headline grey--text text--darken-2">You are rating: {{helperName}}</v-card-title>
           <v-card-text class="text-xs-center">
             <emoji :rating="rating"/>
             <v-slider step="1" max="3" :color="colorThing" v-model="rating"></v-slider>
-            <v-btn icon depressed @click="vote('dec')">
+            <v-btn icon depressed color="grey lighten-2" @click="vote('dec')">
               <v-icon>fas fa-angle-left</v-icon>
             </v-btn>
-            <v-btn icon depressed @click="vote('inc')">
+            <v-btn icon depressed color="grey lighten-2" @click="vote('inc')">
               <v-icon>fas fa-angle-right</v-icon>
             </v-btn>
-            <v-text-field placeholder="Describe what you thought." v-model="comment" multi-line counter="255"></v-text-field>
-            <v-btn color="green darken-1" depressed round dark block @click="rate">Rate</v-btn>
+            <v-text-field 
+              placeholder="Describe what you thought." 
+              v-model="comment" 
+              counter="255"
+              rows="5"
+              multi-line
+            ></v-text-field>
+            <v-btn 
+              color="green darken-1" 
+              depressed 
+              block
+              round 
+              dark
+              @click="rate"
+            >Rate</v-btn>
           </v-card-text>
       </v-card>
     </v-dialog>
@@ -69,6 +82,15 @@ export default {
   },
 
   computed: { 
+    dialogFlag: { 
+      set(val) { 
+        this.$emit('update:flag', val)
+      },
+
+      get() {
+        return this.flag
+      }
+    },
     ...mapGetters('userModule', [
       'getConfig'
     ])

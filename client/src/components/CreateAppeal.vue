@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="createDialog" max-width="600" persistent>
+    <v-dialog v-model="dialogFlag" max-width="600">
       <v-stepper v-model="currStep">
         <v-stepper-header>
           <v-stepper-step :complete="currStep > 1" step="1">Welcome</v-stepper-step>
@@ -155,7 +155,15 @@ export default {
       this.categories = res.data.results
     })
   },
-  computed: { 
+  computed: {
+    dialogFlag: { 
+      set(val) { 
+        this.$emit('update:createDialog', val)
+      },
+      get() { 
+        return this.createDialog
+      }
+    },
     leftButton() { 
       let ret = {
         text: "Continue",

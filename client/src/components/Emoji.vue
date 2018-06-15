@@ -3,8 +3,8 @@
     <v-container>
       <v-layout>
         <v-flex>
-          <div class="pl-5 pr-5 text-xs-center">
-            <img :src="emojis[rating].img" alt="">
+          <div class="text-xs-center">
+            <img width="125vw" :src="emojis[rating].img" alt="">
           </div>
           <br>
           <div class="text-xs-center">

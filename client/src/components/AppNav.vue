@@ -35,7 +35,7 @@
       <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         <router-link to="/" style="text-transform: none; color: white; text-decoration: none;">
-          <span>a<span style="font-weight: bold;">LIVE</span></span>
+          <span>A<span style="font-weight: bold;">LIVE</span></span>
           <v-icon size="20" color="pink">fas fa-heartbeat</v-icon>
         </router-link>
       </v-toolbar-title>
@@ -62,6 +62,7 @@
         left 
         offset-y 
         max-height="350" 
+        max-width="300"
       >
         <v-btn 
           icon 
@@ -74,8 +75,8 @@
           </v-badge>               
         </v-btn>
 
-          <v-list class="notifContent pl-1 pr-1" three-line dense>
-            <span class="body-1 pa-2 grey--text text--darken-2" @click="">Notifications</span>
+          <v-list class="notifContent pl-1 pr-1 pa-2" three-line dense>
+            <span class="body-1 pa-2 grey--text text--darken-2" @click=""><v-icon size="20">notifications</v-icon> Notifications</span>
             <v-divider></v-divider>
             <div 
               v-for="(item, index) in notifList" 

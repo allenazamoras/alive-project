@@ -89,12 +89,11 @@ const routes = [
 
   {
     name: "Category",
-    path: "/appeal/category/:categName/", 
+    path: "/category/:id/", 
     component: AppealCategory,
     beforeEnter: (to, from, next) => { 
       if(store.getters['userModule/isLoggedIn']) { 
-        let title = to.params.categName
-        document.title = firstToUpper(title)
+        document.title = "Category"
         next()
       } else { 
         next({name: "Login"})

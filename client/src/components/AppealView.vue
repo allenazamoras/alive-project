@@ -1,25 +1,29 @@
 <template>
   <div>
     <v-card class="elevation-1">
-      <v-card-text>
+      <v-card-text class="pa-0">
         <v-list>
           <v-list-tile>
-            <v-list-tile-avatar>
+            <v-list-tile-avatar size="30">
               <img :src="`${api_url}${appeal.owner.profile_picture_url}`" :alt="appeal.owner.username">
             </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title>
-                <router-link :to="`/profile/${appeal.owner.id}`" style="text-decoration: none;" class="subheading">
+                <router-link 
+                  :to="`/profile/${appeal.owner.id}`" 
+                  style="text-decoration: none;" 
+                  class="body-1 grey--text text--darken-3"
+                >
                   {{ appeal.owner.first_name + " " + appeal.owner.last_name}}
                 </router-link>  
               </v-list-tile-title>
               <v-list-tile-sub-title>
                 <router-link 
-                  :to="`category/${appeal.category[0].id}`" 
+                  :to="`/category/${appeal.category[0].id}`" 
                   style="text-decoration: none;"
                 >
                   <span 
-                    class="grey--text text--darken-1 caption"
+                    class="caption grey--text text--darken-1 caption"
                   >
                     Posted in {{ appeal.category[0].name }} around {{ getMoment(appeal.date_pub) }}
                   </span>
@@ -30,41 +34,50 @@
         </v-list>
         <v-card-text 
           v-if="!editMode"
+          class="pa-0"
         >
-          <div class="headline">
-            {{ appeal.request_title }}
-          </div>
-          <div class="body-1">
-            {{ appeal.detail }}
-            <div v-if="appeal.helper != null">
-              <v-chip 
-                disabled
-                color="teal lighten-2" 
-                text-color="white"
-                class="mt-4 mb-0"
-              >
-                <v-avatar>
-                  <v-icon>check_circle</v-icon>
-                </v-avatar>
-                <span>Helped by <span><router-link class="white--text" :to="`/profile/${appeal.helper.id}`"> {{appeal.helper.first_name + " " + appeal.helper.last_name }}</router-link></span></span>
-              </v-chip>
+          <v-card-text>
+            <div class="display-1 grey--text text--darken-3" style="font-family: 'Crimson Text', serif;">
+              <blockquote>{{ appeal.request_title }}</blockquote>
             </div>
-          </div>
-
-          <div v-if="appeal.status != 'a' && appeal.rating.length > 0">
-            <v-card-text class="ml-0 pl-0 grey--text text--darken-2">
+            <div class="headline grey--text text--darken-2">
+              {{ appeal.detail }}
+            </div>
+          </v-card-text>
+          <v-divider v-if="appeal.helper != null" class="mt-2 mb-2"></v-divider>
+          <v-card-text class="pl-0 pr-3 pt-1 pb-1" v-if="appeal.helper != null">
+            <v-chip 
+              disabled
+              small
+              text-color="white"
+              color="teal lighten-2" 
+              class="mt-1 mb-0 ml-3"
+            >
+              <v-avatar>
+                <v-icon>check_circle</v-icon>
+              </v-avatar>
+              <span>Helped by <span><router-link class="white--text" :to="`/profile/${appeal.helper.id}`"> {{appeal.helper.first_name + " " + appeal.helper.last_name }}</router-link></span></span>
+            </v-chip>
+          </v-card-text>
+          <div v-if="appeal.status != 'a' && appeal.rating.length > 0" class="pl-3 pr-3">
+            <v-card-text class="ml-0 pt-2 pb-3 pl-0 grey--text text--darken-2">
               <v-avatar size="25">
                 <img :src="emojis[appeal.rating[0].rating].img" alt="">
-              </v-avatar>
-              In the review, {{appeal.owner.first_name}} said: <span style="font-style: italic;">"{{appeal.rating[0].comment}}"</span>
+              </v-avatar> 
+              {{appeal.owner.first_name}} rated {{appeal.helper.first_name}} with
+              <span style="font-style: italic;">"{{appeal.rating[0].comment}}"</span>
             </v-card-text>
           </div>
-          <v-card-text class="ml-0 pl-0 grey--text text--darken-2" v-else>
-              <div v-if="appeal.owner.id != userID">
-                {{appeal.owner.first_name}} hasn't rated the helper yet.
+          <v-card-text class="ml-0 pl-0 pt-0 pb-3 grey--text text--darken-2" v-if="appeal.status != 'a' && appeal.rating.length == 0">
+              <div v-if="appeal.owner.id != userID" class="pl-3 pr-3">
+                <span style="font-style: italic;">
+                  <span v-if="appeal.owner.id != userID"></span>
+                  {{appeal.owner.first_name}} 
+                </span>
               </div>
-              <div v-else>
-                <v-btn depressed outline color="red accent-3" small round @click="ratingDialog = true">
+              <div v-else class="pl-2 pr-3">
+                <v-btn depressed color="yellow darken-4" dark small @click="ratingDialog = true">
+                  <v-icon size="12">fas fa-star fa-fw</v-icon>
                   Rate {{appeal.helper.first_name}}
                 </v-btn>
               </div>
@@ -332,3 +345,26 @@ export default {
   }
 }
 </script>
+
+<style>
+  blockquote {
+    font-family: Georgia, serif;
+    font-style: italic;
+    width: 500px;
+    margin: 0.25em 0;
+    padding: 0.35em 40px;
+    line-height: 1.45;
+    position: relative;
+  }
+
+  blockquote:before {
+    display: block;
+    padding-left: 10px;
+    content: "\201C";
+    font-size: 80px;
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    color: #b1b1b1;
+  }
+</style>
