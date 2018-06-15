@@ -60,7 +60,7 @@
         </v-card>
       </v-dialog>
 
-      <rater v-if="ratingDialog" :flag.sync="ratingDialog" :appealID="$route.params.id" :helperName="helperName" :userID="helperID"/>
+      <rater v-if="ratingDialog" :flag.sync="ratingDialog" :appealID="$route.params.id" :helperName="helperName" :userID="helperID" :redirectTo="`/`" />
     </v-container>
   </div>
 </template>

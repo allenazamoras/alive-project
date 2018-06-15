@@ -8,8 +8,10 @@
             wrap
             justify-center
           >
+            <v-flex>
+              <v-subheader>Appeal List</v-subheader>
+            </v-flex>
           </v-layout>
-
           <v-layout 
             row 
             wrap 

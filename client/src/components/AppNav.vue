@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       fixed
       :clipped="$vuetify.breakpoint.lgAndUp"
       app
@@ -21,7 +21,7 @@
         </v-list-tile>
       </template>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <v-toolbar
       color="indigo darken-1"
@@ -33,14 +33,14 @@
       style="border-bottom: 1px solid #efefef !important;"
     >
       <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+        <!-- <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon> -->
         <router-link to="/" style="text-transform: none; color: white; text-decoration: none;">
           <span>A<span style="font-weight: bold;">LIVE</span></span>
           <v-icon size="20" color="pink">fas fa-heartbeat</v-icon>
         </router-link>
       </v-toolbar-title>
 
-      <v-text-field
+      <!-- <v-text-field
         v-model="searchText"
         flat
         solo-inverted
@@ -49,7 +49,7 @@
         class="hidden-sm-and-down"
         @keyup.enter="search"
       >
-      </v-text-field>       
+      </v-text-field>        -->
       <v-spacer></v-spacer>
       <v-btn icon @click="createDialog = true">
         <v-icon size="20">add</v-icon>

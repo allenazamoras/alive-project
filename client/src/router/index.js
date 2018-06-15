@@ -32,7 +32,7 @@ const routes = [
   {
     name: "Home",
     path: "/",
-    component: (store.getters['userModule/isLoggedIn']) ? UserIndex: VisitorIndex,
+    component: (store.getters['userModule/isLoggedIn']) ? AppealList: Login,
     meta: { 
       title: "Home"
     }

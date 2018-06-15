@@ -64,8 +64,9 @@ export default {
     },
 
     query() { 
+      // console.log
       if(this.$route.params.searchText.length > 0) { 
-        axios.get(`${process.env.API_URL}/search?search=${this.$route.params.searchText}&page=1`, this.getConfig)
+        axios.get(`${process.env.API_URL}/search?search=${this.$route.params.searchText}&page=1/`, this.getConfig)
         .then((res) => { 
           this.results = res.data.results
         })

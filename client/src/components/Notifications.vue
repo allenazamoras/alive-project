@@ -95,7 +95,9 @@ export default {
     getNotifications() {
       axios.get(`${process.env.API_URL}/notification/?page=1`, this.getConfig)
       .then((res) => {
+        console.log(res.data.helper)
           const help = res.data.helper
+
           if(help.status != null) { 
             if(help.status == "a") {
               this.setFlag(false)
@@ -112,7 +114,7 @@ export default {
 
           this.$emit("update:notifList", res.data.notification)
           this.request = res.data.request
-          setTimeout(this.getNotifications, 4500)
+          setTimeout(this.getNotifications, 2000)
       })
       .catch((err) => {
           console.log(err)

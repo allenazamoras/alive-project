@@ -37,10 +37,10 @@
           class="pa-0"
         >
           <v-card-text>
-            <div class="display-1 grey--text text--darken-3" style="font-family: 'Crimson Text', serif;">
+            <div class="headline grey--text text--darken-3" style="font-family: 'Crimson Text', serif;">
               <blockquote>{{ appeal.request_title }}</blockquote>
             </div>
-            <div class="headline grey--text text--darken-2">
+            <div class="subheading pa-4 grey--text text--darken-2" style="text-align: justify;">
               {{ appeal.detail }}
             </div>
           </v-card-text>
@@ -75,7 +75,7 @@
                   {{appeal.owner.first_name}} 
                 </span>
               </div>
-              <div v-else class="pl-2 pr-3">
+              <div class="pl-2 pr-3" v-if="appeal.helper != null">
                 <v-btn depressed color="yellow darken-4" dark small @click="ratingDialog = true">
                   <v-icon size="12">fas fa-star fa-fw</v-icon>
                   Rate {{appeal.helper.first_name}}

@@ -8,6 +8,8 @@
         <v-layout 
           align-center 
           justify-center
+          row
+          wrap
         > 
           <v-flex 
             xs10 
@@ -19,6 +21,11 @@
             <v-card 
               class="pa-4 elevation-10"
             >
+              <v-card-text primary-title class="text-xs-center">
+                <p class="display-1" style="font-weight: bold;">
+                  ALIVE
+                </p>
+              </v-card-text>
               <v-card-text 
                 class="text-xs-center headline"
               >

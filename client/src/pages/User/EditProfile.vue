@@ -11,7 +11,7 @@
         <v-flex
           xs12
           sm9
-          md4
+          md6
           lg5
         >
           <v-card
@@ -32,6 +32,9 @@
                 <img :src="api_url + user.profile_picture_url" alt="">
 
               </v-avatar>
+            </v-card-text>
+            <v-card-text class="text-xs-center">
+              <input type="file" accept="image/*" ref="imgUploader" @change="update('profile_picture')">
             </v-card-text>
             <v-card-text class="pt-0">
               <v-form
@@ -116,12 +119,13 @@
 </template>
 
 <script>
-import {mapState, mapGetters} from 'vuex'
+import {mapState, mapGetters, mapMutations} from 'vuex'
 import axios from 'axios'
 
 export default {
   data() { 
     return { 
+      profileUploadFile: "",
       passwordPrompt: false,
       updateLoading: false,
       api_url: process.env.API_URL,
@@ -150,7 +154,7 @@ export default {
       password: "",
       passwordRules: [
           v => !!v || 'Password is required',
-          v => (v && v.length > 6) || 'Password must be more than 6 characters.'
+          v => (v && v.length > 1) || 'Password must be more than 6 characters.'
       ],
       genderList: [
         "Male", "Female"
@@ -176,13 +180,17 @@ export default {
     //Updates the updateData object with the new values as long as it's not blank.
     update(field) {
       this.$nextTick(() => { 
-        this.$set(this.user, field, this.user[field].replace(/\s+/g, ''))
-        if(this.user[field] == this.userDefault[field] || this.user[field] == "") {
-          if(this.updateData[field] != null) { 
-            this.$delete(this.updateData, field)
-          }
+        if(field == 'profile_picture') { 
+          this.$set(this.updateData, field, this.$refs.imgUploader.files[0])
         } else { 
-          this.$set(this.updateData, field, this.user[field])
+          this.$set(this.user, field, this.user[field].replace(/\s+/g, ''))
+          if(this.user[field] == this.userDefault[field] || this.user[field] == "") {
+            if(this.updateData[field] != null) {
+              this.$delete(this.updateData, field)
+            }
+          } else { 
+            this.$set(this.updateData, field, this.user[field])
+          }
         }
       })
     },
@@ -224,7 +232,22 @@ export default {
 
     send() { 
       if(this.$refs.passwordForm.validate()) {
-        axios.patch(`${process.env.API_URL}/user/${this.userID}/`, this.updateData, this.getConfig)
+        let formData = new FormData()
+
+        Object.keys(this.updateData).forEach(key => {
+          console.log(key)
+          console.log(this.updateData[key])
+          formData.append(key, this.updateData[key])
+        });
+
+        for (var pair of formData.entries()) {
+    console.log(pair[0]+ ', ' + pair[1]); 
+}
+
+        let headerConfig = Object.assign(this.getConfig)        
+        headerConfig.headers['Content-Type'] = 'multipart/form-data'
+
+        axios.patch(`${process.env.API_URL}/user/${this.userID}/`, formData, headerConfig)
         .then((res) => {
           console.log(res)
           this.passwordPrompt = false
@@ -237,6 +260,7 @@ export default {
             }
           } else { 
             this.getUserData()
+            this.setProfilePic(res.data.profile_picture)
             this.updateLoading = false
             this.alertPrompt = {
               flag: true,
@@ -260,7 +284,11 @@ export default {
         this.$set(this.userDefault, 'password', '')
         this.user = Object.assign({}, this.userDefault)
       })
-    }
+    },
+
+    ...mapMutations('userModule', [
+      'setProfilePic'
+    ])
   }
 }
 </script>

@@ -177,14 +177,14 @@
                   </v-card-text>
                 </v-card>
               </v-flex>
-              <v-flex xs12 sm12 md6 lg7>
+              <!-- <v-flex xs12 sm12 md6 lg7>
                 <div v-if="ratings.length == 0">
                   <span class="grey--text text--darken-1">{{user.first_name}} hasn't received any ratings yet.</span>
                 </div>
                 <div v-for="rating in ratings" v-if="ratings.length > 0">
                   {{rating}}
                 </div>
-              </v-flex>
+              </v-flex> -->
             </v-layout>
           </v-flex>
         </v-layout>

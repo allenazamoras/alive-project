@@ -5,6 +5,10 @@ const mutations = {
     state.profilePic = user.profilePic,
     state.fullName = user.fullName,
     state.config = user.config
+  },
+
+  setProfilePic(state, profilePic) { 
+    state.profilePic = profilePic
   }
 }
 

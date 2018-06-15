@@ -1,9 +1,8 @@
 <template>
   <div>
     <v-container>
-      <v-layout>
-        <v-flex>
-          You're not logged in lol
+      <v-layout row wrap>
+        <v-flex xs12>
           <v-btn to="/login">
             Login
           </v-btn>

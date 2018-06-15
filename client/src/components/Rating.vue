@@ -59,6 +59,10 @@ export default {
     },
     userID: { 
       required: true
+    },
+
+    redirectTo: { 
+      default: null,
     }
   },
 
@@ -115,7 +119,10 @@ export default {
 
     .then((res) => { 
       this.$emit('update:flag', false)
-      console.log(res)
+
+      if(this.redirectTo != null) { 
+        this.$router.push(this.redirectTo)
+      }
     })
 
     .catch((res) => {
